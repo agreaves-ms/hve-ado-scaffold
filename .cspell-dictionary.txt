@@ -2,6 +2,7 @@ adrs
 assignedtome
 backticked
 chatmode
+chatmodes
 contravarience
 frontmatter
 pasteable
