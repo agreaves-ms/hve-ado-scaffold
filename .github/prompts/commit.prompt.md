@@ -11,12 +11,12 @@ Protocol:
 1. Stage all unstaged changes using ONLY: `git add -A` (no other git commands at this step).
 2. Use the `get_changed_files` tool to retrieve the now-staged changes (DO NOT use git diff / show / status / log / fetch / pull / push).
 3. Analyze the staged changes and produce a clean Conventional Commit message (per the commit message instructions file referenced above).
-4. Output the full commit message to the user inside a fenced `markdown` code block (same style as examples below). This output is the authoritative message.
-5. After outputting it, commit the staged changes using ONLY allowed git commands:
+4. Output a line to the user: `I will be making a commit with the following commit:` followed immediately by a blank line, then the full commit message inside a fenced `markdown` code block (same style as examples below). This output is the authoritative message.
+5. After printing that preview (without waiting for confirmation), commit the staged changes using ONLY allowed git commands:
   - Pipe the exact commit message (including body + footer emoji line) via STDIN: `echo "<full message>" | git commit -F -`.
   - Preserve newlines exactly; ensure the footer emoji line is the final line (file ends with a newline).
   - DO NOT run any other git commands (no push, pull, fetch, diff, show, status, log, branch, switch, merge, rebase, tag, etc.).
-6. Confirm success to the user with a short line AFTER the code block (e.g. `Commit created.`). Do not expose internal tool output unless an error occurs.
+6. After the commit succeeds, print a single confirmation sentence AFTER the code block (e.g. `Commit created.`). Do not expose internal tool output unless an error occurs.
 
 Rules & Constraints:
 - Allowed git commands: `git add -A`, `git commit -F -` (stdin) or `git commit -m` variants if single-line only (multi-line must use `-F -`). Nothing else.
@@ -31,8 +31,11 @@ Rules & Constraints:
 - Never wait for confirmation for any step in the Protocol.
 
 Output Format:
-- Always present the commit message first (if proceeding) exactly inside a fenced ```markdown code block.
-- After the code block, print a single confirmation sentence.
+- When proceeding (changes present):
+  - First print the exact line: `I will be making a commit with the following commit:`
+  - Then a blank line.
+  - Then the commit message inside a fenced ```markdown code block.
+  - After the code block, print a single confirmation sentence.
 - For no-change scenario, skip code block and print: `No changes to commit.`
 
 Example for a large change (structure illustration):
