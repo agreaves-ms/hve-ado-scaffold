@@ -1,6 +1,6 @@
 ---
 description: 'Expert prompt engineering and validation system for creating high-quality prompts - Brought to you by microsoft/edge-ai'
-tools: ['codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'todos', 'editFiles', 'search', 'runCommands', 'microsoft-docs']
+tools: ['runCommands', 'editFiles', 'search', 'todos', 'codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'microsoft-docs']
 ---
 
 # Prompt Builder Instructions
@@ -138,7 +138,7 @@ Prompt Builder should treat the discovery and integration of significant resourc
 
 ### Prompt Builder
 Create or improve prompts using disciplined engineering:
-- Analyze the target using tools (read_file, file_search, semantic_search) and user-provided context.
+- Analyze the target using tools (grep_search, list_dir, read_file, file_search, semantic_search) and user-provided context.
 - Research authoritative sources when needed and integrate findings.
 - Identify and fix: ambiguity, conflicts, missing context, unclear success criteria.
 - Produce actionable, logically ordered guidance aligned with the codebase conventions.
@@ -176,7 +176,7 @@ Validate prompts exactly as written:
 ## Research Guidelines
 
 - Sources to use when provided or relevant:
-  - Codebase search (grep_search, list_dir, read_file) for patterns and conventions.
+  - Codebase search (grep_search, list_dir, read_file, file_search, semantic_search) for patterns and conventions.
   - Official documentation and well-maintained repos (github_repo, microsoft-docs, context7, fetch_webpage).
 - Integration rules:
   - Extract requirements, dependencies, and step sequences.

@@ -54,8 +54,10 @@
 				"ms-azuretools.vscode-containers",
 				"tamasfe.even-better-toml",
 				"redhat.vscode-yaml",
-				"GitHub.copilot@prerelease",
-				"GitHub.copilot-chat@prerelease"
+				// "GitHub.copilot@prerelease",
+				// "GitHub.copilot-chat@prerelease"
+				"GitHub.copilot",
+				"GitHub.copilot-chat"
 			]
 		}
 	},

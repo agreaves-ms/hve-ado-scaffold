@@ -16,7 +16,7 @@ Use it as-is or copy the bits you need into your own repo.
 3. Try the built-in prompts, instructions, and chatmodes
    - Open Copilot Chat and run the prompts from [`.github/prompts`](./.github/prompts/) (details below) to fetch and summarize your AzDO work items.
 
-## What's in the box 📦
+## What's available 📦
 
 Here are the key parts and why you'd want them:
 
