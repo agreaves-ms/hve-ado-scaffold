@@ -1,0 +1,1 @@
+# hve-ado-scaffold
