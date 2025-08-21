@@ -194,4 +194,6 @@ git config --global mergetool.keepbackup false
 - Either all critical gaps fixed (identity + chosen editor/tooling completeness) or explicitly declined by user with clear notice.
 - Clear guidance for any remaining optional improvements (line endings, safe directory if applicable, signing if deferred).
 
+---
+
 Proceed by auditing the current Git configuration now by running the single baseline command above (no key or generation commands yet).
