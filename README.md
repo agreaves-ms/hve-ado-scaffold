@@ -25,7 +25,7 @@ Here are the key parts and why you'd want them:
 - [`.vscode/settings.json`](./.vscode/settings.json)
   - Enables Copilot Chat settings for this project and sets up auto-linting and auto-formatting, key parts to look at:
 
-    ```json
+    ```jsonc
     /*
         Important GitHub Copilot settings
     */
