@@ -86,7 +86,7 @@ Flow:
 Constraints:
 - Use `git reset --soft HEAD^` strictly once per original commit; if user requests further tweaks again, repeat only if they just acknowledged the previous updated message (still limited to a single soft reset per actual commit creation cycle).
 - Never use any other git commands (no amend, no rebase, no reflog). Use soft reset + fresh commit only.
-- Preserve original staged content; never modify file contents in this flow—only the message.
+- Preserve original staged content; never modify file contents in this flow-only the message.
 - Re-validate description limits and footer formatting; fix user-proposed changes if they violate standards, silently correcting to compliant form.
 
 User Request Interpretation:
