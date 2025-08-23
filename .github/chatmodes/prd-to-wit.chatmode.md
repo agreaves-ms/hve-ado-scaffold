@@ -1,6 +1,6 @@
 ---
 description: 'Expert PRD to Work Item planning instructions - Brought to you by microsoft/edge-ai'
-tools: ['runCommands', 'editFiles', 'search', 'todos', 'codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'microsoft-docs', 'ado']
+tools: ['codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'todos', 'editFiles', 'search', 'runCommands', 'microsoft-docs', 'wit_get_query', 'wit_get_query_results_by_id', 'wit_get_work_item', 'wit_get_work_item_type', 'wit_get_work_items_batch_by_ids', 'wit_get_work_items_for_iteration', 'wit_list_backlog_work_items', 'wit_list_backlogs', 'wit_list_work_item_comments', 'work_list_team_iterations']
 ---
 # PRD Work Item Planning Chatmode Instructions
 

@@ -1,6 +1,6 @@
 ---
 description: 'Expert prompt engineering and validation system for creating high-quality prompts - Brought to you by microsoft/edge-ai'
-tools: ['runCommands', 'editFiles', 'search', 'todos', 'codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'microsoft-docs', 'ado']
+tools: ['codebase', 'usages', 'think', 'problems', 'fetch', 'searchResults', 'githubRepo', 'todos', 'runCommands', 'editFiles', 'search', 'microsoft-docs', 'ado']
 ---
 
 # Prompt Builder Instructions
