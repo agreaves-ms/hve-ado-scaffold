@@ -1,119 +1,236 @@
 ---
-mode: 'agent'
-description: 'Summarize @Me work items from raw JSON and enrich with repo context'
+mode: "agent"
+description: "Generate a single comprehensive work item handoff markdown from latest raw assigned-to-me work items with repo context enrichment."
 ---
 
-# Summarize My Work Items (Resumable, With Repo Context)
+# Work Item Handoff (Repo-Enriched, Resumable, Markdown-Only)
 
-You WILL read the latest raw JSON produced by `get-my-work-items` and generate a resumable summary markdown. You WILL enrich each item with repository context by scanning code and docs. You WILL present a full summary for the top recommended item and brief summaries for the rest.
+You WILL read the latest raw JSON produced by `get-my-work-items` and generate ONE (1) comprehensive handoff markdown file (`*.handoff.md`). You WILL enrich items using repository context. Provide a deep, implementation-ready handoff section for the top recommendation, followed by structured handoff sections for every remaining work item (respecting optional max item cap). File must be idempotent & resumable.
+Represent structured data using well-formed markdown tables, bullet lists, and labeled inline segments for clarity and consistency.
 
 ## Inputs
-- ${input:rawPath}: Optional path to a specific raw file. If omitted, you WILL use the most recent `.copilot-tracking/workitems/*-assigned-to-me.raw.json`, must use list_dir on `.copilot-tracking/workitems/`.
-- ${input:summaryPath}: Optional output path. If omitted, you WILL write to `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.summary.md`, must use list_dir on `.copilot-tracking/workitems/` (matching the raw file date when available).
-- ${input:maxItems:all}: Optional cap on items summarized in this run (default all).
 
-## Resumable Behavior
-- If the summary file already exists, you WILL load it and determine which work item IDs are already summarized.
-- You WILL append new summaries for remaining items without duplicating existing entries.
-- You WILL preserve existing sections and formatting.
+- ${input:rawPath}: Optional explicit path to raw JSON; else discover latest `.copilot-tracking/workitems/*-assigned-to-me.raw.json` (use `list_dir`).
+- ${input:handoffPath}: Optional explicit output path (must end with `.handoff.md`). If omitted, derive `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.handoff.md` (date from raw file name or current UTC date if ambiguous).
+- ${input:maxItems:all}: Optional numeric cap; default all.
+- ${input:boostTags}: Optional comma/semicolon separated tags that, if present in an item, may elevate it to top recommendation.
+- ${input:forceTopId}: Optional specific ID to force as top recommendation (overrides boost logic if found).
 
-## Summarization Content Per Item
-For each item (in the server-side order from raw JSON):
-- Include: `Id`, `WorkItemType`, `Title`, `State`, `Priority`, `StackRank`, `Tags`, `AssignedTo`, `ChangedDate`, `Description`, `AcceptanceCriteria`, and `Parent` (if present).
-- Important details: call-outs that influence effort/sequence (e.g., blocked state, parent linkage).
-- Comments: summarize the comments (author and short excerpt) to capture context or blockers. Extract any stack traces or error snippets if present.
-- Stack Traces: any captured stack traces.
-- Error or Issue: any captured errors.
-- Repository context:
-  - Derive keywords from `Title`, `Tags`, `Description`, `AcceptanceCriteria`, `WorkItemType`, any captured stack traces, and clues from comments.
-  - Search the workspace for relevant files and references. Prefer exact matches, then keywords.
-  - Record at most the top 10 relevant file paths with a 1-line rationale each (first header/comment line or a short heuristic).
-  - Provide additional summary for all other related files.
-  - Provide helpful summary for implementation details.
+## Outputs
 
-## Required Output Structure (Summary Markdown)
-- Title: `Assigned to Me - Summary (YYYY-MM-DD)`
-- Section: `Top Recommendation`
-  - Full summary for the most relevant item to work on next. Default: first item from raw JSON order. You MAY boost an item if repo signals indicate strong relevance (more matches, critical tags).
-- Section: `Other Items`
-  - Bulleted list or short subsections with 2-3 line summaries, including key fields and 1-3 relevant file paths.
-- Section: `Progress`
-  - IDs summarized so far and remaining IDs (for resumability).
-- Section: `Next Step - Deep Research with task-researcher`
-  - Suggest the user start a new conversation using `task-researcher.chatmode.md` to perform deeper technical research and planning.
-  - Must output an explicit "Handoff Payload" for the user to copy-paste into the new conversation. The Handoff Payload MUST be EXACTLY the contents of the generated `.summary.json` for this run, with NO additional fields.
-  - The Handoff Payload MUST include:
-    - `topRecommendation`: the primary item to work on next
-    - `handoffPayloads`: a list of per-item payloads for every other summarized work item (so the user can choose any single item to research)
-  - Allowed fields per item (applies to `topRecommendation` and entries under `handoffPayloads`):
-    - `id` (work item id)
-    - `workItemType`
-    - `title`
-    - `description`
-    - `acceptanceCriteria`
-    - `commentsRelevant` (only relevant excerpts from comments)
-    - `stackTraces` (if present)
-    - `errorsOrIssues` (if present; concise messages or excerpts)
-    - `discoveredInfo` (all information discovered during summarization, including repository matches, notes, or context distilled by this prompt)
-      - Within `discoveredInfo`, you MAY include:
-        - `repoPaths`: array of objects `{ path, why }` listing the top relevant files
-        - `otherRelatedFilesSummary`: array of short lines summarizing other related files not listed in `repoPaths`
-        - `implementationDetails`: array of short, actionable implementation notes gleaned from the repository and comments
-        - `notes`: array of additional key insights
-    - `relatedItems`: array of closely related items (use the same allowed fields except `relatedItems` to avoid deep nesting)
-  - Instruct the user clearly: "Start a NEW conversation with task-researcher and paste the Handoff Payload EXACTLY as shown (the full contents of the .summary.json file). You may also copy a single item payload from `handoffPayloads` if you prefer to research a different item."
+### Handoff Content Requirements Per Item
 
-## Machine-Readable Summary (summary.json)
-You WILL also produce a machine-readable JSON artifact alongside the markdown summary. Write to `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.summary.json` (match the date used for the markdown file). The JSON MUST contain ONLY the allowed fields per item and no others, and MUST enable both the top recommendation and alternative single-item handoffs. Use this shape:
+Each work item section MUST surface enough context to transition directly into detailed technical research & planning.
 
-<!-- <schema-summary-json> -->
-```json
-{
-  "date": "YYYY-MM-DD",
-  "topRecommendation": {
-    "id": 0,
-    "workItemType": "",
-    "title": "",
-    "description": "",
-    "acceptanceCriteria": "",
-    "commentsRelevant": [
-      { "excerpt": "", "attribution": "Author <email>", "date": "YYYY-MM-DD" }
-    ],
-    "stackTraces": ["<trace line 1>\n<trace line 2>"],
-    "errorsOrIssues": ["short error description or excerpt"],
-    "discoveredInfo": {
-      "repoPaths": [{ "path": "src/...", "why": "short rationale" }],
-      "otherRelatedFilesSummary": ["file pattern or folder - why relevant"],
-      "implementationDetails": ["helpful implementation detail 1", "detail 2"],
-      "notes": ["key insight 1", "key insight 2"]
-    },
-    "relatedItems": [
-      { "id": 0, "workItemType": "", "title": "", "description": "", "acceptanceCriteria": "", "commentsRelevant": [], "stackTraces": [], "errorsOrIssues": [], "discoveredInfo": { "repoPaths": [], "otherRelatedFilesSummary": [], "implementationDetails": [], "notes": [] } }
-    ]
-  },
-  "handoffPayloads": [
-    { "id": 0, "workItemType": "", "title": "", "description": "", "acceptanceCriteria": "", "commentsRelevant": [], "stackTraces": [], "errorsOrIssues": [], "discoveredInfo": { "repoPaths": [], "otherRelatedFilesSummary": [], "implementationDetails": [], "notes": [] },
-      "relatedItems": [ { "id": 0, "workItemType": "", "title": "", "description": "", "acceptanceCriteria": "", "commentsRelevant": [], "stackTraces": [], "errorsOrIssues": [], "discoveredInfo": { "repoPaths": [], "otherRelatedFilesSummary": [], "implementationDetails": [], "notes": [] } } ]
-    }
-  ]
-}
+Include (when present):
+
+- Metadata: Id, WorkItemType, Title, State, Priority, StackRank, Parent, Tags (split semicolon/comma), AssignedTo, ChangedDate.
+- Narrative Summary: 2-5 sentence synthesized intent & desired outcome.
+- Description & Acceptance Criteria (verbatim or distilled if very long-retain critical bullet points).
+- Blockers / Risks: extraction from State/Reason/comments.
+- Comments Relevant: concise actionable excerpts with author + date `(Author - YYYY-MM-DD): excerpt`.
+- Stack Traces: fenced code block(s) when present.
+- Errors / Issues: bulleted list of distinct error messages or problem statements.
+- Repository Context:
+  - Top Files (≤10): `path` + short rationale.
+  - Other Related Files Summary: bullet lines for broader areas or patterns.
+  - Implementation Detail Leads: hypotheses, key functions/classes, integration points.
+  - Data / Config Touchpoints: env vars, config files, infra modules.
+  - Related Items: IDs with brief relation rationale (parent/child/sibling/feature).
+- Ready-to-Research Prompt Seed: concise markdown list (no code fence) capturing Objective, Unknowns, Candidate Files, Risks, Next Steps.
+
+Ordering: The top recommendation section appears first with deeper elaboration (may expand Implementation Detail Leads & Unknowns). Remaining items get a consistent but slightly more concise format.
+
+### Required Handoff Markdown File
+
+Do not duplicate full per-item details here.
+
+<!-- <handoff-structure> -->
+
+Top-level title:
+Assigned to Me - Handoff (YYYY-MM-DD)
+
+Sections (order MUST match):
+
+1. Top Work Item Recommendation Handoff
+2. Additional Work Item Handoffs
+3. Progress
+4. Next Step - Task Researcher Handoff
+
+#### Top Work Item Recommendation Handoff
+
+Heading format: `## Top Recommendation - WI {id} ({WorkItemType})`
+Subsections (suggested): Summary, Metadata Table, Description & Acceptance Criteria, Blockers / Risks, Comments Relevant, (optional) Stack Traces, (optional) Errors / Issues, Repository Context (Top Files, Other Related Files Summary, Implementation Detail Leads, Data / Config Touchpoints, Related Items), Ready-to-Research Prompt Seed (markdown bullet / label list: Objective, Unknowns, Candidate Files, Risks, Next Steps).
+
+#### Additional Work Item Handoffs
+
+Heading: `## WI {id} - {Title}` (truncate Title >80 chars with ellipsis). Condensed subsections: Summary, Metadata, Key Files (≤5), Blockers/Risks (if any), Implementation Detail Leads, Ready-to-Research Seed (bullet / label list: Objective, Unknowns, Candidate Files, Next Steps).
+
+#### Progress
+
+Counts: `Summarized: X / Total: Y` plus summarized ID list and remaining ID list.
+
+#### Next Step - Task Researcher Handoff
+
+Guidance: choose the Top Recommendation or any other Ready-to-Research Prompt Seed to begin next-phase research. Provide a consolidated Handoff Payload bullet list (no fenced code):
+
+- Top Recommendation ID: <id>
+- All Summarized IDs: <comma-separated list>
+- Date: YYYY-MM-DD
+
+<!-- </handoff-structure> -->
+
+#### Handoff File Naming Rules
+
+- Must end with `.handoff.md`.
+- Must reside in the SAME directory as the raw JSON file.
+- Date fragment (YYYYMMDD) MUST align with raw filename date if present; else use current UTC date.
+
+## Summarization Protocol
+
+Update the task list with the following:
+
+1. Discover / load raw JSON (validate structure: must contain `items`).
+2. Determine handoff path (input override or derived path).
+3. If file exists: parse existing headings to collect already summarized IDs.
+4. Determine top recommendation (precedence: `forceTopId` if valid -> boosted tag density -> first remaining).
+5. Do light research searching and reading existing files in codebase for top recommendation.
+6. Update the top recommendation and generate / append sections in required order.
+7. Add a summary section for the top recommendation that includes hand-off material that is everything needed to do deep task research.
+8. Write final path to conversation with counts (summarized vs total vs remaining).
+9. Do NOT create ANY `.summary.json` or other JSON artifacts.
+
+Important: If the user wants to use a different work item for a top recommendation then you must:
+  1. Remove the top recommendation.
+  2. Add the user's top recommendation.
+  3. Do light research for the new top recommendation from the user.
+  4. Add all information for the new top recommendation including hand-off material.
+
+Important: If the *.handoff.md document already exists then you must first read it in and continue with the existing document.
+
+### Resumable Behavior
+
+- If the handoff file already exists, parse existing section headers to determine already summarized IDs (pattern: `## WI {id} -`).
+- Append only missing items while preserving prior content verbatim.
+- Never duplicate a work item section. Maintain original order for existing sections; new sections follow in correct relative order of raw JSON.
+
+## Handoff Examples
+
+<!-- <example-top-recommendation-section> -->
+
+````markdown
+## Top Recommendation - WI 1234 (Bug)
+
+### Summary
+
+User sessions intermittently expire due to race in token refresh pipeline causing 401 cascades.
+
+### Metadata
+
+| Field     | Value            |
+| --------- | ---------------- |
+| State     | Active           |
+| Priority  | 1                |
+| StackRank | 12345            |
+| Parent    | 1200 (Feature)   |
+| Tags      | auth;performance |
+
+### Description & Acceptance Criteria
+
+<verbatim or distilled content>
+
+### Blockers / Risks
+
+- Potential data loss if refresh fails mid-transaction.
+
+### Comments Relevant
+
+John Doe - 2025-08-20: Observed spike in 401s after deployment.
+
+### Stack Traces
+
+```text
+TraceLine1
+TraceLine2
 ```
-<!-- </schema-summary-json> -->
-Notes:
-- `handoffPayloads` MUST include an entry for every summarized work item other than the `topRecommendation`, so users can copy any single payload.
-- `relatedItems` MUST list closely related tasks (for example: same Parent/Epic/Feature or directly linked items) to provide optional, contextual multi-item research.
-- Keep `commentsRelevant` concise, focusing only on actionable or context-setting excerpts. Include `stackTraces` only when observed.
-- Include `errorsOrIssues` when there are explicit errors, exceptions, or user-reported issues; keep excerpts short and informative.
-- Use `discoveredInfo.otherRelatedFilesSummary` for summarizing relevant files beyond the top list, and `discoveredInfo.implementationDetails` for practical notes that will help implementation.
 
-## File Operations
-1. Load raw JSON from `${input:rawPath}` or discover the latest file.
-2. Prepare/update `${input:summaryPath}`; ensure `.copilot-tracking/workitems/` exists.
-3. Write or append summaries as described. Maintain idempotency across runs.
-4. Also write `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.summary.json` using only the allowed fields defined above, including `topRecommendation` and `handoffPayloads` (each with their own `relatedItems`).
-5. Print the final `${input:summaryPath}` and the path to the `.summary.json` file, plus counts of summarized vs remaining items.
+### Errors / Issues
 
-## Edge Cases
-- Raw file missing or empty: inform the user and stop.
-- No repository matches: still produce summaries; mark `No strong file matches found` under relevant files.
-- Interrupted runs: subsequent runs MUST pick up remaining items without duplication.
+- 401 Unauthorized after token refresh
+
+### Repository Context
+
+**Top Files**
+
+1. src/auth/refresh.ts - Implements refresh logic suspected in race.
+2. src/middleware/session.ts - Consumes refreshed token.
+
+**Other Related Files Summary**
+
+- src/config/\* - Token TTL settings.
+
+**Implementation Detail Leads**
+
+- Add mutex around refresh sequence.
+
+**Data / Config Touchpoints**
+
+- ENV TOKEN_REFRESH_SKEW_MS
+
+**Related Items**
+
+- WI 1250 (Task) - Add integration tests.
+
+### Summary
+
+**Objective:** Eliminate race in token refresh to stop session invalidation spikes.
+**Unknowns:** Exact concurrency trigger; Impact on downstream cache
+**Candidate Files:** src/auth/refresh.ts; src/middleware/session.ts
+**Risks:** Session expiry cascade
+**Next Steps:** Instrument refresh path; Add lock or idempotent guard
+````
+
+<!-- </example-top-recommendation-section> -->
+
+<!-- <example-additional-item-section> -->
+
+```markdown
+## WI 1300 - Refactor logging adapter for async streams
+
+**Summary:** Logging adapter drops messages under high concurrency; refactor for backpressure.
+**Metadata:** State=Active | Priority=2 | StackRank=14000 | Type=Task | Parent=1200
+**Key Files:** src/logging/adapter.ts (drops messages), src/logging/queue.ts (enqueue latency)
+**Blockers/Risks:** Potential data loss; noisy retries.
+**Implementation Detail Leads:** Consider bounded channel; ensure flush on shutdown.
+**Ready-to-Research Prompt Seed:**
+Objective: Ensure lossless async logging
+Unknowns: Optimal buffer size
+Candidate Files: src/logging/adapter.ts
+Next Steps: Benchmark current drop rate
+```
+
+<!-- </example-additional-item-section> -->
+
+## Compliance Checklist
+
+<!-- <important-compliance-checklist-summarize-handoff> -->
+
+- [ ] Located latest raw JSON (or used provided rawPath)
+- [ ] Derived handoff path with .handoff.md extension in same directory
+- [ ] Resumed without duplicating existing WI sections
+- [ ] Selected top recommendation via forceTopId / boostTags / fallback order
+- [ ] Generated Top Recommendation section with all required subsections
+- [ ] Generated sections for ALL remaining (within maxItems) work items
+- [ ] Included Progress section with summarized & remaining IDs
+- [ ] Included Next Step section with minimal bullet-list Handoff Payload
+- [ ] All structured data rendered as well-formed markdown (tables, bullets, labeled lists)
+- [ ] Did NOT create ANY .summary.json or other JSON artifacts
+- [ ] Limited Top Files to ≤10, Additional Items Key Files to ≤5
+- [ ] Omitted empty sections (e.g., Stack Traces) when data absent
+- [ ] Truncated long headings (>80 chars)
+
+<!-- </important-compliance-checklist-summarize-handoff> -->
+
+---
+
+Proceed following the summarization protocol
