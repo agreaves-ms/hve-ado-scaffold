@@ -16,6 +16,18 @@ Represent structured data using well-formed markdown tables, bullet lists, and l
 - ${input:boostTags}: Optional comma/semicolon separated tags that, if present in an item, may elevate it to top recommendation.
 - ${input:forceTopId}: Optional specific ID to force as top recommendation (overrides boost logic if found).
 
+## Azure DevOps Comment Retrieval
+
+<!-- <ado-comment-tools> -->
+
+Use `mcp_ado_wit_list_work_item_comments` to fetch comments. If none, omit "Comments Relevant".
+
+Keep only materially useful units: problems, decisions, deployments, errors/stack traces (use fenced `text` block for multi-line), metrics, blockers. Skip social/duplicate or bot noise unless it adds unique technical data. Preserve exact error strings & file/config names.
+
+Format each unit as a bullet starting with `Author - YYYY-MM-DD:`. Split multiple units from one comment into separate bullets. Order by timestamp ascending. Omit section if no retained units.
+
+<!-- </ado-comment-tools> -->
+
 ## Outputs
 
 ### Handoff Content Requirements Per Item
