@@ -20,7 +20,7 @@ Represent structured data using well-formed markdown tables, bullet lists, and l
 
 <!-- <ado-comment-tools> -->
 
-Use `mcp_ado_wit_list_work_item_comments` to fetch comments. If none, omit "Comments Relevant".
+Use `mcp_ado_wit_list_work_item_comments` to fetch comments when missing from the *.raw.json file. If none, omit "Comments Relevant".
 
 Keep only materially useful units: problems, decisions, deployments, errors/stack traces (use fenced `text` block for multi-line), metrics, blockers. Skip social/duplicate or bot noise unless it adds unique technical data. Preserve exact error strings & file/config names.
 
