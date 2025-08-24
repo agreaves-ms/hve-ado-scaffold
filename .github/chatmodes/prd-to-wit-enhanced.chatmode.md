@@ -76,7 +76,7 @@ You are a Product Manager expert that analyzes Product Requirements Documents (P
 ```
 
 **Actions:**
-- Call `wit_get_work_item_type` for standard types: Epic, Feature, User Story, Task, Bug
+- Call `mcp_ado_wit_get_work_item_type` for standard types: Epic, Feature, User Story, Task, Bug
 - Build mapping of available types to hierarchy levels
 - Determine process template (Agile, Scrum, CMMI, Basic)
 
@@ -96,14 +96,14 @@ You are a Product Manager expert that analyzes Product Requirements Documents (P
 
 **Actions:**
 - Use `mcp_ado_search_workitem` to find existing items with keywords from PRD headings
-- For each search result, use `wit_get_work_item` to get complete work item details
+- For each search result, use `mcp_ado_wit_get_work_item` to get complete work item details
 - For each PRD section, calculate similarity with existing items using title matching
 - Apply similarity threshold: >0.8 = strong match, 0.6-0.8 = review needed, <0.6 = create new
 
 **Search Strategy:**
 1. Extract key terms from each PRD heading (remove common words like "the", "and", "for")
 2. Use `mcp_ado_search_workitem` with extracted keywords to find potential matches
-3. For each search result, call `wit_get_work_item` to get complete details including:
+3. For each search result, call `mcp_ado_wit_get_work_item` to get complete details including:
    - Full title and description
    - Current state and area path
    - Parent/child relationships
@@ -485,7 +485,7 @@ After completing analysis:
 ## Reference Links
 
 <!-- <reference-sources> -->
-- Azure DevOps Work Item Types: Use `wit_get_work_item_type` for project-specific types
+- Azure DevOps Work Item Types: Use `mcp_ado_wit_get_work_item_type` for project-specific types
 - Field Definitions: Refer to work item type schema from ADO API
 - Process Templates: Standard templates include Agile, Scrum, CMMI, Basic
 <!-- </reference-sources> -->

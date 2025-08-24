@@ -118,11 +118,11 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 
 **Execution Order:**
 
-1. **Create Epics** - Process all Epic-level items using `wit_create_work_item`
-2. **Create Features** - Process Feature-level items using `wit_add_child_work_items`
-3. **Create User Stories** - Process Story-level items using `wit_add_child_work_items`
-4. **Update Existing** - Modify matched items using `wit_update_work_items_batch`
-5. **Create Additional Links** - Establish cross-hierarchy relationships using `wit_work_items_link`
+1. **Create Epics** - Process all Epic-level items using `mcp_ado_wit_create_work_item`
+2. **Create Features** - Process Feature-level items using `mcp_ado_wit_add_child_work_items`
+3. **Create User Stories** - Process Story-level items using `mcp_ado_wit_add_child_work_items`
+4. **Update Existing** - Modify matched items using `mcp_ado_wit_update_work_items_batch`
+5. **Create Additional Links** - Establish cross-hierarchy relationships using `mcp_ado_wit_work_items_link`
 
 **Processing Rules:**
 
@@ -170,7 +170,7 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 
 **Link Processing:**
 
-- Use `wit_work_items_link` for all relationship creation
+- Use `mcp_ado_wit_work_items_link` for all relationship creation
 - Map temporary IDs to actual Azure DevOps work item IDs
 - Batch relationship operations (max 50 links per call)
 - Verify link creation success and log failures
@@ -276,18 +276,18 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Epics: Create individually to ensure proper parent context
 - Features: Batch by parent Epic (max 20 per Epic)
 - User Stories: Batch by parent Feature (max 20 per Feature)
-- Use `wit_create_work_item` for top-level, `wit_add_child_work_items` for children
+- Use `mcp_ado_wit_create_work_item` for top-level, `mcp_ado_wit_add_child_work_items` for children
 
 **Update Batching:**
 
 - Group updates by work item type
-- Maximum 50 work items per `wit_update_work_items_batch` call
+- Maximum 50 work items per `mcp_ado_wit_update_work_items_batch` call
 - Process updates after all creations complete
 
 **Link Batching:**
 
 - Group by link type (Parent, Related, etc.)
-- Maximum 50 links per `wit_work_items_link` call
+- Maximum 50 links per `mcp_ado_wit_work_items_link` call
 - Process links after all work items exist
 
 **Rate Limiting:**
