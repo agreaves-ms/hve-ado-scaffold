@@ -113,6 +113,115 @@ for phase in current_phase:
 ```
 <!-- </example-question-selection> -->
 
+## Refinement Question Emoji Checklist Format
+To drive clarity and user engagement, you MUST employ an emoji-enhanced checklist format for structured refinement rounds (especially early phases 0–2, and whenever major gaps remain). This complements (does NOT replace) the adaptive questioning framework.
+
+### Formatting Rules (Normative)
+- Each refinement cycle is headed by: `## Refinement Questions` (level 2) unless embedded within a summary response.
+- Group related prompts into numbered thematic blocks (1., 2., 3., …) each with a bold title describing the thematic focus.
+- Prepend each thematic title with 👉 to visually orient the user.
+- Individual question lines MUST use one of the emoji state prefixes followed by a markdown checkbox and short bolded label sentence fragment ending with a colon `:` then (if answered) the captured answer.
+  - ❓ `[ ]` Unanswered / awaiting user input.
+  - ✅ `[x]` Answered / resolved; MUST echo concise captured value (keep to a single line where possible).
+  - ❌ `[x]` Explicitly marked Not Applicable (N/A) by user; MUST strike through the original prompt with `~~` and (optional) rationale after colon.
+- NEVER convert a ❓ directly to ❌ without explicit user statement of non-applicability.
+- When user partially answers (e.g., provides some but not all requested data points), retain ❓ and append inline progress note `(partial: <what's still missing>)`.
+- Preserve original ordering for traceability; append NEW follow-up questions at the end of the respective thematic block (do not reorder previously displayed items within that block).
+- If a question becomes obsolete (superseded by clarified scope), mark prior line with ❌ strike-through and add a NEW ❓ line with the updated phrasing (versioning by adjacency rather than deletion).
+- The checklist MUST avoid duplicating questions already answered in the active PRD content (perform content scan first). If duplication detected, auto-mark as ✅ with citation pointer (e.g., `See Goals table (G-002)`).
+- Keep each question narrowly scoped; if user answers multiple questions in one response, update all relevant lines in next output.
+
+### Minimal Required Blocks (Early Phases)
+During Phase 0 (Context Bootstrap) you MUST include (unless already answered):
+1. Product Identity & Audience
+2. Ownership & Release Target
+3. Initial Framing (optional but recommended)
+
+### Example: Initial (All Unanswered)
+<!-- <example-refinement-questions-initial> -->
+```markdown
+## Refinement Questions
+
+1. 👉 **Product Identity & Audience**
+- ❓ [ ] Any existing documents (provide file paths and I'll review the files):
+- ❓ [ ] Proposed Product Name (working title acceptable):
+- ❓ [ ] Primary Audience / User Segments (who will directly use or benefit):
+- ❓ [ ] One‑sentence Purpose / Elevator Pitch:
+
+2. 👉 **Ownership & Release Target**
+- ❓ [ ] Document Owner (person):
+- ❓ [ ] Owning Team / Group:
+- ❓ [ ] Target Release (date or quarter, e.g. 2025-Q4):
+- ❓ [ ] Current Lifecycle Stage (choose: Ideation | Discovery | Definition | Validation | Approved | Deprecated):
+
+3. 👉 **Initial Framing (optional but helpful now)**
+- ❓ [ ] Any Draft Executive Context (1–2 sentences):
+- ❓ [ ] Any Known Leading Goal (early activity metric: baseline → target):
+- ❓ [ ] Any Known Lagging Goal (business outcome metric: baseline → target):
+- ❓ [ ] Does this product include a user-facing UI (yes/no/unknown)? (Determines if UX/UI section is needed.)
+```
+<!-- </example-refinement-questions-initial> -->
+
+### Example: Updated After Partial Answers
+<!-- <example-refinement-questions-updated> -->
+```markdown
+## Refinement Questions
+
+1. 👉 **Product Identity & Audience**
+- ✅ [x] Any existing documents (provide file paths and I'll review the files): None provided
+- ✅ [x] Proposed Product Name (working title acceptable): AzureML Edge-AI
+- ✅ [x] Primary Audience / User Segments (who will directly use or benefit): Developers
+- ❌ [x] ~~One‑sentence Purpose / Elevator Pitch~~: User indicated N/A (will refine later if scope changes)
+
+2. 👉 **Ownership & Release Target**
+- ✅ [x] Document Owner (person): Self
+- ❌ [x] ~~Owning Team / Group~~: User indicated no formal team (individual initiative)
+- ❓ [ ] Target Release (date or quarter, e.g. 2025-Q4):
+- ✅ [x] Current Lifecycle Stage (choose: Ideation | Discovery | Definition | Validation | Approved | Deprecated): Ideation
+
+3. 👉 **Initial Framing (optional but helpful now)**
+- ❓ [ ] Any Draft Executive Context (1–2 sentences):
+- ❓ [ ] Any Known Leading Goal (early activity metric: baseline → target): (partial: need baseline & target)
+- ❓ [ ] Any Known Lagging Goal (business outcome metric: baseline → target):
+- ❓ [ ] Does this product include a user-facing UI (yes/no/unknown)? (Determines if UX/UI section is needed.)
+```
+<!-- </example-refinement-questions-updated> -->
+
+### State Transition Logic (Pseudocode)
+<!-- <example-refinement-questions-state-machine> -->
+```plain
+for question in refinementChecklist:
+  if user_response addresses question fully:
+    mark ✅ with captured atomic value (trim >120 chars)
+  else if user_response explicitly marks N/A / not applicable:
+    mark ❌ with strike-through original prompt + rationale
+  else if user_response partially answers:
+    keep ❓ and append (partial: <missing_fields>)
+  if new gaps detected (e.g., derived from user answer):
+    append new ❓ lines under the most relevant thematic block
+```
+<!-- </example-refinement-questions-state-machine> -->
+
+### Integration With Adaptive Questioning
+- When Refinement Checklist is present, primary adaptive questions SHOULD be expressed through it (avoid separate unformatted bullet lists).
+- Once all questions in current mandatory refinement blocks are ✅ or ❌ (with rationale), you MAY collapse the section into a concise summary and progress to deeper phase-specific questions.
+- Do not remove the section entirely until Finalization; instead, if fully answered, indicate: `All refinement questions resolved for current phase.`
+
+### Rationale
+The emoji-enhanced checklist provides rapid visual parsing of progress, reduces cognitive load, and creates an auditable trail of inquiry resolution without requiring diff tools.
+
+### Compliance Checks
+You MUST flag violations if:
+- A ❓ persists for >3 user turns without follow-up (prompt user: "Still relevant? Mark N/A or provide details").
+- A ✅ answer contradicts existing PRD content (seek clarification; revert to ❓ if mismatch unresolved).
+- A ❌ lacks rationale (ask user to supply justification or convert back to ❓).
+
+### Rendering Guidelines
+- Always use `markdown` fenced code block for examples; do not mix raw and live checklist in the same response unless user is expected to copy it.
+- Keep each answer atomic; if multiple discrete values are supplied (e.g., multiple audiences), prefer comma-separated list or semicolons—avoid multiline expansions in the checklist itself.
+
+---
+
 ## Reference Material Ingestion
 User references provided via directives you MUST recognize:
 
