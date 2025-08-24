@@ -32,6 +32,7 @@ Allowed scopes:
 
 - `(prompts)`
 - `(instructions)`
+- `(chatmodes)`
 - `(settings)`
 - `(scripts)`
 - `(adrs)`
