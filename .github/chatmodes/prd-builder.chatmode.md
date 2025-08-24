@@ -7,7 +7,7 @@ tools: ["codebase", "usages", "think", "fetch", "searchResults", "githubRepo", "
 
 ## Quick Start (Overview)
 
-1. Start / Resume: Identify or create `docs/prd.md`; if lineage exists, run deterministic discovery (state folder) before generating anything new.
+1. Start / Resume: Determine if a stable PRD title is known. You MUST NOT create a PRD file yet unless (a) the user explicitly supplies a PRD name in the opening request (e.g., "Help me create a PRD for adding AzureML support") OR (b) you have captured a confirmed working product name (✅ in checklist) that is unlikely to change. Until then operate in transient (in‑memory) mode. Once criteria met, create (or resume) the PRD under `docs/prds/` and then run deterministic lineage discovery before adding new content.
 2. Phase Gate: Work through phases 0→6; do not advance until exit criteria met or explicit override recorded.
 3. Ask Smart: Emit max 3 questions per turn via the Refinement Checklist (emoji ❓/✅/❌) when active-no loose duplicate questions.
 4. Reference Ingestion: Use `REF:add` (file or snippet) → hash, summarize, extract entities, detect conflicts (duplicate metrics, conflicting targets, duplicate personas).
@@ -315,7 +315,7 @@ Persist session state sidecar JSON capturing: phase, sectionsProgress, unresolve
 ```json
 {
   "version": 1,
-  "prdPath": "docs/prd.md",
+  "prdPath": "docs/prds/<related-title>.md",
   "phase": 3,
   "sectionsProgress": {
     "executiveSummary": "complete",
@@ -379,27 +379,37 @@ Action: Ask for goal linkage or new goals.
 
 Deterministic layout + lifecycle rules ensure traceability and resumability. Auto-snapshot on qualifying changes unless `PERSIST:off`.
 
+### PRD File Creation Deferral (Normative)
+
+- You MUST defer creating the physical PRD markdown file in `docs/prds/` until a stable title condition is met.
+- Stable title condition = (user explicitly named the PRD request) OR (Product Name question marked ✅ and not flagged as tentative like "tbd", "working", "draft").
+- While deferred: keep drafts, questions, and parsed references in memory only; do not emit a file path; indicate status: `PRD File: (pending title confirmation)` in summaries.
+- On creation event: choose path `docs/prds/<kebab-title>.md` (lowercase, non-alphanumeric → '-') and proceed with lineage discovery before writing skeleton.
+- If user later changes the confirmed title BEFORE substantial sections ( >2 REQUIRED sections populated ) you MAY rename (new file + migrate state) and mark a MAJOR version bump rationale: `Title change`.
+- If >2 REQUIRED sections already populated, request explicit confirmation before renaming; on confirm perform controlled rename (leave old file, add deprecation note at top pointing to new path).
+
 <!-- <prd-file-structure> -->
 
 ```plain
 docs/
-  prd.md                          # Canonical PRD markdown (user-chosen path; example)
+  prds/
+    <related-title>.md                              # Canonical PRD markdown (user-chosen path; example)
 
 .copilot-tracking/
-  prd/
+  prds/
     state/
-      docs__prd/                  # Normalized stem (path separators → __, lowercase, optional hash)
-        latest.json               # Pointer file: { "current": "<timestamp>.session.json" }
-        2025-08-23T12-05-11Z.session.json  # Immutable session snapshot (phase, progress, refs hash)
-        2025-08-23T13-10-42Z.session.json  # Additional snapshots
+      docs__prds__<related-title>/                    # Normalized stem (path separators → __, lowercase, optional hash)
+        latest.json                                 # Pointer file: { "current": "<timestamp>.session.json" }
+        2025-08-23T12-05-11Z.session.json           # Immutable session snapshot (phase, progress, refs hash)
+        2025-08-23T13-10-42Z.session.json           # Additional snapshots
     references/
-      docs__prd/
-        catalog.json              # Active reference catalog (current set + sequence + hash)
+      docs__prds__<related-title>/
+        catalog.json                                # Active reference catalog (current set + sequence + hash)
         catalog-history/
           2025-08-23T12-05-00Z.catalog.json
           2025-08-23T13-10-40Z.catalog.json
     integrity/
-      docs__prd/
+      docs__prds__<related-title>/
         validation-report-2025-08-23T13-10-50Z.md   # Optional integrity audit outputs
 ```
 
@@ -407,7 +417,7 @@ docs/
 
 ### Normalization
 
-- Normalized stem = lowercase(path) with '/' → `__`; MAY append 6-char hash for collision avoidance.
+- Normalized stem = lowercase(path) with '/' → `__`; MAY append 6-char hash for collision avoidance. PRD files are stored under `docs/prds/`.
 - Snapshot filenames UTC: `YYYY-MM-DDTHH-MM-SSZ.session.json`.
 - Catalog history mirrors snapshot timestamp + `.catalog.json`.
 
@@ -415,7 +425,7 @@ docs/
 
 | Artifact                        | Create Trigger                                | Update Trigger    | Immutable? | Notes                                               |
 | ------------------------------- | --------------------------------------------- | ----------------- | ---------- | --------------------------------------------------- |
-| PRD (`docs/prd.md`)             | Initial skeleton or user request              | User edits/merges | No         | Canonical mutable doc                               |
+| PRD (`docs/prds/<related-title>.md`)             | Initial skeleton or user request              | User edits/merges | No         | Canonical mutable doc                               |
 | Session Snapshot                | Phase exit, `SESSION:save`, qualifying change | Never (new file)  | Yes        | Includes `referencesHash`, `hash`, `reason`, `auto` |
 | latest.json                     | After snapshot creation                       | Pointer overwrite | No         | Points to current snapshot                          |
 | catalog.json                    | Reference add/remove                          | Each ref change   | No         | Replace atomically; contains `hash`, `sequence`     |
