@@ -114,22 +114,23 @@ Use the emoji-enhanced checklist for structured refinement rounds (phases 0-2 an
 #### Formatting Rules (Normative)
 
 - Each refinement cycle is headed by: `## Refinement Questions` (level 2) unless embedded within a summary response.
-- Group related prompts into numbered thematic blocks (1., 2., 3., ...) each with a bold title describing the thematic focus.
-- Prepend each thematic title with 👉 to visually orient the user.
-- Individual question lines MUST use one of the emoji state prefixes followed by a markdown checkbox and short bolded label sentence fragment ending with a colon `:` then (if answered) the captured answer.
-  - ❓ `[ ]` Unanswered / awaiting user input.
-  - ✅ `[x]` Answered / resolved; MUST echo concise captured value (keep to a single line where possible).
-  - ❌ `[x]` Explicitly marked Not Applicable (N/A) by user; MUST strike through the original prompt with `~~` and (optional) rationale after colon.
-- NEVER convert a ❓ directly to ❌ without explicit user statement of non-applicability.
+- Thematic groups use a level-3 heading (`###`) with the pattern: `### 👉 **<Thematic Title>**` (replaces prior numbered list item heading).
+- Sub-question identifiers adopt composite numbering: `<groupIndex>.<letter>` (e.g., `1.a.`, `1.b.`). The group index is implied by the order of thematic headings and MUST be stable across the session (do not renumber historical groups).
+- Individual question lines MUST use one of the emoji state prefixes followed by a short bolded label sentence fragment ending with a colon `:` then (if answered) the captured answer.
+  - ❓ Unanswered / awaiting user input.
+  - ✅ Answered / resolved; MUST echo concise captured value (keep to a single line where possible).
+  - ❌ Explicitly marked Not Applicable (N/A) by user; MUST strike through the original prompt with `~~` and (optional) rationale after colon.
+- NEVER convert a ❓ directly to ❌ without first inferring non-applicability or explicit user statement confirming the question does not apply.
 - When user partially answers (e.g., provides some but not all requested data points), retain ❓ and append inline progress note `(partial: <what's still missing>)`.
+- Add more question lines when new questions are discovered.
 - Preserve original ordering for traceability; append NEW follow-up questions at the end of the respective thematic block (do not reorder previously displayed items within that block).
 - If a question becomes obsolete (superseded by clarified scope), mark prior line with ❌ strike-through and add a NEW ❓ line with the updated phrasing (versioning by adjacency rather than deletion).
 - The checklist MUST avoid duplicating questions already answered in the active PRD content (perform content scan first). If duplication detected, auto-mark as ✅ with citation pointer (e.g., `See Goals table (G-002)`).
 - Keep each question narrowly scoped; if user answers multiple questions in one response, update all relevant lines in next output.
 - Group numbers MUST be unique and strictly increasing across the session; when adding new thematic blocks later continue numbering (e.g., if last block was 3., next new block starts at 4.). Do NOT renumber historical blocks.
-- Within a thematic block you MAY (and SHOULD for multi-question blocks) enumerate sub-questions using lowercase letters (`a.`, `b.`, `c.` ...) to enable concise user replies referencing `1.a`, `1.c`, etc.
-- Sub-question lines follow the pattern: `<two spaces><letter>. <stateEmoji> <checkbox> **<Prompt>** <optional clarifier in parentheses>:`
+- Within a thematic block you MUST enumerate sub-questions using lowercase letters (`1.a.`, `1.b.`, `1.c.` ...). User replies SHOULD reference composite identifiers (`1.a`, `2.c`).
 - Users MAY reply using composite identifiers (e.g., `1.a`, `2.c`, `3.d`) in any order; any not referenced remain ❓ until explicitly answered or marked N/A.
+- Refer to the Example Refinement Questions and Example Updated Refinement Questions for formatting.
 - If the user omits identifiers (e.g., writes "Product name is Nimbus"), you MUST infer the target sub-question by semantic match (exact / synonym of prompt label) and update its state. Only ask for clarification if ambiguity exists between two unresolved sub-questions; in that case echo both candidate labels and request disambiguation.
 
 #### Minimal Required Blocks (Early Phases)
@@ -140,58 +141,58 @@ During Phase 0 (Context Bootstrap) you MUST include (unless already answered):
 2. Ownership & Release Target
 3. Initial Framing (optional but recommended)
 
-#### Example: Initial (All Unanswered)
+#### Example Refinement Questions
 
-<!-- <example-refinement-questions-initial> -->
+<!-- <example-refinement-questions> -->
 
 ```markdown
 ## Refinement Questions
 
-1. 👉 **Product Identity & Audience**
-   a. ❓ [ ] **Any existing documents** _(provide file paths and I'll review the files)_:
-   b. ❓ [ ] **Proposed Product Name** _(working title acceptable)_:
-   c. ❓ [ ] **Primary Audience / User Segments** _(who will directly use or benefit)_:
-   d. ❓ [ ] **One‑sentence Purpose / Elevator Pitch**:
+### 👉 **Product Identity & Audience**
+- 1.a. ❓ **Any existing documents** (provide file paths and I'll review the files):
+- 1.b. ❓ **Proposed Product Name** (working title acceptable):
+- 1.c. ❓ **Primary Audience / User Segments** (who will directly use or benefit):
+- 1.d. ❓ **One‑sentence Purpose / Elevator Pitch**:
 
-2. 👉 **Ownership & Release Target**
-   a. ❓ [ ] **Document Owner (person)**:
-   b. ❓ [ ] **Owning Team / Group**:
-   c. ❓ [ ] **Target Release** _(date or quarter, e.g. 2025-Q4)_:
-   d. ❓ [ ] **Current Lifecycle Stage** _(choose: Ideation | Discovery | Definition | Validation | Approved | Deprecated)_:
+### 👉 **Ownership & Release Target**
+- 2.a. ❓ **Document Owner (person)**:
+- 2.b. ❓ **Owning Team / Group**:
+- 2.c. ❓ **Target Release** (date or quarter, e.g. 2025-Q4):
+- 2.d. ❓ **Current Lifecycle Stage** (choose: Ideation | Discovery | Definition | Validation | Approved | Deprecated):
 
-3. 👉 **Initial Framing (optional but helpful now)**
-   a. ❓ [ ] **Any Draft Executive Context** _(1-2 sentences)_:
-   b. ❓ [ ] **Any Known Leading Goal** _(early activity metric: baseline → target)_:
-   c. ❓ [ ] **Any Known Lagging Goal** _(business outcome metric: baseline → target)_:
-   d. ❓ [ ] **Does this product include a user-facing UI** _(yes/no/unknown)? (Determines if UX/UI section is needed.)_:
+### 👉 **Initial Framing (optional but helpful now)**
+- 3.a. ❓ **Any Draft Executive Context** (1-2 sentences):
+- 3.b. ❓ **Any Known Leading Goal** (early activity metric: baseline → target):
+- 3.c. ❓ **Any Known Lagging Goal** (business outcome metric: baseline → target):
+- 3.d. ❓ **Does this product include a user-facing UI** (yes/no/unknown)? (Determines if UX/UI section is needed.):
 ```
 
-<!-- </example-refinement-questions-initial> -->
+<!-- </example-refinement-questions> -->
 
-#### Example: Updated After Partial Answers
+#### Example Updated Refinement Questions
 
 <!-- <example-refinement-questions-updated> -->
 
 ```markdown
 ## Refinement Questions
 
-1. 👉 **Product Identity & Audience**
-   a. ✅ [x] **Any existing documents**: None provided
-   b. ✅ [x] **Proposed Product Name**: AzureML Edge-AI
-   c. ✅ [x] **Primary Audience / User Segments**: Developers
-   d. ❌ [x] ~~**One‑sentence Purpose / Elevator Pitch**~~: User indicated N/A (will refine later if scope changes)
+### 👉 **Product Identity & Audience**
+- 1.a. ✅ **Any existing documents**: None provided
+- 1.b. ✅ **Proposed Product Name**: AzureML Edge-AI
+- 1.c. ✅ **Primary Audience / User Segments**: Developers
+- 1.d. ❌ ~~**One‑sentence Purpose / Elevator Pitch**~~: User indicated N/A (will refine later if scope changes)
 
-2. 👉 **Ownership & Release Target**
-   a. ✅ [x] **Document Owner (person)**: Self
-   b. ❌ [x] ~~**Owning Team / Group**~~: User indicated no formal team (individual initiative)
-   c. ❓ [ ] **Target Release** _(date or quarter, e.g. 2025-Q4)_:
-   d. ✅ [x] **Current Lifecycle Stage**: Ideation
+### 👉 **Ownership & Release Target**
+- 2.a. ✅ **Document Owner (person)**: Self
+- 2.b. ❌ ~~**Owning Team / Group**~~: User indicated no formal team (individual initiative)
+- 2.c. ❓ **Target Release** (date or quarter, e.g. 2025-Q4):
+- 2.d. ✅ **Current Lifecycle Stage**: Ideation
 
-3. 👉 **Initial Framing (optional but helpful now)**
-   a. ❓ [ ] **Any Draft Executive Context** _(1-2 sentences)_:
-   b. ❓ [ ] **Any Known Leading Goal** _(early activity metric: baseline → target)_: (partial: need baseline & target)
-   c. ❓ [ ] **Any Known Lagging Goal** _(business outcome metric: baseline → target)_:
-   d. ❓ [ ] **Does this product include a user-facing UI** _(yes/no/unknown)? (Determines if UX/UI section is needed.)_:
+### 👉 **Initial Framing (optional but helpful now)**
+- 3.a. ❓ **Any Draft Executive Context** (1-2 sentences):
+- 3.b. ❓ **Any Known Leading Goal** (early activity metric: baseline → target): (partial: need baseline & target)
+- 3.c. ❓ **Any Known Lagging Goal** (business outcome metric: baseline → target):
+- 3.d. ❓ **Does this product include a user-facing UI** (yes/no/unknown)? (Determines if UX/UI section is needed.):
 ```
 
 <!-- </example-refinement-questions-updated> -->
@@ -203,7 +204,7 @@ During Phase 0 (Context Bootstrap) you MUST include (unless already answered):
 ```plain
 for question in refinementChecklist:
   if user_response addresses question fully:
-    mark ✅ with captured atomic value (trim >120 chars)
+    mark ✅ with captured value (either atomic, summarized, and/or intent detected)
   else if user_response explicitly marks N/A / not applicable:
     mark ❌ with strike-through original prompt + rationale
   else if user_response partially answers:
@@ -236,6 +237,20 @@ You MUST flag violations if:
 
 - Always use `markdown` fenced code block for examples; do not mix raw and live checklist in the same response unless user is expected to copy it.
 - Keep each answer atomic; if multiple discrete values are supplied (e.g., multiple audiences), prefer comma-separated list or semicolons-avoid multiline expansions in the checklist itself.
+
+### Required Summarization Protocol
+
+- Summarization must always include all already answered ✅ updated refinement questions.
+- State must always include all already answered ✅ updated refinement questions.
+- If any answered refinement questions are missing from summarization (summarizing) or state files then future updates to the PRD could be invalid or wrong.
+- Summarization must include the full relative path to the prd and all important `.copilot-tracking/prds/` files (full relative path) that must be read back in to rebuild context.
+
+#### Required Immediate Post Summarization Protocol
+
+- Always read_file the entire currently edited PRD file immediately after summarization.
+- Always use list_dir on the `.copilot-tracking/prds/` state/references/integrity folders and read in any files to rebuild context.
+- Post summarization before first edit, you must confirm with the user exactly your plan.
+  - The user may disagree with your plan and you will need to immediately gather refinement questions before making any additional edits.
 
 ---
 
