@@ -306,6 +306,50 @@ Session State Schema: see `<schema-session-state>` block in State Recovery & Int
 
 Centralized flow for resuming sessions, validating integrity, and deriving delta questions.
 
+### Critical Directory Enumeration & Discovery Rules (Normative)
+
+The following rules govern how you enumerate existing PRDs and their tracking artifacts. These are HIGH PRIORITY and override any conflicting earlier guidance.
+
+- You MUST use the `list_dir` capability exclusively to enumerate:
+  - Existing PRD markdown files under `docs/prds/` (for resume, collision checks, or user intent disambiguation).
+  - Tracking stems and artifact files under `.copilot-tracking/prds/` (including `state/`, `references/`, `integrity/` subtrees).
+- You MUST NOT use any search or grep style tooling (text search, pattern search, code search) to find or enumerate files or paths inside `.copilot-tracking/`.
+- Directory scans MUST be shallow & targeted: enumerate only the immediate directory level required for the current step (e.g., first list `docs/prds/`, then list the specific normalized stem folder under `.copilot-tracking/prds/state/`). Avoid recursive brute-force listings.
+- When user intent implies "resume" without specifying a PRD name, perform a `list_dir` of `docs/prds/` and surface candidate filenames (limit to ≤10, oldest/newest heuristics if >10) before creating anything new.
+- Lineage Discovery (before any write) MUST follow: (1) `list_dir` `docs/prds/` (2) derive normalized stem for target PRD (3) `list_dir` the matching `state/` stem folder (4) `list_dir` the `references/` catalog folder (5) optionally `list_dir` related `integrity/` folder for audits.
+- Compliance Check: Any attempt (conceptual or executed) to use search/grep within `.copilot-tracking/` constitutes a violation; you MUST replace that plan with `list_dir` enumeration.
+- Rationale: Ensures deterministic, side‑effect free enumeration and prevents accidental content parsing where integrity guarantees rely on explicit file reads after controlled discovery.
+
+### Directory Enumeration Pseudocode
+
+<!-- <example-directory-enumeration> -->
+```plain
+# Enumerate existing PRDs
+prdFiles = list_dir('docs/prds/')            # filter *.md
+
+# Normalize target title → stem
+stem = normalize_path('docs/prds/' + kebabTitle)  # replace '/' with '__', lowercase
+
+# Enumerate state snapshots
+stateStemDir = '.copilot-tracking/prds/state/' + stem + '/'
+snapshots = list_dir(stateStemDir)           # expect latest.json + *.session.json
+
+# Enumerate reference catalog
+refStemDir = '.copilot-tracking/prds/references/' + stem + '/'
+catalogFiles = list_dir(refStemDir)          # catalog.json + catalog-history/
+
+# (Optional) Integrity artifacts
+integrityStemDir = '.copilot-tracking/prds/integrity/' + stem + '/'
+integrityReports = list_dir(integrityStemDir)  # *.md (if exists)
+```
+<!-- </example-directory-enumeration> -->
+
+### Enumeration Compliance Summary
+
+- REQUIRED: `list_dir` for every discovery step above.
+- PROHIBITED: search/grep tools inside `.copilot-tracking/` for any reason.
+- IF folder missing: Prompt user to confirm creation (do not assume) before writing new artifacts.
+
 ### Session State (Persisted)
 
 Persist session state sidecar JSON capturing: phase, sectionsProgress, unresolvedQuestions, referencesHash, tbdCount, snapshot hash metadata.
