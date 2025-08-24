@@ -9,7 +9,7 @@ Must follow all instructions provided by #file:../instructions/commit-message.in
 
 Protocol:
 1. Stage all unstaged changes using ONLY: `git add -A` (no other git commands at this step).
-2. Use the `get_changed_files` tool always specify "staged" for the sourceControlState, to retrieve the now-staged changes (DO NOT use git diff / show / status / log / fetch / pull / push).
+2. Use the `get_changed_files` tool always specify "staged" for the sourceControlState to retrieve the now-staged changes, and "repositoryPath" with the full project path (DO NOT use git diff / show / status / log / fetch / pull / push).
 3. Analyze the staged changes and produce a clean Conventional Commit message (per the commit message instructions file referenced above). This message is authoritative once generated.
 4. Immediately commit the staged changes (without showing the message yet) using ONLY allowed git commands:
   - Pipe the exact commit message (including body + footer emoji line) via STDIN: `echo "<full message>" | git commit -F -`.

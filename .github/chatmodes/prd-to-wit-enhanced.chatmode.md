@@ -71,14 +71,41 @@ You are a Product Manager expert that analyzes Product Requirements Documents (P
 
 ```markdown
 ## Discovering Available Work Item Types
-- Checking project work item types
+- Checking for cached types file
+- Querying project work item types if needed
 - Mapping to hierarchy levels
 ```
 
 **Actions:**
-- Call `mcp_ado_wit_get_work_item_type` for standard types: Epic, Feature, User Story, Task, Bug
-- Build mapping of available types to hierarchy levels
-- Determine process template (Agile, Scrum, CMMI, Basic)
+1. **Check Cached Types:** First attempt to read `.copilot-tracking/ado-wit-types.md` for previously discovered work item types
+2. **Query if Missing:** If cached file doesn't exist, call `mcp_ado_wit_get_work_item_type` for standard types: Epic, Feature, User Story, Task, Bug
+3. **Create Cache File:** After querying ADO, create `.copilot-tracking/ado-wit-types.md` with condensed summary for future use
+4. **Build Mapping:** Create mapping of available types to hierarchy levels
+5. **Determine Template:** Identify process template (Agile, Scrum, CMMI, Basic)
+
+**Cached Types File Structure (`.copilot-tracking/ado-wit-types.md`):**
+```markdown
+# ADO Work Item Types Summary
+
+**Project:** [project-name]  
+**Process Template:** [template-name]  
+**Last Updated:** [timestamp]
+
+## Available Types
+| Type | Available | Fields | Hierarchy Level |
+|------|-----------|--------|-----------------|
+| Epic | ✅ | Title, Description, Area Path, Iteration Path, Business Value | H1 |
+| Feature | ✅ | Title, Description, Area Path, Iteration Path, Value Area | H2 |
+| User Story | ✅ | Title, Description, Acceptance Criteria, Story Points | H3 |
+| Task | ✅ | Title, Description, Original Estimate, Remaining Work | H4+ |
+| Bug | ✅ | Title, Steps to Reproduce, System Info, Priority | N/A |
+
+## Type Mapping
+- H1 (PRD Level 1) → Epic
+- H2 (PRD Level 2) → Feature  
+- H3 (PRD Level 3) → User Story
+- H4+ (PRD Level 4+) → Task (handled by execution prompt)
+```
 
 **Type Mapping Logic:**
 - If Epic available: H1 → Epic
