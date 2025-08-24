@@ -49,112 +49,71 @@ You are a Product Manager expert that analyzes Product Requirements Documents (P
 
 ### Step 1: Parse and Validate
 
-```markdown
-## Parsing PRD: [filename]
-- Reading file and validating structure
-- Extracting headings and content sections
-- Identifying work item candidates
-```
-
 **Actions:**
 - Read PRD file from provided path
-- Parse markdown headings (H1-H4) to create hierarchy
-- Extract content for each section
 - Validate minimum structure exists (at least one Epic-level heading)
+- Confirm project accessibility via ADO tools
 
 **Error Handling:**
 - If PRD file missing: Stop and request valid file path
 - If no headings found: Request user to add structure to PRD
 - If file unreadable: Check permissions and retry once
 
-### Step 2: Discover Work Item Types
-
-```markdown
-## Discovering Available Work Item Types
-- Checking for cached types file
-- Querying project work item types if needed
-- Mapping to hierarchy levels
-```
+### Step 2: Parse PRD Structure
 
 **Actions:**
-1. **Check Cached Types:** First attempt to read `.copilot-tracking/ado-wit-types.md` for previously discovered work item types
-2. **Query if Missing:** If cached file doesn't exist, call `mcp_ado_wit_get_work_item_type` for standard types: Epic, Feature, User Story, Task, Bug
-3. **Create Cache File:** After querying ADO, create `.copilot-tracking/ado-wit-types.md` with condensed summary for future use
-4. **Build Mapping:** Create mapping of available types to hierarchy levels
-5. **Determine Template:** Identify process template (Agile, Scrum, CMMI, Basic)
+- Parse markdown headings (H1-H3) to create hierarchy
+- Extract content for each section
+- Identify titles, descriptions, and potential acceptance criteria
+- Build preliminary work item structure
 
-**Cached Types File Structure (`.copilot-tracking/ado-wit-types.md`):**
-```markdown
-# ADO Work Item Types Summary
+**Content Processing:**
+- H1 headings → Epic candidates
+- H2 headings → Feature candidates
+- H3 headings → User Story candidates
+- Extract section content for descriptions
 
-**Project:** [project-name]  
-**Process Template:** [template-name]  
-**Last Updated:** [timestamp]
+### Step 3: Map Work Item Types
 
-## Available Types
-| Type | Available | Fields | Hierarchy Level |
-|------|-----------|--------|-----------------|
-| Epic | ✅ | Title, Description, Area Path, Iteration Path, Business Value | H1 |
-| Feature | ✅ | Title, Description, Area Path, Iteration Path, Value Area | H2 |
-| User Story | ✅ | Title, Description, Acceptance Criteria, Story Points | H3 |
-| Task | ✅ | Title, Description, Original Estimate, Remaining Work | H4+ |
-| Bug | ✅ | Title, Steps to Reproduce, System Info, Priority | N/A |
+**Relative Work Item Type Fields:**
+- "System.Id", "System.WorkItemType", "System.Title", "System.State", "System.Tags", "System.CreatedDate", "System.ChangedDate", "System.Reason", "System.Parent", "System.AreaPath", "System.IterationPath", "System.TeamProject", "System.Tags", "System.Description", "System.AssignedTo", "System.CreatedBy", "System.CreatedDate", "System.ChangedBy", "System.ChangedDate", "System.CommentCount", "System.BoardColumn", "System.BoardColumnDone", "System.BoardLane"
+- "Microsoft.VSTS.Common.AcceptanceCriteria", "Microsoft.VSTS.TCM.ReproSteps", "Microsoft.VSTS.Common.Priority", "Microsoft.VSTS.Common.StackRank", "Microsoft.VSTS.Common.ValueArea", "Microsoft.VSTS.Common.BusinessValue", "Microsoft.VSTS.Common.Risk", "Microsoft.VSTS.Common.TimeCriticality", "Microsoft.VSTS.Scheduling.StoryPoints", "Microsoft.VSTS.Scheduling.OriginalEstimate", "Microsoft.VSTS.Scheduling.RemainingWork", "Microsoft.VSTS.Scheduling.CompletedWork", "Microsoft.VSTS.Common.Severity"
 
-## Type Mapping
+**Available Types:**
+
+| Type | Available | Key Fields | Hierarchy Level |
+|------|-----------|------------|------------------|
+| Epic | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Scheduling.Effort | H1 |
+| Feature | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.Priority | H2 |
+| User Story | ✅ | System.Title, System.Description, Microsoft.VSTS.Common.AcceptanceCriteria, Microsoft.VSTS.Scheduling.StoryPoints, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Common.ValueArea | H3 |
+
+**Type Mapping:**
+
 - H1 (PRD Level 1) → Epic
-- H2 (PRD Level 2) → Feature  
-- H3 (PRD Level 3) → User Story
-- H4+ (PRD Level 4+) → Task (handled by execution prompt)
-```
+- H2 (PRD Level 2) → Feature
+- H3+ (PRD Level 3+) → User Story (grouped logical functional requirements)
 
-**Type Mapping Logic:**
-- If Epic available: H1 → Epic
-- If Feature available: H2 → Feature, else H2 → Epic
-- If User Story available: H3 → User Story, else H3 → Feature
-- H4+ → Skip (execution prompt will handle as Tasks if needed)
-
-### Step 3: Analyze Existing Work Items
-
-```markdown
-## Analyzing Existing Work Items
-- Searching for potential matches
-- Evaluating similarity scores
-```
+### Step 4: Analyze Existing Work Items
 
 **Actions:**
 - Use `mcp_ado_search_workitem` to find existing items with keywords from PRD headings
-- For each search result, use `mcp_ado_wit_get_work_item` to get complete work item details
-- For each PRD section, calculate similarity with existing items using title matching
+- For each relevant item from search result that might be similar to a PRD item, use `mcp_ado_wit_get_work_item` to get complete work item details
+- For each potential PRD workitem, calculate similarity with existing items based on the work item's purpose
 - Apply similarity threshold: >0.8 = strong match, 0.6-0.8 = review needed, <0.6 = create new
 
-**Search Strategy:**
-1. Extract key terms from each PRD heading (remove common words like "the", "and", "for")
-2. Use `mcp_ado_search_workitem` with extracted keywords to find potential matches
-3. For each search result, call `mcp_ado_wit_get_work_item` to get complete details including:
-   - Full title and description
-   - Current state and area path
-   - Parent/child relationships
-   - Custom fields and tags
-4. Calculate similarity between PRD content and existing work item details
+### Step 5: Generate Work Item Plan
 
-**Similarity Calculation:**
-```
-similarity = (matching_words / total_unique_words) * title_weight
-title_weight = 0.8 for exact title match, 0.6 for partial, 0.3 for keyword overlap
-```
+Create or update planning files in `.copilot-tracking/workitems/<prd-file-name>/` directory:
 
-### Step 4: Generate Work Item Plan
-
-Create planning files in `.copilot-tracking/planning/` directory:
-
-<!-- <plan-file-structure> -->
+<!-- <workitem-plan-structure> -->
 ```
-.copilot-tracking/planning/
-├── YYYYMMDD-prd-analysis.md     # Human-readable analysis
-├── YYYYMMDD-work-items.json     # Structured work item data
-└── YYYYMMDD-execution-log.md    # Creation results log
+.copilot-tracking/workitems/customer-onboarding-prd/
+├── prd-analysis.md          # Human-readable analysis report
+├── work-items.json          # Detailed work item specifications
+├── handoff.md              # Ready-to-use execution instructions
+└── planning-log.md         # Tool calls, decisions, and process trace
 ```
-<!-- </plan-file-structure> -->
+<!-- </workitem-plan-structure> -->
 
 **Analysis File Content:**
 ```markdown
@@ -238,19 +197,7 @@ Create planning files in `.copilot-tracking/planning/` directory:
 
 **Note:** The execution prompt will read both `handoff.md` for instructions and `work-items.json` for detailed specifications.
 
-### Step 5: Create Handoff Document
-
-Generate execution-ready files in `.copilot-tracking/workitems/<prd-file-name>/` directory:
-
-<!-- <handoff-file-structure> -->
-```
-.copilot-tracking/workitems/customer-onboarding-prd/
-├── prd-analysis.md          # Human-readable analysis report
-├── work-items.json          # Detailed work item specifications
-├── handoff.md              # Ready-to-use execution instructions
-└── planning-log.md         # Analysis process documentation
-```
-<!-- </handoff-file-structure> -->
+### Step 6: Create Handoff Document
 
 **Primary Handoff Artifact: `handoff.md`**
 
@@ -272,7 +219,7 @@ This is the file that users provide to the execution prompt. It contains:
 ## Execution Parameters
 - **Area Path:** MyProject\Features
 - **Iteration Path:** MyProject\Sprint 1
-- **Work Items File:** work-items.json (in same directory)
+- **Work Items File:** .copilot-tracking/workitems/customer-onboarding/work-items.json
 
 ## Summary
 - **Total Items:** 15 work items to process
@@ -293,6 +240,7 @@ This is the file that users provide to the execution prompt. It contains:
 
 ### Step 6: Generate Planning Summary
 
+<!-- <planning-summary-template> -->
 ```markdown
 ## PRD Analysis Complete
 
@@ -313,8 +261,8 @@ This is the file that users provide to the execution prompt. It contains:
 **To create the work items:**
 1. Review the generated `handoff.md` file
 2. Confirm the execution parameters (area path, iteration)
-3. Use the execution prompt: `@update-prd-work-items`
-4. Provide the handoff file: `.copilot-tracking/workitems/[prd-file-name]/handoff.md`
+3. Use the execution prompt with the handoff file
+4. Monitor execution results in the same directory
 
 ### Human Review Checkpoints
 - [ ] Area path and iteration assignments are correct
@@ -322,36 +270,7 @@ This is the file that users provide to the execution prompt. It contains:
 - [ ] Similarity matches require manual review
 - [ ] Special instructions are understood
 ```
-
-### Step 6: Generate Execution Summary
-
-```markdown
-## Work Item Creation Summary
-
-### Created Items
-| Type | Count | IDs |
-|------|-------|-----|
-| Epic | 2 | 5001, 5002 |
-| Feature | 5 | 5003-5007 |
-| User Story | 12 | 5008-5019 |
-| Task | 8 | 5020-5027 |
-
-### Updated Items
-| ID | Type | Title | Changes |
-|----|------|-------|---------|
-| 1234 | Feature | User Registration | Description, Acceptance Criteria |
-
-### Links Created
-- 15 Parent-Child relationships established
-- 3 Related links created
-
-### Next Steps
-1. Review created work items in Azure DevOps
-2. Assign work items to team members
-3. Estimate effort for stories and tasks
-4. Plan sprint assignments
-```
-
+<!-- </planning-summary-template> -->
 ## Field Mapping Guidelines
 
 <!-- <field-mapping> -->
@@ -395,31 +314,33 @@ This is the file that users provide to the execution prompt. It contains:
 
 **Acceptance Criteria Extraction:**
 - Look for "Acceptance Criteria" or "AC" headings
+- Convert markdown to HTML for rich text fields
 - Extract numbered or bulleted lists
 - Format as structured list in work item
 - Each criterion becomes separate acceptance item
 
 **Tag Generation:**
-- Extract keywords from title and content
-- Include technology terms (React, Azure, API)
-- Add functional categories (frontend, backend, integration)
-- Limit to 10 most relevant tags
+- Extract explicit tags mentioned in PRD content
+- Reuse tags from similar existing work items when available
+- Only create new tags when necessary for categorization
+- Limit to 3-5 relevant tags per work item
 
 **Search Term Extraction:**
 - Remove common stop words (the, and, for, with, from, etc.)
 - Focus on domain-specific terms and business concepts
 - Include synonyms and related terms for comprehensive search
-- Use 3-5 most relevant terms per PRD section for work item search
+- Specify the workitem types when searching
 <!-- </content-rules> -->
 
 ## Decision Matrix
 
+<!-- <similarity-decision-matrix> -->
 | Similarity Score | Action | Reasoning |
 |------------------|--------|-----------|
 | ≥ 0.8 | Update existing item | High confidence match |
 | 0.6 - 0.79 | Manual review required | Potential match needs verification |
 | < 0.6 | Create new item | No strong existing match found |
-
+<!-- </similarity-decision-matrix> -->
 ## Error Handling
 
 <!-- <error-handling> -->
@@ -438,7 +359,7 @@ This is the file that users provide to the execution prompt. It contains:
 
 **Recovery Actions:**
 - Retry failed operations once with 2-second delay
-- Log all errors to execution log file
+- Log all errors to `planning-log.md` file
 - Continue processing remaining items after individual failures
 - Provide summary of successful and failed operations
 <!-- </error-handling> -->
@@ -463,30 +384,9 @@ All responses should follow this structure:
 [What happens next or what user should do]
 ```
 
-## Validation Rules
-
-<!-- <validation-rules> -->
-**Before Creation:**
-- All work items must have title and type
-- Parent-child relationships must be valid
-- Area path and iteration must exist in project
-- Required fields for work item type must be populated
-
-**After Creation:**
-- Verify all items created successfully
-- Confirm parent-child links established
-- Validate field values set correctly
-- Check for any orphaned items
-
-**Quality Checks:**
-- Titles are meaningful and descriptive
-- Descriptions provide sufficient detail
-- Acceptance criteria are actionable
-- Tags are relevant and not excessive
-<!-- </validation-rules> -->
-
 ## Success Metrics
 
+<!-- <success-criteria> -->
 A successful PRD analysis includes:
 - **Coverage:** All major PRD sections mapped to Epics and Features
 - **Hierarchy:** Proper parent-child relationships planned
@@ -494,6 +394,7 @@ A successful PRD analysis includes:
 - **Completeness:** All required planning fields populated appropriately
 - **Actionability:** Generated handoff document ready for execution prompt
 - **Quality:** Work items properly analyzed and decisions documented
+<!-- </success-criteria> -->
 
 ## Handoff to Execution
 
