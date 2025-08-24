@@ -1,20 +1,35 @@
-# PRD Work Items Executor
+---
+mode: "agent"
+description: "Execute Azure DevOps work item operations based on planning artifacts from PRD analysis. Process handoff documents to create, update, and link work items with comprehensive validation and error handling."
+---
 
-Execute Azure DevOps work item operations based on planning artifacts from PRD analysis.
+# PRD Work Items Executor (Full Execution with Validation)
 
-## Purpose
+You WILL execute Azure DevOps work item operations based on planning artifacts from PRD analysis using ONLY the provided Azure DevOps tools. This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode to create, update, and link work items in Azure DevOps. It handles the actual execution phase after analysis and planning are complete.
 
-This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode to create, update, and link work items in Azure DevOps. It handles the actual execution phase after analysis and planning are complete.
+## Inputs
 
-## Required Inputs
+- ${input:handoffFile:.copilot-tracking/workitems/customer-onboarding-prd/handoff.md}: Path to handoff markdown file (REQUIRED)
+- ${input:project}: Override ADO project name (Optional - will use project from handoff metadata if not provided)
+- ${input:areaPath}: Override area path (Optional - will use areaPath from handoff metadata if not provided)
+- ${input:iterationPath}: Override iteration path (Optional - will use iterationPath from handoff metadata if not provided)
+- ${input:dryRun:false}: Preview operations without executing (Boolean, default: false)
 
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| handoffFile | string | Path to handoff markdown file | ".copilot-tracking/workitems/customer-onboarding-prd/handoff.md" |
-| project | string (optional) | Override ADO project name | "MyProject" |
-| areaPath | string (optional) | Override area path | "MyProject\\Features" |
-| iterationPath | string (optional) | Override iteration | "MyProject\\Sprint 1" |
-| dryRun | boolean (optional) | Preview operations without executing | false |
+## Phases (Overview)
+
+Update the task list with the following:
+
+0. Validate Handoff Document
+1. Parse Work Items and Relationships
+2. Process Work Items by Hierarchy
+3. Handle Work Item Actions (Create/Update/Skip)
+4. Establish Relationships
+5. Generate Execution Report
+
+**Communication Protocol:**
+
+- Planning type phases outputs: "Review handoff.md in `.copilot-tracking/workitems/[prd-name]/`"
+- Execution type phases confirms: "Processed [N] work items from handoff.md, [X] created, [Y] updated, [Z] failed"
 
 ## Expected Handoff Document Structure
 
@@ -76,23 +91,15 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 ```
 <!-- </handoff-json-schema> -->
 
-## Execution Workflow
+## Detailed Required Behavior
 
-### Step 1: Validate Handoff Document
+### 0. Validate Handoff Document
 
-```markdown
-## Processing Handoff Instructions
-- Reading handoff.md file
-- Locating work-items.json file
-- Validating execution parameters
-- Checking ADO project connectivity
-```
+You must first validate the handoff document structure and dependencies:
 
-**Actions:**
-
-- Read handoff.md file from provided path
+- Read handoff.md file from `${input:handoffFile}` path
 - Extract execution parameters (project, area path, iteration)
-- Locate and read work-items.json file in same directory
+- Locate and read work-items.json file in same directory as handoff.md
 - Validate all required fields are present
 - Verify project accessibility and permissions
 - Check work item types exist in target project
@@ -106,15 +113,19 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Area path and iteration path must be valid
 - Custom fields must match work item type schema
 
-### Step 2: Process Work Items by Hierarchy
+### 1. Parse Work Items and Relationships
 
-```markdown
-## Creating Work Items
-- Processing Epics (Level 1)
-- Processing Features (Level 2)
-- Processing User Stories (Level 3)
-- Establishing relationships
-```
+Parse the work-items.json structure and build execution plan:
+
+- Extract all work items with their hierarchy levels
+- Map parent-child relationships from relationships array
+- Identify work items marked for create/update/skip actions
+- Validate all temporary IDs are unique and consistent
+- Build execution order based on hierarchy (Epics → Features → Stories)
+
+### 2. Process Work Items by Hierarchy
+
+Process work items in hierarchical order with proper dependency management:
 
 **Execution Order:**
 
@@ -129,44 +140,35 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Process items in hierarchy order (Epics → Features → Stories)
 - Maximum 20 work items per batch operation
 - Log each operation result with work item ID mapping
-- Update handoff document with created work item IDs
+- Update ID mapping file with created work item IDs
 
-### Step 3: Handle Work Item Actions
+### 3. Handle Work Item Actions (Create/Update/Skip)
+
+Execute the specified actions for each work item based on the handoff document:
 
 **Create Actions:**
 
-```markdown
-## Creating New Work Items: [count]
-- Epic: [epic-count] items
-- Feature: [feature-count] items
-- User Story: [story-count] items
-```
+- Use `mcp_ado_wit_create_work_item` for Epic-level items (top-level hierarchy)
+- Use `mcp_ado_wit_add_child_work_items` for Features and User Stories
+- Apply all field mappings as specified in handoff document
+- Log creation results and update ID mapping immediately
 
 **Update Actions:**
 
-```markdown
-## Updating Existing Work Items: [count]
-- Updating descriptions and acceptance criteria
-- Adding tags and custom field values
-- Preserving existing relationships
-```
+- Use `mcp_ado_wit_update_work_items_batch` for items with existing matches
+- Only update fields that have changed from existing work item
+- Preserve existing relationships unless explicitly overridden
+- Log update results with before/after field comparisons
 
 **Skip Actions:**
 
-```markdown
-## Skipping Work Items: [count]
-- Items marked for manual review
-- Low confidence matches requiring user decision
-```
+- Document items marked for manual review in execution log
+- Include reason for skipping (low confidence, manual review required, etc.)
+- Provide specific remediation steps for each skipped item
 
-### Step 4: Establish Relationships
+### 4. Establish Relationships
 
-```markdown
-## Creating Work Item Relationships
-- Parent-child links: [count]
-- Related links: [count]
-- Cross-epic dependencies: [count]
-```
+Create all parent-child and related links after work items are created:
 
 **Link Processing:**
 
@@ -175,43 +177,36 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Batch relationship operations (max 50 links per call)
 - Verify link creation success and log failures
 
-### Step 5: Generate Execution Report
+**Relationship Types:**
 
-```markdown
-## Work Item Creation Summary
+- Parent-child links between hierarchy levels
+- Related links for cross-epic dependencies
+- Custom relationship types as specified in handoff document
 
-### Successfully Created
-| Type | Count | ADO IDs | Temp IDs |
-|------|-------|---------|----------|
-| Epic | 3 | 5001-5003 | WI001-WI003 |
-| Feature | 8 | 5004-5011 | WI004-WI011 |
-| User Story | 4 | 5012-5015 | WI012-WI015 |
+### 5. Generate Execution Report
 
-### Successfully Updated
-| ADO ID | Type | Title | Changes Applied |
-|--------|------|-------|-----------------|
-| 1234 | Feature | User Registration | Description, Tags, Custom Fields |
+Produce comprehensive reporting artifacts and summary information:
 
-### Failed Operations
-| Temp ID | Type | Title | Error | Retry Status |
-|---------|------|-------|-------|--------------|
-| WI016 | Story | Login Flow | Required field missing | Manual review needed |
+**Report Components:**
 
-### Created Relationships
-- 12 Parent-child links established
-- 3 Related links created
-- 0 failed relationship operations
+- Success/failure counts by operation type
+- Complete ID mapping from temporary to ADO IDs
+- Error details with remediation steps
+- Next steps for manual review items
+- ADO query links for created work items
 
-### Next Steps
-1. Review created work items: [ADO query link]
-2. Assign work items to team members
-3. Estimate effort for stories
-4. Plan sprint assignments
-```
+## Edge Cases & Rules
 
-## Field Mapping and Creation
+- If handoff document is missing or invalid, surface error and stop processing
+- If work-items.json is malformed, attempt to continue with handoff.md data only
+- NEVER create work items without proper hierarchy validation
+- If parent work item creation fails, queue children for retry after parent resolution
+- Preserve existing work item data when updating; only modify specified fields
 
-<!-- <field-mapping-execution> -->
+## Field Mapping and Creation Rules
+
+You must follow these mandatory field mapping rules for all work item operations:
+
 **Required Field Handling:**
 
 - **Title:** Use from handoff document (already processed)
@@ -235,11 +230,11 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Preserve existing relationships unless explicitly overridden
 - Maintain work item history and audit trail
 - Apply incremental updates to avoid overwriting manual changes
-<!-- </field-mapping-execution> -->
 
-## Error Handling and Recovery
+## Error Handling and Recovery Rules
 
-<!-- <error-handling-execution> -->
+Handle all error scenarios with specific recovery actions:
+
 **Creation Failures:**
 
 - **Required field missing:** Log error, skip item, continue processing
@@ -266,11 +261,11 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - Continue processing remaining items after individual failures
 - Generate comprehensive error log for manual resolution
 - Provide specific remediation steps for each error type
-<!-- </error-handling-execution> -->
 
 ## Batch Processing Rules
 
-<!-- <batch-processing-rules> -->
+Optimize API calls and reduce processing time with proper batching:
+
 **Creation Batching:**
 
 - Epics: Create individually to ensure proper parent context
@@ -295,63 +290,37 @@ This prompt processes handoff documents from the `prd-to-wit-enhanced` chatmode 
 - 2-second delay between large batch operations
 - 5-second delay after any API error
 - Maximum 3 retries per failed operation
-<!-- </batch-processing-rules> -->
 
-## Output Artifacts
+## Completion Summary Requirements
 
-**Generated Files:**
+When done, provide a comprehensive summary including:
 
-- **Execution Log:** `.copilot-tracking/execution/YYYYMMDD-execution-log.md`
-- **ID Mapping:** `.copilot-tracking/execution/YYYYMMDD-id-mapping.json`
-- **Error Report:** `.copilot-tracking/execution/YYYYMMDD-errors.json`
+- Count of work items processed (created/updated/skipped/failed)
+- Path to execution log file
+- Path to ID mapping JSON file
+- Path to error report file (if any errors occurred)
+- Success rate percentage
+- The markdown summary table with all processed work items
+- Next steps for manual review items
+- ADO query links for created work items
 
-**ID Mapping Structure:**
+## Compliance Checklist (Self-Evaluate Before Responding)
 
-```json
-{
-  "mappings": [
-    {
-      "tempId": "WI001",
-      "adoId": 5001,
-      "type": "Epic",
-      "title": "Customer Onboarding Experience",
-      "url": "https://dev.azure.com/org/project/_workitems/edit/5001"
-    }
-  ],
-  "statistics": {
-    "created": 15,
-    "updated": 2,
-    "failed": 1,
-    "totalProcessed": 18
-  }
-}
-```
+<!-- <important-compliance-checklist> -->
+- [ ] Handoff document validated and parsed successfully
+- [ ] Work items processed in proper hierarchy order
+- [ ] All specified field mappings applied correctly
+- [ ] Batch processing rules followed for optimal performance
+- [ ] Error handling implemented with retry logic
+- [ ] ID mapping maintained throughout execution
+- [ ] Execution log generated with comprehensive details
+- [ ] Recovery instructions provided for failed operations
+- [ ] Rate limiting respected to avoid API throttling
+- [ ] All output artifacts created in specified locations
+- [ ] Summary table includes all required columns and formatting
+- [ ] Completion summary provides actionable next steps
+<!-- </important-compliance-checklist> -->
 
-## Success Criteria
+---
 
-A successful execution includes:
-
-- **High Creation Rate:** >90% of planned items created successfully
-- **Accurate Relationships:** All parent-child links established correctly
-- **Data Integrity:** Field values applied as specified in handoff document
-- **Traceability:** Complete mapping from temporary IDs to ADO work item IDs
-- **Error Handling:** Clear documentation of any failures with remediation steps
-- **Audit Trail:** Comprehensive log of all operations for review and debugging
-
-## Integration with Planning Chatmode
-
-**Handoff Requirements:**
-
-- Planning chatmode must generate `handoff.md` with execution parameters
-- Supporting `work-items.json` must contain compliant structure
-- All temporary IDs must be unique and consistent
-- Work item actions must be clearly specified (create/update/skip)
-- Relationships must reference valid temporary IDs
-- Directory structure: `.copilot-tracking/workitems/[prd-name]/`
-
-**Communication Protocol:**
-
-- Planning phase outputs: "Review handoff.md in `.copilot-tracking/workitems/[prd-name]/`"
-- Execution phase confirms: "Processed [N] work items from handoff.md, [X] created, [Y] updated, [Z] failed"
-- Both phases maintain audit trail in same directory structure
-- Execution results logged to `execution-log.md` in handoff directory
+Proceed with work item execution by following all phases in order
