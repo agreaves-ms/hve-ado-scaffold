@@ -1,6 +1,6 @@
 # Hyper-Velocity Engineering (HVE) ADO Scaffold 🚀
 
-Lightweight, composable scaffolding to supercharge GitHub Copilot + Azure DevOps (AzDO) workflows: pull @Me work items, enrich with repository context, generate a research → plan → implement loop, manage PRDs & ADRs, and produce clean conventional commits — all inside Copilot Chat.
+Lightweight, composable scaffolding to supercharge GitHub Copilot + Azure DevOps (AzDO) workflows: pull @Me work items, enrich with repository context, generate a research → plan → implement loop, manage PRDs & ADRs, and produce clean conventional commits - all inside Copilot Chat.
 
 Use it as‑is or cherry‑pick only the folders you want.
 
@@ -119,23 +119,23 @@ Here are the key parts and why you'd want them:
 Located in [`.github/prompts/`](./.github/prompts/). Each prompt is an executable mini-workflow. Current catalog:
 
 - [`get-my-work-items.prompt.md`](./.github/prompts/get-my-work-items.prompt.md)
-  - `/get-my-work-items` — Full @Me retrieval with paging + progressive JSON hydration (`.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json`).
+  - `/get-my-work-items` - Full @Me retrieval with paging + progressive JSON hydration (`.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json`).
   - Prioritized + fallback types, strict field list persistence, no WIQL dependency.
 
 - [`create-my-work-items-handoff.prompt.md`](./.github/prompts/create-my-work-items-handoff.prompt.md)
-  - `/create-my-work-items-handoff` — Generates a rich, resumable markdown handoff (`*.handoff.md`) from the raw file with repository file context, selecting a top recommendation.
+  - `/create-my-work-items-handoff` - Generates a rich, resumable markdown handoff (`*.handoff.md`) from the raw file with repository file context, selecting a top recommendation.
 
 - [`ado-update-wit-prd-items.prompt.md`](./.github/prompts/ado-update-wit-prd-items.prompt.md)
-  - `/ado-update-wit-prd-items` — Consumes a PRD→WIT handoff to create/update/link work items (Epics → Features → Stories) with batching, retries, relationship linking, and execution report artifacts.
+  - `/ado-update-wit-prd-items` - Consumes a PRD→WIT handoff to create/update/link work items (Epics → Features → Stories) with batching, retries, relationship linking, and execution report artifacts.
 
 - [`gen-commit-message.prompt.md`](./.github/prompts/gen-commit-message.prompt.md)
-  - `/gen-commit-message` — Conventional Commit generation using staged changes only.
+  - `/gen-commit-message` - Conventional Commit generation using staged changes only.
 
 - [`commit.prompt.md`](./.github/prompts/commit.prompt.md)
-  - `/commit` — Stages everything, generates & applies commit message, then displays it (atomic workflow).
+  - `/commit` - Stages everything, generates & applies commit message, then displays it (atomic workflow).
 
 - [`git-setup.prompt.md`](./.github/prompts/git-setup.prompt.md)
-  - `/git-setup` — Verification‑first Git configuration assistant (identity, signing, editor/diff/merge tooling) with safe, confirm-before-change flow.
+  - `/git-setup` - Verification‑first Git configuration assistant (identity, signing, editor/diff/merge tooling) with safe, confirm-before-change flow.
 
 Why these prompts? Together they implement: collect → contextualize → handoff → plan/execute → commit.
 
@@ -143,12 +143,12 @@ Why these prompts? Together they implement: collect → contextualize → handof
 
 Located in [`.github/chatmodes/`](./.github/chatmodes/). Specialized persistent personas:
 
-- [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md) — Deep evidence-driven research (creates `.copilot-tracking/research/*.md`).
-- [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md) — Produces synchronized plan / details / implementation prompt triplet.
-- [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md) — Prompt + instruction authoring & validation (dual Builder/Tester persona).
-- [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md) — Socratic ADR coaching, progressive draft to finalized decision artifact.
-- [`prd-builder.chatmode.md`](./.github/chatmodes/prd-builder.chatmode.md) — Structured Product Requirements Document creation with state resumption.
-- [`prd-to-wit.chatmode.md`](./.github/chatmodes/prd-to-wit.chatmode.md) — (Used upstream of `ado-update-wit-prd-items`) transforms PRD analysis into executable work item handoff.
+- [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md) - Deep evidence-driven research (creates `.copilot-tracking/research/*.md`).
+- [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md) - Produces synchronized plan / details / implementation prompt triplet.
+- [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md) - Prompt + instruction authoring & validation (dual Builder/Tester persona).
+- [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md) - Socratic ADR coaching, progressive draft to finalized decision artifact.
+- [`prd-builder.chatmode.md`](./.github/chatmodes/prd-builder.chatmode.md) - Structured Product Requirements Document creation with state resumption.
+- [`prd-to-wit.chatmode.md`](./.github/chatmodes/prd-to-wit.chatmode.md) - (Used upstream of `ado-update-wit-prd-items`) transforms PRD analysis into executable work item handoff.
 
 Why chat modes? They reduce drift: each mode enforces domain‑specific rigor and artifacts.
 
