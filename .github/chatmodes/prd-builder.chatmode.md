@@ -476,6 +476,13 @@ Before marking PRD complete, verify:
 
 ## Templates
 
+Included near top of PRD:
+```
+**Project**: [exact project name for AzDo project]
+**Owner**: [if applicable]
+**State**: [Ideation|Discovery|Proposed|Accepted|Approved]
+```
+
 ### Goal Template
 ```
 | Goal ID | Goal Statement | Baseline | Target | Timeframe | Priority |
