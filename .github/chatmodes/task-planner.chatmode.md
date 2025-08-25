@@ -60,8 +60,6 @@ You WILL process user input as follows:
   - `{{specific_action}}` → "Create eventstream module with custom endpoint support"
 - **Final Output**: You WILL ensure NO template markers remain in final files
 
-**CRITICAL**: If you encounter invalid file references or broken line numbers, you WILL update the research file first using #file:./task-researcher.chatmode.md, then update all dependent planning files.
-
 ## File Naming Standards
 
 You WILL use these exact naming patterns:
@@ -83,7 +81,7 @@ You WILL include:
 - **Overview**: One sentence task description
 - **Objectives**: Specific, measurable goals
 - **Research Summary**: References to validated research findings
-- **Implementation Checklist**: Logical phases with checkboxes and line number references to details file
+- **Implementation Checklist**: Logical phases with checkboxes and `read_file:` references to details file
 - **Dependencies**: All required tools and prerequisites
 - **Success Criteria**: Verifiable completion indicators
 
@@ -92,7 +90,7 @@ You WILL include:
 You WILL include:
 - **Markdownlint disable**: `<!-- markdownlint-disable-file -->`
 - **Research Reference**: Direct link to source research file
-- **Task Details**: For each plan phase, complete specifications with line number references to research
+- **Task Details**: For each plan phase, complete specifications and details
 - **File Operations**: Specific files to create/modify
 - **Success Criteria**: Task-level verification steps
 - **Dependencies**: Prerequisites for each task
@@ -134,9 +132,9 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
 - {{file_path}} - {{file_relevance_description}}
 
 ### External References
-- #file:../research/{{research_file_name}} - {{research_description}}
-- #githubRepo:"{{org_repo}} {{search_terms}}" - {{implementation_patterns_description}}
-- #fetch:{{documentation_url}} - {{documentation_description}}
+- research:.copilot-tracking/research/{{research_file_name}} - {{research_description}}
+- github_repo:"{{org_repo}} {{search_terms}}" - {{implementation_patterns_description}}
+- fetch_webpage:{{documentation_url}} - {{documentation_description}}
 
 ### Standards References
 - #file:../../copilot/{{language}}.md - {{language_conventions_description}}
@@ -147,15 +145,15 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
 ### [ ] Phase 1: {{phase_1_name}}
 
 - [ ] Task 1.1: {{specific_action_1_1}}
-  - Details: .copilot-tracking/details/{{date}}-{{task_description}}-details.md (Lines {{line_start}}-{{line_end}})
+  - read_file:.copilot-tracking/details/{{date}}-{{task_description}}-details.md offset ({{starting_line_number}}, limit {{lines_to_read}})
 
 - [ ] Task 1.2: {{specific_action_1_2}}
-  - Details: .copilot-tracking/details/{{date}}-{{task_description}}-details.md (Lines {{line_start}}-{{line_end}})
+  - read_file:.copilot-tracking/details/{{date}}-{{task_description}}-details.md offset ({{starting_line_number}}, limit {{lines_to_read}})
 
 ### [ ] Phase 2: {{phase_2_name}}
 
 - [ ] Task 2.1: {{specific_action_2_1}}
-  - Details: .copilot-tracking/details/{{date}}-{{task_description}}-details.md (Lines {{line_start}}-{{line_end}})
+  - read_file:.copilot-tracking/details/{{date}}-{{task_description}}-details.md offset ({{starting_line_number}}, limit {{lines_to_read}})
 
 ## Dependencies
 
@@ -178,7 +176,7 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
 
 ## Research Reference
 
-**Source Research**: #file:../research/{{date}}-{{task_description}}-research.md
+**Source Research**: research:.copilot-tracking/research/{{date}}-{{task_description}}-research.md
 
 ## Phase 1: {{phase_1_name}}
 
@@ -192,12 +190,11 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
 - **Success**:
   - {{completion_criteria_1}}
   - {{completion_criteria_2}}
-- **Research References**:
-  - #file:../research/{{date}}-{{task_description}}-research.md (Lines {{research_line_start}}-{{research_line_end}}) - {{research_section_description}}
-  - #githubRepo:"{{org_repo}} {{search_terms}}" - {{implementation_patterns_description}}
+- **Required Details**:
+  - read_file:.copilot-tracking/research/{{date}}-{{task_description}}-research.md (offset {{starting_line_number}}, limit {{lines_to_read}}) - {{research_section_description}}
+  - github_repo:"{{org_repo}} {{search_terms}}" - {{implementation_patterns_description}}
 - **Dependencies**:
-  - {{previous_task_requirement}}
-  - {{external_dependency}}
+  - {{specific_dependencies}}
 
 ### Task 1.2: {{specific_action_1_2}}
 
@@ -207,10 +204,10 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
   - {{file_path}} - {{file_description}}
 - **Success**:
   - {{completion_criteria}}
-- **Research References**:
-  - #file:../research/{{date}}-{{task_description}}-research.md (Lines {{research_line_start}}-{{research_line_end}}) - {{research_section_description}}
+- **Required Details**:
+  - read_file:.copilot-tracking/research/{{date}}-{{task_description}}-research.md (offset {{starting_line_number}}, limit {{lines_to_read}}) - {{research_section_description}}
 - **Dependencies**:
-  - Task 1.1 completion
+  - {{specific_dependencies}}
 
 ## Phase 2: {{phase_2_name}}
 
@@ -223,18 +220,10 @@ applyTo: '.copilot-tracking/changes/{{date}}-{{task_description}}-changes.md'
 - **Success**:
   - {{completion_criteria}}
 - **Research References**:
-  - #file:../research/{{date}}-{{task_description}}-research.md (Lines {{research_line_start}}-{{research_line_end}}) - {{research_section_description}}
-  - #githubRepo:"{{org_repo}} {{search_terms}}" - {{patterns_description}}
+  - read_file:.copilot-tracking/research/{{date}}-{{task_description}}-research.md (offset {{starting_line_number}}, limit {{lines_to_read}}) - {{research_section_description}}
+  - read_file:.copilot-tracking/research/{{date}}-{{task_description}}-research.md (offset {{starting_line_number}}, limit {{lines_to_read}}) - {{research_section_description}}
 - **Dependencies**:
-  - Phase 1 completion
-
-## Dependencies
-
-- {{required_tool_framework_1}}
-
-## Success Criteria
-
-- {{overall_completion_indicator_1}}
+  - {{specific_dependencies}}
 ```
 <!-- </details-template> -->
 
@@ -253,7 +242,7 @@ model: Claude Sonnet 4
 
 ### Step 1: Create Changes Tracking File
 
-You WILL create `{{date}}-{{task_description}}-changes.md` in #file:../changes/ if it does not exist.
+You WILL create #file:../changes/{{date}}-{{task_description}}-changes.md if it does not already exist.
 
 ### Step 2: Execute Implementation
 
@@ -271,7 +260,7 @@ When ALL Phases are checked off (`[x]`) and completed you WILL do the following:
     - You WILL keep the overall summary brief
     - You WILL add spacing around any lists
     - You MUST wrap any reference to a file in a markdown style link
-  2. You WILL provide markdown style links to .copilot-tracking/plans/{{date}}-{{task_description}}-plan.instructions.md, .copilot-tracking/details/{{date}}-{{task_description}}-details.md, and .copilot-tracking/research/{{date}}-{{task_description}}-research.md documents. You WILL recommend cleaning these files up as well.
+  2. You WILL provide markdown style links to .copilot-tracking/plans/{{date}}-{{task_description}}-plan.instructions.md, .copilot-tracking/details/{{date}}-{{task_description}}-details.md, and .copilot-tracking/research/{{date}}-{{task_description}}-research.md documents. You WILL recommend cleaning these files up as well and offer to do so for the user.
   3. **MANDATORY**: You WILL attempt to delete .copilot-tracking/prompts/{{implement_task_description}}.prompt.md
 
 ## Success Criteria
@@ -305,20 +294,16 @@ You WILL build comprehensive planning files based on validated research:
 3. You WILL ensure all line number references are accurate and current
 4. You WILL verify cross-references between files are correct
 
-### Line Number Management
+### Starting Line Offset & Limit Management
 
-**MANDATORY**: You WILL maintain accurate line number references between all planning files.
+**MANDATORY**: For all `read_file:` lines, you MUST maintain accurate starting line number offsets and lines to read limits between all planning files (including references to research documents). Refer to `read_file` tool's parameter documentation for details on `offset` and `limit`.
 
-- **Research-to-Details**: You WILL include specific line ranges `(Lines X-Y)` for each research reference
-- **Details-to-Plan**: You WILL include specific line ranges for each details reference
-- **Updates**: You WILL update all line number references when files are modified
-- **Verification**: You WILL verify references point to correct sections before completing work
-
-**Error Recovery**: If line number references become invalid:
-1. You WILL identify the current structure of the referenced file
-2. You WILL update the line number references to match current file structure
-3. You WILL verify the content still aligns with the reference purpose
-4. If content no longer exists, you WILL use #file:./task-researcher.chatmode.md to update research
+- **Research-to-Details**: Any specific implementation details in *-research.md documents must be referenced with `read_file:` in the *-details.md document
+- **Details-to-Plan**: All *-plan.instructions.md files must reference a *-details.md document with `read_file:` lines for specific details
+- **Updates**:
+  - Required: Any change in a *-research.md document must read and update related *-details.md `read_file:` lines in document with accurate `offset` and `limit`
+  - Required: Any change in a *-details.md file must read and update related *-plan.instructions.md `read_file:` lines in document with accurate `offset` and `limit`
+- **Verification**: You WILL verify all `read_file:` lines point to correct sections before completing work
 
 ## Quality Standards
 
@@ -360,7 +345,7 @@ You WILL check existing planning state and continue work:
 You WILL:
 - Preserve all completed planning work
 - Fill identified planning gaps
-- Update line number references when files change
+- Update `read_file:` references when files change
 - Maintain consistency across all planning files
 - Verify all cross-references remain accurate
 

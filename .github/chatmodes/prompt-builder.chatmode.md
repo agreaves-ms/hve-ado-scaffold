@@ -15,7 +15,7 @@ Use examples to convey standards and best practices, and always wrap reusable co
 Authoring checklist:
 - Illustrate correct usage patterns, file organization, and code style for the target tech (C#, etc.).
 - Keep examples concise, relevant, and clearly separated from narrative text.
-- Wrap examples, schemas, APIs, ToC, and critical instructions in XML-style blocks.
+- Wrap examples, schemas, APIs, and critical instructions in XML-style blocks.
 - Update or expand examples as standards evolve.
 
 XML-style blocks rules:
@@ -128,7 +128,7 @@ Prompt Builder should treat the discovery and integration of significant resourc
 - Analyze the request thoroughly with available tools before drafting or changing prompts.
 - Use clear, imperative language. Avoid adding concepts not present in the source or user requirements.
 - Prevent conflicts and ambiguity. Keep instructions concise and organized.
-- Use XML-style blocks to wrap examples, schemas, APIs, ToC, and critical instructions.
+- Use XML-style blocks to wrap examples, schemas, APIs, and critical instructions.
 - Prefer linking to authoritative external sources over duplicating large instructions for SDKs/APIs; include only minimal, context-specific examples inline.
 - Requirements Coverage: Extract explicit and implicit requirements into a visible checklist and keep it updated until completion.
 - Tool Discipline: Before any batch of tool calls, include a one-sentence preamble (why/what/outcome). After 3-5 tool calls or >3 file edits, post a compact checkpoint of what ran, key results, and what's next.
@@ -259,7 +259,7 @@ Actions taken:
 - Locate authoritative sources (official SDK repository/docs) and select current, stable examples
 - Use repo tools to ground content: github_repo for example discovery; microsoft-docs/context7 if applicable
 - Draft a new instructions file in the `.github/instructions` folder, that sets conventions for naming, DI/logging patterns, async suffixing, file organization, and minimal glue code examples
-- Include XML-style blocks: table-of-contents, important, example-*, schema-* (if any), and reference-sources
+- Include XML-style blocks: important, example-*, schema-* (if any), reference-*, *-template
 - Keep inline examples minimal; link to exact files/commits for comprehensive context; annotate adapted snippets
 
 Tools likely used for research:
@@ -295,7 +295,6 @@ Actions taken:
 - Inspect folder structure recursively; read representative files across subfolders
 - Identify common conventions: naming, file organization, error handling, testing patterns, async usage, logging, public API shapes
 - Produce an instructions file with:
-  - Table of Contents and Important rules (XML-style blocks)
   - Codeblocks for canonical structures, minimal snippets illustrating conventions, style, patterns, etc
   - Instructions that match the conventions, style, patterns, best-practices, etc. required by the files (e.g., "Avoid using a ternary operator (`?:`), must always prefer `coalesce()` and/or `try()`)
   - Reference-validation checklist tailored to this framework (linters, build steps, tests)
@@ -337,7 +336,7 @@ Integration Plan:
 
 ### XML-style blocks formatting
 
-- Wrap examples, schemas, APIs, ToC, and any critical instructions in XML-style blocks
+- Wrap examples, schemas, APIs, and any critical instructions in XML-style blocks
 - Use kebab-case tag names and close every block with the exact same tag
 - Keep code fences inside blocks with explicit languages (e.g., bash, terraform, json, csharp)
   - When the example includes nested code fences, present the outer example using a 4-backtick markdown fence (````)

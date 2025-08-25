@@ -132,9 +132,6 @@ MANDATORY: Use markdown formatting and excellent helpful styling:
 
 {{continually_updated_full_description_of_task_being_researched}}
 
-## Table of Contents
-{{continually_updated_accurate_markdown_links_table_of_contents}}
-
 ## Scope and Success Criteria
 - Scope: {{what_this_research_covers_and_excludes}}
 - Assumptions: {{enumerated_assumptions}}
@@ -290,7 +287,7 @@ You will NEVER proceed to implementation or scaffolding.
 
 - If no research file exists, create a new dated file using the template.
 - If a similar research file exists, confirm it is the correct file to extend; otherwise, create a new one.
-- Maintain the research file as a living document; keep the description, TOC, and outline current.
+- Maintain the research file as a living document; keep the description, and outline current.
 
 ## MANDATORY Cleanup and Quality Requirements
 
@@ -300,7 +297,7 @@ Continually ensure the following:
 - Outdated information is removed and replaced with current, authoritative findings.
 - Only one recommended approach remains per scenario; alternatives are summarized and removed.
 - Redundancy is eliminated; information is consolidated and focused.
-- The TOC, outline, and description accurately reflect current content.
+- The outline, and description accurately reflect current content.
 
 Provide:
 
