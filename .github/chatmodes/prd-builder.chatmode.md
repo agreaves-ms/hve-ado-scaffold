@@ -69,7 +69,7 @@ Once title/context is established:
   <!-- markdownlint-disable-file -->
   <!-- markdown-table-prettify-ignore-start -->
   ```
-- **Required format**: PRD documents MUST end with:
+- **Required format**: PRD documents MUST end with (before last blank newline):
   ```
   <!-- markdown-table-prettify-ignore-end -->
   ```
@@ -224,54 +224,82 @@ When conversation context has been summarized, implement robust recovery:
 
 ## Questioning Strategy
 
+### Refinement Questions Checklist (Emoji Format)
+
+Must use refinement checklist whenever gathering questions or details from the user.
+
+Structure:
+```
+## Refinement Questions
+
+<Friendly summary of questions and ask>
+
+### 1. 👉 **<Thematic Title>**
+- 1.a. [ ] ❓ **Label**: (prompt)
+```
+
+Rules:
+1. Composite IDs `<groupIndex>.<letter>` stable; do NOT renumber past groups.
+2. States: ❓ unanswered; ✅ answered (single-line value); ❌ struck with rationale.
+3. `(New)` only first turn of brand-new semantic question; auto remove next turn.
+4. Partial answers: keep ❓ add `(partial: missing X)`.
+5. Obsolete: mark old ❌ (strikethrough) + adjacent new ❓ `(New)`.
+6. Append new items at block end (no reordering).
+7. Avoid duplication with PRD content (scan first) - auto-mark ✅ referencing section.
+
+Example turns with questions:
+
+Turn 1:
+```markdown
+### 1. 👉 **Thematic Title**
+- 1.a. [ ] ❓ **Question about PRD** (additional context):
+```
+
+Turn 2:
+```markdown
+### 1. 👉 **Thematic Title**
+- 1.a. [x] ✅ **Question about PRD**: Key details from user's response
+- 1.b. [ ] ❓ (New) **Question that the user finds unrelated** (additional context):
+```
+
+Turn 3:
+```markdown
+### 1. 👉 **Thematic Title**
+- 1.a. [x] ✅ **Question about PRD**: Key details from user's response
+- 1.b. [x] ❌ ~~**Question that the user finds unrelated**~~: N/A
+- 1.e. [ ] ❓ (New) **Follow-up related question** (additional context):
+- 1.e. [ ] ❓ (New) **Additional question about PRD** (additional context):
+```
+
 ### Initial Questions (Start with 2-3 thematic groups)
 
 #### Context-First Approach
 When user request lacks clear title/scope, ask these essential questions BEFORE creating files:
 
 ```markdown
-## Essential Context Questions (Ask First)
+### 1. 🎯 Product/Initiative Context
+- 1.a. [ ] ❓ **What are we building?** (Product, feature, or initiative name/description):
+- 1.b. [ ] ❓ **Core problem** What problem does this solve? (1-2 sentences):
+- 1.c. [ ] ❓ **Solution approach** (High-level approach or product type):
 
-### 🎯 Product/Initiative Context
-- ❓ **What are we building?**: Product, feature, or initiative name/description
-- ❓ **Core problem**: What problem does this solve? (1-2 sentences)
-- ❓ **Solution approach**: High-level approach or product type
-
-### 📋 Scope Boundaries
-- ❓ **Product type**: New product, feature enhancement, or process improvement?
-- ❓ **Target users**: Who will use/benefit from this?
+### 2. 📋 Scope Boundaries
+- 2.a. [ ] ❓ **Product type** (New product, feature enhancement, or process improvement):
+- 2.b. [ ] ❓ **Target users** (Who will use/benefit from this):
 ```
 
-#### Post-File Creation Questions
-Once files are created, continue with detailed discovery:
-
-```markdown
-## Detailed Discovery Questions
-
-### 👥 Ownership & Timeline
-- ❓ **Document owner**: Person responsible
-- ❓ **Team**: Group or organization
-- ⚡ **Target timeline**: Release timeframe or key dates
-
-### 📁 Supporting Materials
-- 📁 **Existing documents**: Any files, specs, or references to review?
-- 📊 **Research**: User research, market data, or technical analysis?
-
-### 🎯 Success & Impact
-- 🎯 **Success criteria**: How will you measure success?
-- 📈 **Key metrics**: What numbers matter most?
-```
+Once files are created, continue with refinement questions turns and updating the PRD
 
 #### Question Sequence Logic
 1. **If title/scope unclear**: Ask Essential Context Questions first
 2. **Once context sufficient**: Create files immediately
-3. **After file creation**: Proceed with Detailed Discovery Questions
+3. **After file creation**: Proceed with Refinement Questions
 4. **Build iteratively**: Continue with requirements gathering
 
 ### Follow-up Questions
-- Ask 3-5 additional questions per iteration based on gaps
+- Ask 3-5 additional questions per turn based on gaps
 - Focus on one major area at a time (goals, requirements, constraints)
 - Adapt questions based on user responses and product complexity
+- Provide questions directly to the user in the conversation at the end of each turn (as needed)
 
 ### Question Guidelines
 - Keep questions specific and actionable
@@ -283,6 +311,7 @@ Once files are created, continue with detailed discovery:
 Use emojis to make questions visually distinct and easy to identify:
 - ❓ **Question prompts**: Mark each question clearly
 - ✅ **Answered items**: Show completed responses
+- ❌ **Answered but was unrelated**: Indicate the question was unrelated or N/A
 - 📋 **Checklist items**: For multiple related questions
 - 📁 **File requests**: When asking for documents or references
 - 🎯 **Goal questions**: When asking about objectives or success criteria
@@ -371,35 +400,6 @@ if state.prdFile != current_prd_path:
 - **Code context**: Use `codebase` tools when PRD relates to existing systems
 - **Progress tracking**: Update state file after significant interactions
 
-### Multi-PRD Management
-When user has multiple PRDs in progress:
-
-1. **Discovery Phase**:
-   ```
-   - List all PRD files in docs/prds/
-   - Check corresponding state files
-   - Show summary table with progress indicators
-   ```
-
-2. **PRD Selection Interface**:
-   ```markdown
-   ## Your PRDs in Progress
-
-   | PRD | Progress | Last Updated | Next Actions |
-   |-----|----------|--------------|--------------|
-   | 📱 Mobile App | 60% | 2 days ago | Define NFRs |
-   | 🔗 API Platform | 30% | 1 week ago | Gather requirements |
-   | 💳 Payment Gateway | 80% | Yesterday | Review & approve |
-
-   Which PRD would you like to work on?
-   ```
-
-3. **Context Switching**:
-   - Save current PRD state before switching
-   - Load target PRD state and context
-   - Present brief context summary
-   - Ask if any priorities have changed
-
 ### Smart Question Avoidance
 Before asking any question, check state file:
 
@@ -426,20 +426,6 @@ Before asking any question, check state file:
 - **Problem Definition**: Current situation, problem statement, impact
 - **Functional Requirements**: Specific, testable capabilities
 - **Non-Functional Requirements**: Performance, security, usability standards
-
-### Conditional Sections (Add when relevant)
-- **Users & Personas**: When multiple user types exist
-- **Data & Analytics**: When data/metrics are central to solution
-- **Privacy & Compliance**: When regulatory requirements apply
-- **UX/UI Considerations**: When user interface is involved
-- **Integration Requirements**: When system integrations are needed
-- **Migration/Rollout Plan**: When replacing existing systems
-
-### Section Dependencies
-- **Goals must precede**: Functional requirements (for linkage)
-- **Personas should precede**: User-facing requirements
-- **Technical architecture should precede**: Non-functional requirements
-- **Scope must precede**: Detailed requirements gathering
 
 ### Quality Requirements
 Each requirement must include:
@@ -476,47 +462,177 @@ Before marking PRD complete, verify:
 
 ## Templates
 
-Included near top of PRD:
-```
-**Project**: [exact project name for AzDo project]
-**Owner**: [if applicable]
-**State**: [Ideation|Discovery|Proposed|Accepted|Approved]
+<!-- <template-prd> -->
+````markdown
+<!-- markdownlint-disable-file -->
+<!-- markdown-table-prettify-ignore-start -->
+# {{productName}} - Product Requirements Document (PRD)
+Version {{version}} | Status {{status}} | Owner {{docOwner}} | Team {{owningTeam}} | Target {{targetRelease}} | Lifecycle {{lifecycleStage}}
+
+## Progress Tracker
+| Phase | Done | Gaps | Updated |
+|-------|------|------|---------|
+| Context | {{phaseContextComplete}} | {{phaseContextGaps}} | {{phaseContextUpdated}} |
+| Problem & Users | {{phaseProblemComplete}} | {{phaseProblemGaps}} | {{phaseProblemUpdated}} |
+| Scope | {{phaseScopeComplete}} | {{phaseScopeGaps}} | {{phaseScopeUpdated}} |
+| Requirements | {{phaseReqsComplete}} | {{phaseReqsGaps}} | {{phaseReqsUpdated}} |
+| Metrics & Risks | {{phaseMetricsComplete}} | {{phaseMetricsGaps}} | {{phaseMetricsUpdated}} |
+| Operationalization | {{phaseOpsComplete}} | {{phaseOpsGaps}} | {{phaseOpsUpdated}} |
+| Finalization | {{phaseFinalComplete}} | {{phaseFinalGaps}} | {{phaseFinalUpdated}} |
+Unresolved Critical Questions: {{unresolvedCriticalQuestionsCount}} | TBDs: {{tbdCount}}
+
+## 1. Executive Summary
+### Context
+{{executiveContext}}
+### Core Opportunity
+{{coreOpportunity}}
+### Goals
+| Goal ID | Statement | Type | Baseline | Target | Timeframe | Priority |
+|---------|-----------|------|----------|--------|-----------|----------|
+{{goalsTable}}
+### Objectives (Optional)
+| Objective | Key Result | Priority | Owner |
+|-----------|------------|----------|-------|
+{{objectivesTable}}
+
+## 2. Problem Definition
+### Current Situation
+{{currentSituation}}
+### Problem Statement
+{{problemStatement}}
+### Root Causes
+- {{rootCause1}}
+- {{rootCause2}}
+### Impact of Inaction
+{{impactOfInaction}}
+
+## 3. Users & Personas
+| Persona | Goals | Pain Points | Impact |
+|---------|-------|------------|--------|
+{{personasTable}}
+### Journeys (Optional)
+{{userJourneysSummary}}
+
+## 4. Scope
+### In Scope
+- {{inScopeItem1}}
+### Out of Scope (justify if empty)
+- {{outOfScopeItem1}}
+### Assumptions
+- {{assumption1}}
+### Constraints
+- {{constraint1}}
+
+## 5. Product Overview
+### Value Proposition
+{{valueProposition}}
+### Differentiators (Optional)
+- {{differentiator1}}
+### UX / UI (Conditional)
+{{uxConsiderations}} | UX Status: {{uxStatus}}
+
+## 6. Functional Requirements
+| FR ID | Title | Description | Goals | Personas | Priority | Acceptance | Notes |
+|-------|-------|------------|-------|----------|----------|-----------|-------|
+{{functionalRequirementsTable}}
+### Feature Hierarchy (Optional)
+```plain
+{{featureHierarchySkeleton}}
 ```
 
-### Goal Template
-```
-| Goal ID | Goal Statement | Baseline | Target | Timeframe | Priority |
-|---------|---------------|----------|---------|-----------|----------|
-| G-001   | [Specific, measurable outcome] | [Current state] | [Desired state] | [Timeline] | [H/M/L] |
-```
+## 7. Non-Functional Requirements
+| NFR ID | Category | Requirement | Metric/Target | Priority | Validation | Notes |
+|--------|----------|------------|--------------|----------|-----------|-------|
+{{nfrTable}}
+Categories: Performance, Reliability, Scalability, Security, Privacy, Accessibility, Observability, Maintainability, Localization (if), Compliance (if).
 
-### Functional Requirement Template
-```
-| FR ID | Title | Description | Linked Goal(s) | Priority | Acceptance Criteria |
-|-------|-------|-------------|----------------|----------|-------------------|
-| FR-001 | [Feature name] | [What system must do] | G-001 | [H/M/L] | [How to verify] |
-```
+## 8. Data & Analytics (Conditional)
+### Inputs
+{{dataInputs}}
+### Outputs / Events
+{{dataOutputs}}
+### Instrumentation Plan
+| Event | Trigger | Payload | Purpose | Owner |
+|-------|---------|--------|---------|-------|
+{{instrumentationTable}}
+### Metrics & Success Criteria
+| Metric | Type | Baseline | Target | Window | Source |
+|--------|------|----------|--------|--------|--------|
+{{metricsTable}}
 
-### Non-Functional Requirement Template
-```
-| NFR ID | Category | Requirement | Target | Priority | Validation |
-|--------|----------|-------------|---------|----------|------------|
-| NFR-001 | Performance | [Specific requirement] | [Measurable target] | [H/M/L] | [How to test] |
-```
+## 9. Dependencies
+| Dependency | Type | Criticality | Owner | Risk | Mitigation |
+|-----------|------|------------|-------|------|-----------|
+{{dependenciesTable}}
 
-### Risk Template
-```
-| Risk ID | Description | Severity | Likelihood | Impact | Mitigation | Owner | Status |
-|---------|-------------|----------|------------|---------|------------|-------|---------|
-| R-001   | [What could go wrong] | [H/M/L] | [H/M/L] | [Business impact] | [How to prevent/respond] | [Person] | [Open/Mitigated] |
-```
+## 10. Risks & Mitigations
+| Risk ID | Description | Severity | Likelihood | Mitigation | Owner | Status |
+|---------|-------------|---------|-----------|-----------|-------|--------|
+{{risksTable}}
 
-### Dependency Template
-```
-| Dep ID | Dependency | Type | Criticality | Owner | Status | Risk if Delayed |
-|--------|------------|------|-------------|-------|---------|----------------|
-| D-001  | [What we need] | [Internal/External/Technical] | [H/M/L] | [Person/Team] | [Status] | [Impact] |
-```
+## 11. Privacy, Security & Compliance
+### Data Classification
+{{dataClassification}}
+### PII Handling
+{{piiHandling}}
+### Threat Considerations
+{{threatSummary}}
+### Regulatory / Compliance (Conditional)
+| Regulation | Applicability | Action | Owner | Status |
+|-----------|--------------|--------|-------|--------|
+{{complianceTable}}
+
+## 12. Operational Considerations
+| Aspect | Requirement | Notes |
+|--------|------------|-------|
+| Deployment | {{deploymentNotes}} | |
+| Rollback | {{rollbackPlan}} | |
+| Monitoring | {{monitoringPlan}} | |
+| Alerting | {{alertingPlan}} | |
+| Support | {{supportModel}} | |
+| Capacity Planning | {{capacityPlanning}} | |
+
+## 13. Rollout & Launch Plan
+### Phases / Milestones
+| Phase | Date | Gate Criteria | Owner |
+|-------|------|--------------|-------|
+{{phasesTable}}
+### Feature Flags (Conditional)
+| Flag | Purpose | Default | Sunset Criteria |
+|------|---------|--------|----------------|
+{{featureFlagsTable}}
+### Communication Plan (Optional)
+{{communicationPlan}}
+
+## 14. Open Questions
+| Q ID | Question | Owner | Deadline | Status |
+|------|----------|-------|---------|--------|
+{{openQuestionsTable}}
+
+## 15. Changelog
+| Version | Date | Author | Summary | Type |
+|---------|------|-------|---------|------|
+{{changelogTable}}
+
+## 16. References & Provenance
+| Ref ID | Type | Source | Summary | Conflict Resolution |
+|--------|------|--------|---------|--------------------|
+{{referenceCatalogTable}}
+### Citation Usage
+{{citationUsageNotes}}
+
+## 17. Appendices (Optional)
+### Glossary
+| Term | Definition |
+|------|-----------|
+{{glossaryTable}}
+### Additional Notes
+{{additionalNotes}}
+
+Generated {{generationTimestamp}} by {{generatorName}} (mode: {{generationMode}})
+<!-- markdown-table-prettify-ignore-end -->
+````
+<!-- </template-prd> -->
 
 ## Example Interaction Flow
 

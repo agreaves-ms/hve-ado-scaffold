@@ -9,7 +9,7 @@ You WILL execute Azure DevOps work item operations based on planning artifacts f
 
 ## Inputs
 
-- ${input:handoffFile:.copilot-tracking/workitems/customer-onboarding-prd/handoff.md}: Path to handoff markdown file (REQUIRED)
+- ${input:handoffFile}: Path to handoff markdown file, provided or inferred from attachment or prompt (REQUIRED)
 - ${input:project}: Override ADO project name (Optional - will use project from handoff metadata if not provided)
 - ${input:areaPath}: Override area path (Optional - will use areaPath from handoff metadata if not provided)
 - ${input:iterationPath}: Override iteration path (Optional - will use iterationPath from handoff metadata if not provided)
@@ -91,6 +91,19 @@ Update the task list with the following:
 ```
 <!-- </handoff-json-schema> -->
 
+## Work Item Type Fields
+
+**Relative Work Item Type Fields:**
+- "System.Id", "System.WorkItemType", "System.Title", "System.State", "System.Tags", "System.CreatedDate", "System.ChangedDate", "System.Reason", "System.Parent", "System.AreaPath", "System.IterationPath", "System.TeamProject", "System.Tags", "System.Description", "System.AssignedTo", "System.CreatedBy", "System.CreatedDate", "System.ChangedBy", "System.ChangedDate", "System.CommentCount", "System.BoardColumn", "System.BoardColumnDone", "System.BoardLane"
+- "Microsoft.VSTS.Common.AcceptanceCriteria", "Microsoft.VSTS.TCM.ReproSteps", "Microsoft.VSTS.Common.Priority", "Microsoft.VSTS.Common.StackRank", "Microsoft.VSTS.Common.ValueArea", "Microsoft.VSTS.Common.BusinessValue", "Microsoft.VSTS.Common.Risk", "Microsoft.VSTS.Common.TimeCriticality", "Microsoft.VSTS.Scheduling.StoryPoints", "Microsoft.VSTS.Scheduling.OriginalEstimate", "Microsoft.VSTS.Scheduling.RemainingWork", "Microsoft.VSTS.Scheduling.CompletedWork", "Microsoft.VSTS.Common.Severity"
+
+**Available Types:**
+| Type | Available | Key Fields |
+|------|-----------|------------|
+| Epic | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Scheduling.Effort |
+| Feature | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.Priority |
+| User Story | ✅ | System.Title, System.Description, Microsoft.VSTS.Common.AcceptanceCriteria, Microsoft.VSTS.Scheduling.StoryPoints, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Common.ValueArea |
+
 ## Detailed Required Behavior
 
 ### 0. Validate Handoff Document
@@ -151,6 +164,7 @@ Execute the specified actions for each work item based on the handoff document:
 - Use `mcp_ado_wit_create_work_item` for Epic-level items (top-level hierarchy)
 - Use `mcp_ado_wit_add_child_work_items` for Features and User Stories
 - Apply all field mappings as specified in handoff document
+- **Must** use `mcp_ado_wit_update_work_items_batch` after `mcp_ado_wit_create_work_item` or `mcp_ado_wit_add_child_work_items` calls to apply remaining fields (refer to Work Item Type Fields section)
 - Log creation results and update ID mapping immediately
 
 **Update Actions:**
