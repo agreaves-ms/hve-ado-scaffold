@@ -1,8 +1,36 @@
 # Hyper-Velocity Engineering (HVE) ADO Scaffold 🚀
 
-This project is a lightweight scaffold to supercharge your GitHub Copilot workflows with Azure DevOps (AzDO): pull your @Me work items, summarize them with repo context, plan your next move, and start building!
+Lightweight, composable scaffolding to supercharge GitHub Copilot + Azure DevOps (AzDO) workflows: pull @Me work items, enrich with repository context, generate a research → plan → implement loop, manage PRDs & ADRs, and produce clean conventional commits — all inside Copilot Chat.
 
-Use it as-is or copy the bits you need into your own repo.
+Use it as‑is or cherry‑pick only the folders you want.
+
+## Table of Contents
+
+- [Hyper-Velocity Engineering (HVE) ADO Scaffold 🚀](#hyper-velocity-engineering-hve-ado-scaffold-)
+  - [Table of Contents](#table-of-contents)
+  - [Quick start 🏁](#quick-start-)
+  - [What's available 📦](#whats-available-)
+    - [VS Code settings ⚙️](#vs-code-settings-️)
+    - [MCP configuration 🧩](#mcp-configuration-)
+      - [Security considerations](#security-considerations)
+    - [Copilot Prompts (.github/prompts) for AzDO 🔧](#copilot-prompts-githubprompts-for-azdo-)
+    - [Copilot Chat Modes (.github/chatmodes) for workflow automation 🤖](#copilot-chat-modes-githubchatmodes-for-workflow-automation-)
+    - [Instruction files (what guides Copilot) 🧭](#instruction-files-what-guides-copilot-)
+    - [Docs you can reuse 📚](#docs-you-can-reuse-)
+  - [Core Workflows](#core-workflows)
+    - [Azure DevOps Work Items Loop](#azure-devops-work-items-loop)
+    - [Work Item Handoff Generation](#work-item-handoff-generation)
+    - [Research → Plan → Implement Loop](#research--plan--implement-loop)
+    - [PRD Authoring Flow](#prd-authoring-flow)
+    - [ADR Creation Flow](#adr-creation-flow)
+  - [Recommended setup in your repo 🔧](#recommended-setup-in-your-repo-)
+  - [Quick Reference Tables](#quick-reference-tables)
+    - [Prompts](#prompts)
+    - [Chat Modes](#chat-modes)
+  - [Security \& Secrets](#security--secrets)
+  - [Adapting to Other Trackers](#adapting-to-other-trackers)
+  - [Adding Your Own Assets](#adding-your-own-assets)
+  - [FAQ ❓](#faq-)
 
 ## Quick start 🏁
 
@@ -88,50 +116,41 @@ Here are the key parts and why you'd want them:
 
 ### Copilot Prompts (.github/prompts) for AzDO 🔧
 
-Located in [`.github/prompts/`](./.github/prompts/) - these are ready-to-run, task-focused prompts you can invoke from Copilot Chat.
+Located in [`.github/prompts/`](./.github/prompts/). Each prompt is an executable mini-workflow. Current catalog:
 
-- [`get-my-work-items.prompt.md`](./.github/prompts/get-my-work-items.prompt.md):
-  - *Usage, `/get-my-work-items`*
-  - Retrieves your prioritized AzDO work items and saves a raw JSON snapshot under `.copilot-tracking/workitems/`.
-  - Honors a saved server-side query if you provide one; falls back to AzDO's assigned-to-me results when you don't.
-  - **Requires**: Azure DevOps MCP server configured pointing at the correct AzDo instance.
+- [`get-my-work-items.prompt.md`](./.github/prompts/get-my-work-items.prompt.md)
+  - `/get-my-work-items` — Full @Me retrieval with paging + progressive JSON hydration (`.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json`).
+  - Prioritized + fallback types, strict field list persistence, no WIQL dependency.
 
-- [`summarize-my-work-items.prompt.md`](./.github/prompts/summarize-my-work-items.prompt.md):
-  - Usage, `/summarize-my-work-items`
-  - Reads the latest raw JSON and produces a concise, resumable summary (Markdown + JSON), enriched with repository file context.
-  - Designed to hand off into a deeper research chatmode you can add later if desired.
+- [`create-my-work-items-handoff.prompt.md`](./.github/prompts/create-my-work-items-handoff.prompt.md)
+  - `/create-my-work-items-handoff` — Generates a rich, resumable markdown handoff (`*.handoff.md`) from the raw file with repository file context, selecting a top recommendation.
 
-- [`gen-commit-message.prompt.md`](./.github/prompts/gen-commit-message.prompt.md): Usage `/gen-commit-message`
-  - Generates clean, Conventional Commit messages based on staged changes.
+- [`ado-update-wit-prd-items.prompt.md`](./.github/prompts/ado-update-wit-prd-items.prompt.md)
+  - `/ado-update-wit-prd-items` — Consumes a PRD→WIT handoff to create/update/link work items (Epics → Features → Stories) with batching, retries, relationship linking, and execution report artifacts.
 
-Why these prompts? They create a simple "pull → understand → plan → build → commit" loop you can use day-to-day.
+- [`gen-commit-message.prompt.md`](./.github/prompts/gen-commit-message.prompt.md)
+  - `/gen-commit-message` — Conventional Commit generation using staged changes only.
+
+- [`commit.prompt.md`](./.github/prompts/commit.prompt.md)
+  - `/commit` — Stages everything, generates & applies commit message, then displays it (atomic workflow).
+
+- [`git-setup.prompt.md`](./.github/prompts/git-setup.prompt.md)
+  - `/git-setup` — Verification‑first Git configuration assistant (identity, signing, editor/diff/merge tooling) with safe, confirm-before-change flow.
+
+Why these prompts? Together they implement: collect → contextualize → handoff → plan/execute → commit.
 
 ### Copilot Chat Modes (.github/chatmodes) for workflow automation 🤖
 
-Located in [`.github/chatmodes/`](./.github/chatmodes/) - these are specialized AI assistants that guide complex workflows.
+Located in [`.github/chatmodes/`](./.github/chatmodes/). Specialized persistent personas:
 
-- [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md):
-  - *Usage, select `task-researcher` from chat mode drop-down*
-  - Deep research specialist for comprehensive project analysis and documentation.
-  - Creates evidence-based research documents under `.copilot-tracking/research/`.
-  - Validates findings from multiple sources and consolidates into actionable guidance.
+- [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md) — Deep evidence-driven research (creates `.copilot-tracking/research/*.md`).
+- [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md) — Produces synchronized plan / details / implementation prompt triplet.
+- [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md) — Prompt + instruction authoring & validation (dual Builder/Tester persona).
+- [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md) — Socratic ADR coaching, progressive draft to finalized decision artifact.
+- [`prd-builder.chatmode.md`](./.github/chatmodes/prd-builder.chatmode.md) — Structured Product Requirements Document creation with state resumption.
+- [`prd-to-wit.chatmode.md`](./.github/chatmodes/prd-to-wit.chatmode.md) — (Used upstream of `ado-update-wit-prd-items`) transforms PRD analysis into executable work item handoff.
 
-- [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md):
-  - *Usage, select `task-planner` from chat mode drop-down*
-  - Creates actionable implementation plans based on verified research findings.
-  - Generates plan checklists, implementation details, and prompts under `.copilot-tracking/`.
-  - Ensures comprehensive research exists before any planning activity.
-
-- [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md):
-  - *Usage, select `adr-creation` from chat mode drop-down*
-  - Assists with creating Architecture Decision Records (ADRs).
-  - Uses the ADR template from [`docs/solution-adr-library/`](./docs/solution-adr-library/).
-
-- [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md):
-  - *Usage, select `prompt-builder` from chat mode drop-down*
-  - Helps create custom prompts and instructions for your specific workflows.
-
-Why chat modes? They provide specialized expertise for different phases of development work, ensuring consistent, high-quality outputs.
+Why chat modes? They reduce drift: each mode enforces domain‑specific rigor and artifacts.
 
 ### Instruction files (what guides Copilot) 🧭
 
@@ -152,6 +171,44 @@ Located in [`.github/instructions/`](./.github/instructions/) - these shape how 
   - A practical ADR template with a YAML drafting guide to speed up architecture decisions.
   - Works seamlessly with the `adr-creation.chatmode.md` for guided ADR creation.
 
+## Core Workflows
+
+### Azure DevOps Work Items Loop
+
+1. `/get-my-work-items` → Progressive raw + hydration JSON
+2. `/create-my-work-items-handoff` → Rich markdown handoff (top recommendation + seeds)
+3. `task-researcher` → Deep evidence doc for chosen item
+4. `task-planner` → Plan + details + implementation prompt
+5. Implementation prompt (executes plan via task implementation instructions)
+6. `/commit` or `/gen-commit-message` → Clean commit
+
+### Work Item Handoff Generation
+
+Adds repository context (relevant files, tags, risks) + structured seeds so research begins with grounded hypotheses instead of blank exploration.
+
+### Research → Plan → Implement Loop
+
+| Phase | Chat Mode / Prompt | Artifact(s) |
+|-------|--------------------|-------------|
+| Research | task-researcher | `.copilot-tracking/research/*.md` |
+| Plan | task-planner | `plans/`, `details/`, `prompts/` files |
+| Implement | implementation prompt | `changes/*.md` progressive log + code edits |
+| Commit | commit / gen-commit-message | Conventional commit message |
+
+### PRD Authoring Flow
+
+Use `prd-builder` when you need a structured product specification prior to backlog seeding:
+
+1. Start ambiguous idea → builder asks refinement questions.
+2. Creates `docs/prds/<name>.md` + state JSON in `.copilot-tracking/prd-sessions/`.
+3. Iteratively populates: goals, personas, FR/NFR tables, risks, metrics.
+4. Handoff to `prd-to-wit` to synthesize work item creation plan.
+5. Execute with `/ado-update-wit-prd-items` to realize backlog.
+
+### ADR Creation Flow
+
+`adr-creation` guides: discover decision context → draft rationale → compare alternatives → finalize ADR (using template in `docs/solution-adr-library`).
+
 ## Recommended setup in your repo 🔧
 
 If you're copying things into a different repository:
@@ -163,39 +220,51 @@ If you're copying things into a different repository:
 
 Tip: You can start simple-use the prompts and instructions as-is-and grow over time.
 
-## How to use the AzDO workflow 🧵
+## Quick Reference Tables
 
-Here's a typical flow you can drive completely from Copilot Chat:
+### Prompts
 
-### 1. 🔍 Get your work items
+| Command | Purpose | Primary Artifact |
+|---------|---------|------------------|
+| `/get-my-work-items` | Retrieve & hydrate @Me items | `*.raw.json` |
+| `/create-my-work-items-handoff` | Build enriched handoff | `*.handoff.md` |
+| `/ado-update-wit-prd-items` | Create/update/link WITs from PRD handoff | Execution log / ID map |
+| `/gen-commit-message` | Generate commit message | (message only) |
+| `/commit` | Stage + generate + commit | Git commit |
+| `/git-setup` | Audit & propose git config | (none) |
 
-- **Action**: Run `/get-my-work-items` in Copilot Chat
-- **Outcome**: Raw JSON saved under `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json`
-- **Prerequisites**: Azure DevOps MCP server configured with valid PAT
+### Chat Modes
 
-### 2. 📋 Summarize and pick next task
+| Mode | Focus | Output |
+|------|-------|--------|
+| task-researcher | Deep evidence research | `research/*.md` |
+| task-planner | Actionable plan & details | `plans/`, `details/`, `prompts/` |
+| prompt-builder | Prompt/instructions authoring | Updated `.github/prompts\|instructions` |
+| adr-creation | Architecture decisions | ADR drafts/finals |
+| prd-builder | Product requirements | `docs/prds/*.md`, state JSON |
+| prd-to-wit | PRD → backlog handoff | Work item handoff JSON/markdown |
 
-- **Action**: Run `/summarize-my-work-items` in Copilot Chat
-- **Outcome**:
-  - `YYYYMMDD-assigned-to-me.summary.md` with prioritized work items
-  - `YYYYMMDD-assigned-to-me.summary.json` with structured data
-  - "Top Recommendation" and handoff payload for deep research
+## Security & Secrets
 
-### 3. 🔬 Research and plan
+- Never commit real PATs, client secrets, or tokens.
+- Keep `.vscode/mcp.json` either out of source control or templated with placeholders.
+- Validate prompt / chatmode edits for accidental secret inclusion before committing.
+- Use environment variables for any local dev secrets referenced in examples.
 
-- **Action**: Use `#file:task-researcher.chatmode.md` for deep analysis
-- **Outcome**: Comprehensive research document under `.copilot-tracking/research/`
-- **Next**: Use `#file:task-planner.chatmode.md` to create implementation plans
+## Adapting to Other Trackers
 
-### 4. ⚡ Implement
+Swap AzDO prompts with equivalents (e.g., GitHub Issues MCP server) by:
 
-- **Action**: Follow the generated implementation prompts from `.copilot-tracking/prompts/`
-- **Tracking**: Changes logged progressively in `.copilot-tracking/changes/`
+1. Duplicating a prompt file.
+2. Replacing tool invocations to new server (`github_` / `jira_` tools, etc.).
+3. Updating field lists + output JSON schema comments.
 
-### 5. ✅ Commit cleanly
+## Adding Your Own Assets
 
-- **Action**: Stage your changes, then run `/gen-commit-message` in Copilot Chat
-- **Outcome**: Clean, Conventional Commit message ready to use
+1. New prompt: add `*.prompt.md` under `.github/prompts/` (follow existing structure, include frontmatter `mode:` + `description:`).
+2. New instructions: drop into `.github/instructions/` or a subfolder; update settings if relocating.
+3. New chat mode: create `*.chatmode.md` under `.github/chatmodes/` with `description`, `tools` array, and clear role directives.
+4. Run `/gen-commit-message` to standardize the commit message.
 
 ## FAQ ❓
 
@@ -213,11 +282,3 @@ Add a `*.prompt.md` to [`.github/prompts/`](./.github/prompts/), a `*.instructio
 
 **What if I don't use Azure DevOps?**
 You can adapt the workflow to other project management tools by modifying the prompts and using different MCP servers (GitHub, Jira, etc.).
-
-## Contributing 🤝
-
-This is a scaffold-tweak it freely. If you find a great prompt or instruction tweak, consider standardizing it here first, then copy it to your repo.
-
----
-
-Happy shipping! 🏎️
