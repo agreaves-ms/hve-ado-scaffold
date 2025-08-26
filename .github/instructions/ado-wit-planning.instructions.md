@@ -19,14 +19,14 @@ Root planning workspace structure (PRD-focused planning only):
 ```plain
 .copilot-tracking/
   workitems/
-    <prds|features|user-stories>/
-      <{prd,feature,user-story}-normalized-name>/
+    <artifact-type>/
+      <artifact-normalized-name>/
         artifact-analysis.md                    # Human-readable table + recommendations
         work-items.md                           # Human/Machine-readable plan (source of truth)
         handoff.md                              # Handoff for workitem execution (optionally references work-items.json if JSON variant produced)
         planning-log.md                         # Structured operational & state log (routinely updated sections)
 ```
-Normalization: lower-case, hyphenated base filename without extension (e.g. `Customer Onboarding PRD.md` → `customer-onboarding-prd`). Avoid spaces and punctuation besides hyphens.
+Normalization: lower-case, hyphenated base filename without extension (e.g. `docs/Customer Onboarding PRD.md` → `docs--customer-onboarding-prd`). Avoid spaces and punctuation besides hyphens.
 <!-- </artifact-structure> -->
 
 ### Artifact Field / Section Requirements
@@ -43,6 +43,7 @@ Normalization: lower-case, hyphenated base filename without extension (e.g. `Cus
   ```
 
 #### artifact-analysis.md
+
 Sections (fixed order):
 1. Title line: e.g., `# PRD Work Item Analysis - [Summarized Title]`
 2. Source Metadata (bolded bullet list): e.g., File, Parsed, Project, AreaPath?, IterationPath?
@@ -160,7 +161,7 @@ As a user, I want to update component with new functionality B and new functiona
 
 
 #### planning-log.md (Structured Mutable Log)
-Generic, process-agnostic markdown log (usable for PRD planning, feature refinement, user story elaboration). Sections are routinely UPDATED in-place (tables grow; snapshot replaced; keyword groups rewritten). Historical fidelity is maintained through additive table rows and optional Decisions notes rather than enforcing append-only semantics.
+Generic, process-agnostic markdown log. Sections are routinely UPDATED in-place (tables grow; snapshot replaced; keyword groups rewritten). Historical fidelity is maintained through additive table rows and optional Decisions notes rather than enforcing append-only semantics.
 
 **Detailed Template:**
 <!-- <template-planning-log-md> -->
@@ -314,7 +315,7 @@ If context has `<summary>` and only one tool call, then immediately do the follo
 
 1. **State File Validation**:
   * It's likely you've lost valuable information and you are now required to recover your context to avoid broken changes
-  * Use the `list_dir` tool under the `.copilot-tracking/workitems/<prds|features|user-stories>/<{prd,feature,user-story}-normalized-name>` working folder
+  * Use the `list_dir` tool under the `.copilot-tracking/workitems/<artifact-type>/<artifact-normalized-name>` working folder
   * Use the `read_file` tool to read back in all of the planning-log.md to build back context
 
 2. **Context Reconstruction User Update**:
