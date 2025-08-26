@@ -16,23 +16,23 @@ Tests should only focus on the behaviors of the class and not internal functiona
 
 The structure of the tests will look like the following:
 
-- The name of the test file will match the class that's being tested. As an example `PipelineServiceTests`.
-- Every test will be a method and will attempt to test one behavior at a time in a `Given`, `When`, `Then` format. In
+* The name of the test file will match the class that's being tested. As an example `PipelineServiceTests`.
+* Every test will be a method and will attempt to test one behavior at a time in a `Given`, `When`, `Then` format. In
   the tests themselves this will be `arrange`, `act`, `assert`.
-- The tests themselves should always follow the format `(GivenSomething)_(WhenSomething)_ActingCall_Assertion`, an
+* The tests themselves should always follow the format `(GivenSomething)_(WhenSomething)_ActingCall_Assertion`, an
   example of this would be `WhenValidRequest_ProcessDataAsync_ReturnsParsedResponse`, `ProcessDataAsync` is the
   `ActingCall` and `ReturnsParsedResponse` a small precise description of the `Assertion`.
-- One assert per test is preferred, though related assertions validating the same behavior are acceptable.
-- `logger` is **never** tested or validated.
+* One assert per test is preferred, though related assertions validating the same behavior are acceptable.
+* `logger` is **never** tested or validated.
 
 ## Test Organization
 
-- Member fields should be organized at the top of the class in alphabetical order.
-- Fields should be `readonly` when possible.
-- The service under test should always be named `sut`.
-- Utility methods should appear after the constructor but before test methods.
-- Test methods should be grouped logically by behavior and ordered alphabetically within those groups.
-- Mock setup should typically be done in the constructor for common setup and in individual test methods for specific
+* Member fields should be organized at the top of the class in alphabetical order.
+* Fields should be `readonly` when possible.
+* The service under test should always be named `sut`.
+* Utility methods should appear after the constructor but before test methods.
+* Test methods should be grouped logically by behavior and ordered alphabetically within those groups.
+* Mock setup should typically be done in the constructor for common setup and in individual test methods for specific
   behavior.
 
 ## Test Examples
@@ -149,9 +149,9 @@ public class EndpointDataProcessorTests
 
 ## Lifecycle Interfaces in Test Classes
 
-- When a test class needs setup/teardown before and after each test, implement the `IAsyncLifetime` interface.
-- The `InitializeAsync` method is called before each test to set up prerequisites.
-- The `DisposeAsync` method is called after each test for cleanup.
+* When a test class needs setup/teardown before and after each test, implement the `IAsyncLifetime` interface.
+* The `InitializeAsync` method is called before each test to set up prerequisites.
+* The `DisposeAsync` method is called after each test for cleanup.
 
 ```csharp
 public class PipelineService_WhenReceivingOneTests : PipelineServiceTestsBase, IAsyncLifetime
@@ -206,20 +206,20 @@ public class PipelineService_WhenReceivingOneTests : PipelineServiceTestsBase, I
 
 ## Reusing Test Context
 
-- A test can have a base class that contains common test setup and test data.
-- When a base class is needed then the base class will always have `*TestsBase` as a class name.
-- There will always be an implementing class for the test base class that has at least one test.
-- A base class for tests will only ever be created when there are more than one implementing test classes.
-- Additional implementing test class will always have the format `ClassUnderTest_(Given/When)Something`, the test class
+* A test can have a base class that contains common test setup and test data.
+* When a base class is needed then the base class will always have `*TestsBase` as a class name.
+* There will always be an implementing class for the test base class that has at least one test.
+* A base class for tests will only ever be created when there are more than one implementing test classes.
+* Additional implementing test class will always have the format `ClassUnderTest_(Given/When)Something`, the test class
   should provide additional setup for when something is `Given` about a series of tests or `When` the same thing happens
   to a series of tests. An example would be `PipelineService_WhenReceivingOneMessage`, `PipelineService` is the
   `ClassUnderTest` and `When` `ReceivingOneMessage` is something that is happening to all the tests in this class.
 
 ## Test Base Classes
 
-- Base classes should contain shared setup logic and utility methods used by multiple derived test classes.
-- The base class should have protected members that derived classes can access.
-- Fields in the base class should be ordered alphabetically for consistency.
+* Base classes should contain shared setup logic and utility methods used by multiple derived test classes.
+* The base class should have protected members that derived classes can access.
+* Fields in the base class should be ordered alphabetically for consistency.
 
 ```csharp
 public abstract class PipelineServiceTestsBase

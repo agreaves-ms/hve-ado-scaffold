@@ -27,27 +27,27 @@ adr:
 
     constraints:
       technical:
-        - "[Platform limitations]"
-        - "[Integration requirements]"
-        - "[Performance requirements]"
+        * "[Platform limitations]"
+        * "[Integration requirements]"
+        * "[Performance requirements]"
       business:
-        - "[Budget constraints]"
-        - "[Timeline requirements]"
-        - "[Regulatory compliance]"
+        * "[Budget constraints]"
+        * "[Timeline requirements]"
+        * "[Regulatory compliance]"
       organizational:
-        - "[Team expertise]"
-        - "[Operational capabilities]"
-        - "[Strategic direction]"
+        * "[Team expertise]"
+        * "[Operational capabilities]"
+        * "[Strategic direction]"
 
     success_criteria:
       quantitative:
-        - "[Measurable performance target]"
-        - "[Cost target]"
-        - "[Timeline goal]"
+        * "[Measurable performance target]"
+        * "[Cost target]"
+        * "[Timeline goal]"
       qualitative:
-        - "[Maintainability goal]"
-        - "[Security posture]"
-        - "[Developer experience]"
+        * "[Maintainability goal]"
+        * "[Security posture]"
+        * "[Developer experience]"
 
   decision:
     summary: "[One clear sentence stating what was decided]"
@@ -55,58 +55,58 @@ adr:
     implementation_approach: "[High-level approach to implementing this decision]"
 
   decision_drivers:
-    - name: "[Driver 1 - e.g., Performance Requirements]"
+    * name: "[Driver 1 - e.g., Performance Requirements]"
       description: "[Why this factor influenced the decision]"
       weight: "[High/Medium/Low priority]"
-    - name: "[Driver 2 - e.g., Cost Optimization]"
+    * name: "[Driver 2 - e.g., Cost Optimization]"
       description: "[Why this factor influenced the decision]"
       weight: "[High/Medium/Low priority]"
-    - name: "[Driver 3 - e.g., Team Expertise]"
+    * name: "[Driver 3 - e.g., Team Expertise]"
       description: "[Why this factor influenced the decision]"
       weight: "[High/Medium/Low priority]"
 
   considered_options:
-    - name: "[Option 1 - e.g., Technology A]"
+    * name: "[Option 1 - e.g., Technology A]"
       description: "[Brief description of what this option entails]"
 
       technical_details:
-        - "[Architecture approach]"
-        - "[Key components]"
-        - "[Integration requirements]"
+        * "[Architecture approach]"
+        * "[Key components]"
+        * "[Integration requirements]"
 
       pros:
-        - "[Specific advantage 1]"
-        - "[Specific advantage 2]"
-        - "[Quantifiable benefit]"
+        * "[Specific advantage 1]"
+        * "[Specific advantage 2]"
+        * "[Quantifiable benefit]"
 
       cons:
-        - "[Specific disadvantage 1]"
-        - "[Specific disadvantage 2]"
-        - "[Quantifiable limitation]"
+        * "[Specific disadvantage 1]"
+        * "[Specific disadvantage 2]"
+        * "[Quantifiable limitation]"
 
       risks:
-        - risk: "[Risk description]"
+        * risk: "[Risk description]"
           probability: "[High/Medium/Low]"
           impact: "[High/Medium/Low]"
           mitigation: "[How to address this risk]"
 
       dependencies:
-        - "[External dependency]"
-        - "[Internal capability requirement]"
-        - "[Timeline dependency]"
+        * "[External dependency]"
+        * "[Internal capability requirement]"
+        * "[Timeline dependency]"
 
       costs:
         initial: "[Implementation cost]"
         ongoing: "[Operational cost]"
         effort: "[Development effort required]"
 
-    - name: "[Option 2 - e.g., Technology B]"
+    * name: "[Option 2 - e.g., Technology B]"
       description: "[Brief description]"
       technical_details: ["[Key technical aspects]"]
       pros: ["[Advantages]"]
       cons: ["[Disadvantages]"]
       risks:
-        - risk: "[Risk]"
+        * risk: "[Risk]"
           probability: "[Level]"
           impact: "[Level]"
           mitigation: "[Mitigation strategy]"
@@ -118,47 +118,47 @@ adr:
 
   comparison_matrix:
     criteria:
-      - name: "[Evaluation criteria 1]"
+      * name: "[Evaluation criteria 1]"
         weight: "[High/Medium/Low]"
         option_1_score: "[Score/Rating]"
         option_2_score: "[Score/Rating]"
-      - name: "[Evaluation criteria 2]"
+      * name: "[Evaluation criteria 2]"
         weight: "[High/Medium/Low]"
         option_1_score: "[Score/Rating]"
         option_2_score: "[Score/Rating]"
 
   consequences:
     positive:
-      - "[Positive outcome 1]"
-      - "[Positive outcome 2]"
+      * "[Positive outcome 1]"
+      * "[Positive outcome 2]"
     negative:
-      - "[Negative impact 1]"
-      - "[Negative impact 2]"
+      * "[Negative impact 1]"
+      * "[Negative impact 2]"
     neutral:
-      - "[Neutral change 1]"
-      - "[Neutral change 2]"
+      * "[Neutral change 1]"
+      * "[Neutral change 2]"
     risks:
-      - "[Risk that remains after decision]"
-      - "[Monitoring requirement]"
+      * "[Risk that remains after decision]"
+      * "[Monitoring requirement]"
 
   implementation:
     phases:
-      - "[Phase 1 description]"
-      - "[Phase 2 description]"
+      * "[Phase 1 description]"
+      * "[Phase 2 description]"
     timeline: "[Expected timeline]"
     resources_required: "[Team/budget/tools needed]"
     success_metrics: "[How to measure success]"
 
   future_considerations:
     monitoring:
-      - "[What to watch for]"
-      - "[When to re-evaluate]"
+      * "[What to watch for]"
+      * "[When to re-evaluate]"
     evolution:
-      - "[Future technology to consider]"
-      - "[Upcoming decisions that may affect this]"
+      * "[Future technology to consider]"
+      * "[Upcoming decisions that may affect this]"
     triggers_for_review:
-      - "[Condition that would trigger re-evaluation]"
-      - "[Timeline for regular review]"
+      * "[Condition that would trigger re-evaluation]"
+      * "[Timeline for regular review]"
 ```
 
 ---
@@ -171,10 +171,10 @@ After completing the YAML drafting guide above, use this structure for your fina
 
 [Mark the most applicable status for tracking purposes]
 
-- [ ] Draft
-- [ ] Proposed
-- [ ] Accepted
-- [ ] Deprecated
+* [ ] Draft
+* [ ] Proposed
+* [ ] Accepted
+* [ ] Deprecated
 
 ### Context
 
@@ -198,9 +198,9 @@ After completing the YAML drafting guide above, use this structure for your fina
 
 List the key factors that influenced this decision:
 
-- [Driver 1]
-- [Driver 2]
-- [Driver 3]
+* [Driver 1]
+* [Driver 2]
+* [Driver 3]
 
 ### Considered Options (optional)
 

@@ -10,11 +10,11 @@ Represent structured data using well-formed markdown tables, bullet lists, and l
 
 ## Inputs
 
-- ${input:rawPath}: Optional explicit path to raw JSON; else discover latest `.copilot-tracking/workitems/*-assigned-to-me.raw.json` (use `list_dir`).
-- ${input:handoffPath}: Optional explicit output path (must end with `.handoff.md`). If omitted, derive `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.handoff.md` (date from raw file name or current UTC date if ambiguous).
-- ${input:maxItems:all}: Optional numeric cap; default all.
-- ${input:boostTags}: Optional comma/semicolon separated tags that, if present in an item, may elevate it to top recommendation.
-- ${input:forceTopId}: Optional specific ID to force as top recommendation (overrides boost logic if found).
+* ${input:rawPath}: Optional explicit path to raw JSON; else discover latest `.copilot-tracking/workitems/*-assigned-to-me.raw.json` (use `list_dir`).
+* ${input:handoffPath}: Optional explicit output path (must end with `.handoff.md`). If omitted, derive `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.handoff.md` (date from raw file name or current UTC date if ambiguous).
+* ${input:maxItems:all}: Optional numeric cap; default all.
+* ${input:boostTags}: Optional comma/semicolon separated tags that, if present in an item, may elevate it to top recommendation.
+* ${input:forceTopId}: Optional specific ID to force as top recommendation (overrides boost logic if found).
 
 ## Azure DevOps Comment Retrieval
 
@@ -36,20 +36,20 @@ Each work item section MUST surface enough context to transition directly into d
 
 Include (when present):
 
-- Metadata: Id, WorkItemType, Title, State, Priority, StackRank, Parent, Tags (split semicolon/comma), AssignedTo, ChangedDate.
-- Narrative Summary: 2-5 sentence synthesized intent & desired outcome.
-- Description & Acceptance Criteria (verbatim or distilled if very long-retain critical bullet points).
-- Blockers / Risks: extraction from State/Reason/comments.
-- Comments Relevant: concise actionable excerpts with author + date `(Author - YYYY-MM-DD): excerpt`.
-- Stack Traces: fenced code block(s) when present.
-- Errors / Issues: bulleted list of distinct error messages or problem statements.
-- Repository Context:
-  - Top Files (≤10): `path` + short rationale.
-  - Other Related Files Summary: bullet lines for broader areas or patterns.
-  - Implementation Detail Leads: hypotheses, key functions/classes, integration points.
-  - Data / Config Touchpoints: env vars, config files, infra modules.
-  - Related Items: IDs with brief relation rationale (parent/child/sibling/feature).
-- Ready-to-Research Prompt Seed: concise markdown list (no code fence) capturing Objective, Unknowns, Candidate Files, Risks, Next Steps.
+* Metadata: Id, WorkItemType, Title, State, Priority, StackRank, Parent, Tags (split semicolon/comma), AssignedTo, ChangedDate.
+* Narrative Summary: 2-5 sentence synthesized intent & desired outcome.
+* Description & Acceptance Criteria (verbatim or distilled if very long-retain critical bullet points).
+* Blockers / Risks: extraction from State/Reason/comments.
+* Comments Relevant: concise actionable excerpts with author + date `(Author - YYYY-MM-DD): excerpt`.
+* Stack Traces: fenced code block(s) when present.
+* Errors / Issues: bulleted list of distinct error messages or problem statements.
+* Repository Context:
+  * Top Files (≤10): `path` + short rationale.
+  * Other Related Files Summary: bullet lines for broader areas or patterns.
+  * Implementation Detail Leads: hypotheses, key functions/classes, integration points.
+  * Data / Config Touchpoints: env vars, config files, infra modules.
+  * Related Items: IDs with brief relation rationale (parent/child/sibling/feature).
+* Ready-to-Research Prompt Seed: concise markdown list (no code fence) capturing Objective, Unknowns, Candidate Files, Risks, Next Steps.
 
 Ordering: The top recommendation section appears first with deeper elaboration (may expand Implementation Detail Leads & Unknowns). Remaining items get a consistent but slightly more concise format.
 
@@ -86,17 +86,17 @@ Counts: `Summarized: X / Total: Y` plus summarized ID list and remaining ID list
 
 Guidance: choose the Top Recommendation or any other Ready-to-Research Prompt Seed to begin next-phase research. Provide a consolidated Handoff Payload bullet list (no fenced code):
 
-- Top Recommendation ID: <id>
-- All Summarized IDs: <comma-separated list>
-- Date: YYYY-MM-DD
+* Top Recommendation ID: <id>
+* All Summarized IDs: <comma-separated list>
+* Date: YYYY-MM-DD
 
 <!-- </handoff-structure> -->
 
 #### Handoff File Naming Rules
 
-- Must end with `.handoff.md`.
-- Must reside in the SAME directory as the raw JSON file.
-- Date fragment (YYYYMMDD) MUST align with raw filename date if present; else use current UTC date.
+* Must end with `.handoff.md`.
+* Must reside in the SAME directory as the raw JSON file.
+* Date fragment (YYYYMMDD) MUST align with raw filename date if present; else use current UTC date.
 
 ## Summarization Protocol
 
@@ -122,9 +122,9 @@ Important: If the *.handoff.md document already exists then you must first read 
 
 ### Resumable Behavior
 
-- If the handoff file already exists, parse existing section headers to determine already summarized IDs (pattern: `## WI {id} -`).
-- Append only missing items while preserving prior content verbatim.
-- Never duplicate a work item section. Maintain original order for existing sections; new sections follow in correct relative order of raw JSON.
+* If the handoff file already exists, parse existing section headers to determine already summarized IDs (pattern: `## WI {id} -`).
+* Append only missing items while preserving prior content verbatim.
+* Never duplicate a work item section. Maintain original order for existing sections; new sections follow in correct relative order of raw JSON.
 
 ## Handoff Examples
 
@@ -153,7 +153,7 @@ User sessions intermittently expire due to race in token refresh pipeline causin
 
 ### Blockers / Risks
 
-- Potential data loss if refresh fails mid-transaction.
+* Potential data loss if refresh fails mid-transaction.
 
 ### Comments Relevant
 
@@ -168,7 +168,7 @@ TraceLine2
 
 ### Errors / Issues
 
-- 401 Unauthorized after token refresh
+* 401 Unauthorized after token refresh
 
 ### Repository Context
 
@@ -179,19 +179,19 @@ TraceLine2
 
 **Other Related Files Summary**
 
-- src/config/\* - Token TTL settings.
+* src/config/\* - Token TTL settings.
 
 **Implementation Detail Leads**
 
-- Add mutex around refresh sequence.
+* Add mutex around refresh sequence.
 
 **Data / Config Touchpoints**
 
-- ENV TOKEN_REFRESH_SKEW_MS
+* ENV TOKEN_REFRESH_SKEW_MS
 
 **Related Items**
 
-- WI 1250 (Task) - Add integration tests.
+* WI 1250 (Task) - Add integration tests.
 
 ### Summary
 
@@ -227,19 +227,19 @@ Next Steps: Benchmark current drop rate
 
 <!-- <important-compliance-checklist-summarize-handoff> -->
 
-- [ ] Located latest raw JSON (or used provided rawPath)
-- [ ] Derived handoff path with .handoff.md extension in same directory
-- [ ] Resumed without duplicating existing WI sections
-- [ ] Selected top recommendation via forceTopId / boostTags / fallback order
-- [ ] Generated Top Recommendation section with all required subsections
-- [ ] Generated sections for ALL remaining (within maxItems) work items
-- [ ] Included Progress section with summarized & remaining IDs
-- [ ] Included Next Step section with minimal bullet-list Handoff Payload
-- [ ] All structured data rendered as well-formed markdown (tables, bullets, labeled lists)
-- [ ] Did NOT create ANY .summary.json or other JSON artifacts
-- [ ] Limited Top Files to ≤10, Additional Items Key Files to ≤5
-- [ ] Omitted empty sections (e.g., Stack Traces) when data absent
-- [ ] Truncated long headings (>80 chars)
+* [ ] Located latest raw JSON (or used provided rawPath)
+* [ ] Derived handoff path with .handoff.md extension in same directory
+* [ ] Resumed without duplicating existing WI sections
+* [ ] Selected top recommendation via forceTopId / boostTags / fallback order
+* [ ] Generated Top Recommendation section with all required subsections
+* [ ] Generated sections for ALL remaining (within maxItems) work items
+* [ ] Included Progress section with summarized & remaining IDs
+* [ ] Included Next Step section with minimal bullet-list Handoff Payload
+* [ ] All structured data rendered as well-formed markdown (tables, bullets, labeled lists)
+* [ ] Did NOT create ANY .summary.json or other JSON artifacts
+* [ ] Limited Top Files to ≤10, Additional Items Key Files to ≤5
+* [ ] Omitted empty sections (e.g., Stack Traces) when data absent
+* [ ] Truncated long headings (>80 chars)
 
 <!-- </important-compliance-checklist-summarize-handoff> -->
 

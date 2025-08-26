@@ -11,14 +11,14 @@ NO local re-ordering beyond natural server return order. NO reliance on saved qu
 
 ## Inputs
 
-- ${input:project:edge-ai}: Azure DevOps project name or ID (REQUIRED)
-- ${input:types:Bug, Task}: Comma-separated prioritized Work Item Types to fetch first (case-insensitive). Default: Bug, Task.
-- ${input:fallbackTypes:User Story}: Comma-separated secondary Work Item Types to fetch ONLY IF the first pass returns zero results. Default: User Story.
-- ${input:states:Active, New}: (Optional) Comma-separated workflow states to include. If empty, include all states. Default restricts to Active, New.
-- ${input:areaPath}: (Optional) Area Path filter. If supplied, include only work items under this Area Path (exact or descendant as supported by search behavior).
-- ${input:iterationPath}: (Optional) IterationPath filter. When provided, you MUST append ` IterationPath:"${input:iterationPath}"`to the`searchText` (note the leading space) so that server-side search scopes results to that iteration. Do NOT add if empty.
-- ${input:fields}: (Optional) Explicit additional fields to hydrate (beyond defaults) when calling `mcp_ado_wit_get_work_item` for each work item.
-- ${input:pageSize:200}: Page size for each `mcp_ado_search_workitem` call (attempt to use 200; adjust down only if API enforces a lower maximum).
+* ${input:project:edge-ai}: Azure DevOps project name or ID (REQUIRED)
+* ${input:types:Bug, Task}: Comma-separated prioritized Work Item Types to fetch first (case-insensitive). Default: Bug, Task.
+* ${input:fallbackTypes:User Story}: Comma-separated secondary Work Item Types to fetch ONLY IF the first pass returns zero results. Default: User Story.
+* ${input:states:Active, New}: (Optional) Comma-separated workflow states to include. If empty, include all states. Default restricts to Active, New.
+* ${input:areaPath}: (Optional) Area Path filter. If supplied, include only work items under this Area Path (exact or descendant as supported by search behavior).
+* ${input:iterationPath}: (Optional) IterationPath filter. When provided, you MUST append ` IterationPath:"${input:iterationPath}"`to the`searchText` (note the leading space) so that server-side search scopes results to that iteration. Do NOT add if empty.
+* ${input:fields}: (Optional) Explicit additional fields to hydrate (beyond defaults) when calling `mcp_ado_wit_get_work_item` for each work item.
+* ${input:pageSize:200}: Page size for each `mcp_ado_search_workitem` call (attempt to use 200; adjust down only if API enforces a lower maximum).
 
 ## Outputs
 
@@ -126,18 +126,18 @@ Parse `${input:types}` and `${input:fallbackTypes}` into two ordered, case-insen
 
 Call `mcp_ado_search_workitem` repeatedly with:
 
-- `project`: array containing `${input:project}`
-- `searchText`: must include `a:@Me`
-- `workItemType`: array of prioritized types (parsed from `${input:types}`) OR omit if empty after parsing
-- `state`: array of states if provided
-- `areaPath`: pass only if `${input:areaPath}` provided
-- `top`: `${input:pageSize}`
-- `skip`: advance by `${input:pageSize}` until a page returns fewer than `${input:pageSize}` or zero
+* `project`: array containing `${input:project}`
+* `searchText`: must include `a:@Me`
+* `workItemType`: array of prioritized types (parsed from `${input:types}`) OR omit if empty after parsing
+* `state`: array of states if provided
+* `areaPath`: pass only if `${input:areaPath}` provided
+* `top`: `${input:pageSize}`
+* `skip`: advance by `${input:pageSize}` until a page returns fewer than `${input:pageSize}` or zero
 
 After each page (See Outputs JSON Structure):
 
-- Add `System.Id`'s to `idsOrdered` list if missing.
-  - Only when `System.Id` is added to `idsOrdered` then you must add it to `hydration.remainingIds`.
+* Add `System.Id`'s to `idsOrdered` list if missing.
+  * Only when `System.Id` is added to `idsOrdered` then you must add it to `hydration.remainingIds`.
 
 ### 3. Optional Fallback Search Pass
 
@@ -160,66 +160,66 @@ When persisting you must verify that you've included all fields from this list
 
 After all search pages (and fallback if used) complete AND there is at least one item in `hydration.remainingIds`:
 
-- Iterate `hydration.remainingIds` in order. For each remainingId, call `mcp_ado_wit_get_work_item`.
-- After 3-5 `mcp_ado_wit_get_work_item` calls, merge (hydrate) returned field values into the corresponding `items[i].fields` (overwrite any previously stored fields).
-- After EACH successful item hydration, remove that id from `hydration.remainingIds`.
-- Important, if a `mcp_ado_wit_get_work_item` call fails, surface the error and stop (leave remaining ids intact for potential retry in a subsequent run).
+* Iterate `hydration.remainingIds` in order. For each remainingId, call `mcp_ado_wit_get_work_item`.
+* After 3-5 `mcp_ado_wit_get_work_item` calls, merge (hydrate) returned field values into the corresponding `items[i].fields` (overwrite any previously stored fields).
+* After EACH successful item hydration, remove that id from `hydration.remainingIds`.
+* Important, if a `mcp_ado_wit_get_work_item` call fails, surface the error and stop (leave remaining ids intact for potential retry in a subsequent run).
 
 #### 6.a Hydration Field Persistence Rule (Critical)
 
 ALL fields returned by `mcp_ado_wit_get_work_item` that are part of the requested hydration field list (See Outputs JSON Structure) MUST be written immediately into the single JSON artifact `.copilot-tracking/workitems/{YYYYMMDD}-assigned-to-me.raw.json` during that same hydration cycle.
 
 Mandatory rules:
-- No temporary, staging, or intermediate files may be created; the ONLY persistence target is the dated `*.raw.json` file.
-- If the server omits a requested field, do not fabricate it; absence is acceptable. If it returns the field with `null` or empty value, persist as-is.
-- Never remove previously stored fields when adding new ones; merges are additive/overwriting per field key.
-- User-provided `${input:fields}` are treated identically to defaults: if returned, they MUST appear under the item's `fields` object after that hydration step.
-- The on-disk JSON after each hydration call must reflect the latest known complete set of fields for every hydrated item so far (idempotent on re-runs).
+* No temporary, staging, or intermediate files may be created; the ONLY persistence target is the dated `*.raw.json` file.
+* If the server omits a requested field, do not fabricate it; absence is acceptable. If it returns the field with `null` or empty value, persist as-is.
+* Never remove previously stored fields when adding new ones; merges are additive/overwriting per field key.
+* User-provided `${input:fields}` are treated identically to defaults: if returned, they MUST appear under the item's `fields` object after that hydration step.
+* The on-disk JSON after each hydration call must reflect the latest known complete set of fields for every hydrated item so far (idempotent on re-runs).
 
 ### 7. Final Output Table (See Outputs)
 
 After hydration completes (or if zero items found), output to the conversation:
 
-- A markdown table with columns: ID | Type | Title | Tags | Priority | Stack Rank
-- For Title: Replace long text by inserting `<br />` every ~70 characters at natural space boundaries (best-effort) to wrap.
-- For Tags: If empty or null, leave cell blank. Otherwise split semicolon- or comma-delimited tag strings (trim whitespace) into separate lines joined by `<br />`.
-- If Priority or Stack Rank missing, display `-`.
+* A markdown table with columns: ID | Type | Title | Tags | Priority | Stack Rank
+* For Title: Replace long text by inserting `<br />` every ~70 characters at natural space boundaries (best-effort) to wrap.
+* For Tags: If empty or null, leave cell blank. Otherwise split semicolon- or comma-delimited tag strings (trim whitespace) into separate lines joined by `<br />`.
+* If Priority or Stack Rank missing, display `-`.
 
 ### Error Handling
 
-- If any tool call fails, surface the raw error content and stop further processing (persist whatever progress possible before stopping).
+* If any tool call fails, surface the raw error content and stop further processing (persist whatever progress possible before stopping).
 
 ## Edge Cases & Rules
 
-- If both prioritized and fallback passes are empty, do not perform hydration phase.
-- NEVER invoke `wit_my_work_items`, `wit_get_query`, or `wit_get_query_results_by_id` in this prompt.
+* If both prioritized and fallback passes are empty, do not perform hydration phase.
+* NEVER invoke `wit_my_work_items`, `wit_get_query`, or `wit_get_query_results_by_id` in this prompt.
 
 ## Completion Summary Requirements (See Outputs: Completion Summary)
 
 When done, provide:
 
-- Count of work items hydrated
-- Path to JSON file
-- Whether fallback types were used
-- The markdown table described above (or a statement that none were found)
+* Count of work items hydrated
+* Path to JSON file
+* Whether fallback types were used
+* The markdown table described above (or a statement that none were found)
 
 ## Compliance Checklist (Self-Evaluate Before Responding)
 
 <!-- <important-compliance-checklist> -->
-- [ ] No disallowed tools used (`wit_my_work_items`, query tools)
-- [ ] Paging implemented for full retrieval
-- [ ] Progressive persistence of raw json artifact file
-- [ ] Hydration merged additional fields in-place in raw json artifact file
-- [ ] IDs/order preserved; no reordering
-- [ ] Fallback executed only if prioritized search yielded zero items
-- [ ] Output table uses `<br />` for Title wrapping & Tag splitting
-- [ ] Empty / null tags → blank cell
-- [ ] IterationPath appended to searchText only if provided
-- [ ] Single JSON artifact file updated throughout
-- [ ] All requested hydration fields persisted for each item
-- [ ] No temporary files created
-- [ ] No requested field suppressed/filtered/deferred
-- [ ] Read-in and reviewed the final JSON artifact file before any response to the user
+* [ ] No disallowed tools used (`wit_my_work_items`, query tools)
+* [ ] Paging implemented for full retrieval
+* [ ] Progressive persistence of raw json artifact file
+* [ ] Hydration merged additional fields in-place in raw json artifact file
+* [ ] IDs/order preserved; no reordering
+* [ ] Fallback executed only if prioritized search yielded zero items
+* [ ] Output table uses `<br />` for Title wrapping & Tag splitting
+* [ ] Empty / null tags → blank cell
+* [ ] IterationPath appended to searchText only if provided
+* [ ] Single JSON artifact file updated throughout
+* [ ] All requested hydration fields persisted for each item
+* [ ] No temporary files created
+* [ ] No requested field suppressed/filtered/deferred
+* [ ] Read-in and reviewed the final JSON artifact file before any response to the user
 <!-- </important-compliance-checklist> -->
 
 ---
