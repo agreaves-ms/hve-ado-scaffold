@@ -1,5 +1,5 @@
 ---
-description: "Required instructions for workitem planning leveraging mcp ado tool calls."
+description: "Required instructions for workitem planning and creation or updating leveraging mcp ado tool calls."
 applyTo: '**/.copilot-tracking/workitems/**'
 ---
 
@@ -71,15 +71,7 @@ Sections (fixed order):
   * `Specific Section Y` refers to functionality that's no longer needed after functionality A found in codebase [searched codebase]:
     * relative/path/to/old-file-3.ext
 
-  #### WI002 - Working Description
-    ```markdown
-    ## As a user (updated to match style and tone from mcp ado searched work items)
-    As a user, I want to update component with new functionality A. So I can do this specific thing that I want with this component that was called out in the document.
 
-    ## Requirements
-    * Functionality A becomes possible
-    ```
-    -
   #### WI002 - ADO Work Item Discovery
 
 
@@ -87,7 +79,7 @@ Sections (fixed order):
 4. Recommendations (counts create/update/review)
 5. Notes (optional)
 
-#### work-items.md (Authoritative Plan)
+#### work-items.md
 
 **Detailed Template:**
 <!-- <template-work-items-md> -->
@@ -160,7 +152,8 @@ As a user, I want to update component with new functionality B and new functiona
 <!-- </example-work-items-md> -->
 
 
-#### planning-log.md (Structured Mutable Log)
+#### planning-log.md
+
 Generic, process-agnostic markdown log. Sections are routinely UPDATED in-place (tables grow; snapshot replaced; keyword groups rewritten). Historical fidelity is maintained through additive table rows and optional Decisions notes rather than enforcing append-only semantics.
 
 **Detailed Template:**
@@ -203,7 +196,27 @@ Generic, process-agnostic markdown log. Sections are routinely UPDATED in-place 
 ````
 <!-- </template-planning-log-md> -->
 
+**Example Possible Work Item Field Value**:
+<!-- <example-planning-log-md-field-values> -->
+````markdown
+* Working **System.Title**: As a user, I want a title that can be updated as new information is discovered
+* Working **System.Description**:
+  ```markdown
+  ## As a user (updated to match style and tone from mcp ado searched work items)
+  As a user, I want to update component with new functionality A. So I can do this specific thing that I want with this component that was called out in the document.
+
+  ## Requirements
+  * Functionality A becomes possible
+  ```
+* Working **Microsoft.VSTS.Common.AcceptanceCriteria**:
+  ```markdown
+  * Able to do specific thing
+  ```
+````
+<!-- </example-planning-log-md-field-values> -->
+
 #### handoff.md
+
 Purpose: Stable, concise execution handoff. Required sections:
 1. Source Information (artifacts, project, repository, area path, iteration path)
 2. Execution Parameters (work-items.md relative path, markdown style reference to each work item in work-items.md, wit title, wit description)
