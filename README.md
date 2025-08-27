@@ -48,11 +48,7 @@ Install HVE ADO Scaffold into your existing repository using the PowerShell scri
    .\Install-HveAdoScaffold.ps1
    ```
 
-2. **Configure MCP settings:**
-   * Edit `.vscode/mcp.json` with your Azure DevOps organization details
-   * The installer will prompt you for each file that already exists
-
-3. **Start using the workflows:**
+2. **Start using the workflows:**
    * Open VS Code and try the prompts from `.github/prompts/` in Copilot Chat
 
 **Installation options:**
