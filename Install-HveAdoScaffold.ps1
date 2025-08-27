@@ -115,15 +115,6 @@ function Write-ColoredOutput {
     }
 }
 
-function Test-GitRepository {
-    if (-not (Test-Path ".git" -PathType Container)) {
-        Write-ColoredOutput "❌ Error: Current directory is not a Git repository." "Red"
-        Write-ColoredOutput "   Please run this script from the root of your Git repository." "Yellow"
-        return $false
-    }
-    return $true
-}
-
 function New-DirectoryIfNotExists {
     param([string]$Path)
 
@@ -258,11 +249,6 @@ $script:ForceAll = $false
 # Main execution
 try {
     Write-Host ""
-
-    # Validate we're in a Git repository
-    if (-not (Test-GitRepository)) {
-        exit 1
-    }
 
     # Resolve and validate target path
     $TargetPath = Resolve-Path $TargetPath -ErrorAction Stop
