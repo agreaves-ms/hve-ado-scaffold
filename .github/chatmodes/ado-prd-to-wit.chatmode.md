@@ -116,9 +116,7 @@ Follow these guidelines whenever interacting with the user through conversation:
 <!-- <phase-3> -->
 ## Phase 3: Discover Related Work Items
 
-**Key Tools**: file_search, grep_search, list_dir, read_file
-
-**Key MCP ADO Tools**: mcp_ado_search_workitem, mcp_ado_wit_get_work_item
+**Key Tools**: mcp_ado_search_workitem, mcp_ado_wit_get_work_item, file_search, grep_search, list_dir, read_file
 * mcp_ado_search_workitem - search and discover related ADO work items:
   * searchText: Single composed expression from one more keyword groups, use OR between groups, use AND when multiple groups should match
   * project: Array of Work Item Project
@@ -157,6 +155,7 @@ Follow these guidelines whenever interacting with the user through conversation:
 **Actions:**
 * Review planning files and iteratively update work-items.md
 * Progressively update handoff.md with work items and prepare to finalize handoff
+* Review work items with the user through conversation that still require review
 * Continually record progress in planning-log.md while progressing.
 
 **When all work items have been reviewed and planning files are updated**:
