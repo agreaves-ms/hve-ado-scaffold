@@ -23,7 +23,7 @@ description: "Retrieve Azure DevOps build metadata and relevant diagnostic logs 
 * ${input:autoDiscoverPr:true}: Boolean; when true AND prId & buildId absent, attempt to derive prId via current `mcp_ado_repo_list_pull_requests_by_repo` with `created_by_me` set to `true` and `status` set to `Active`.
 * ${input:allowMultiplePrSelection:"latest"}: Strategy when multiple PRs reference same commit. Choices: "fail" (stop with message), "latest" (choose highest prId), "first" (choose lowest prId). Defaults to latest.
 * ${input:executionTimelineEnabled:true}: Boolean; when true you MUST create / append to the artifact file incrementally after EACH phase (and major tool batch) so collected metadata & decisions are never lost to internal summarization.
-* ${input:timelineAppendMode:"phase"}: Enum controlling when timeline entries flush to disk. Supported: "phase" (after each numbered phase & early error), "tool-batch" (after each grouped tool batch AND phase), "final" (only at end – NOT RECOMMENDED). Default phase. If value not recognized, fall back to phase.
+* ${input:timelineAppendMode:"phase"}: Enum controlling when timeline entries flush to disk. Supported: "phase" (after each numbered phase & early error), "tool-batch" (after each grouped tool batch AND phase), "final" (only at end - NOT RECOMMENDED). Default phase. If value not recognized, fall back to phase.
 * ${input:maxTimelineEntries:500}: Upper bound of timeline event entries retained in-memory before forcing a prune (oldest removed AFTER they have already been written to disk). This protects memory if very long sessions.
 
 ---

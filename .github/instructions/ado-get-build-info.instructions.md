@@ -122,7 +122,7 @@ You MUST produce (unless no builds found) the following artifacts:
 ...
 ```
 Notes:
-* This section is APPENDED to *incrementally* during execution – do NOT rewrite prior lines.
+* This section is APPENDED to *incrementally* during execution - do NOT rewrite prior lines.
 * Always open with a header if the file did not previously exist.
 * Never duplicate identical consecutive entries.
 * Keep each line <= 500 characters; truncate with ellipsis if longer after redaction.
@@ -261,7 +261,7 @@ For each planned logId (respect order):
 * Retry a failed log fetch once before marking partial.
 * If no anchors found and includeAllLogs=false and fetchSuccessfulLogs=false: include a placeholder message in Failure / Diagnostic Segments: "No error or warning anchors detected.".
 * If executionTimelineEnabled=true ALWAYS flush (append) a timeline line for any error before aborting so cause is captured.
-* If early stop BEFORE build selection still write a minimal artifact containing: header, Execution Timeline (with events so far), and a short note explaining stop reason (unless zero required inputs making even file path ambiguous – then skip file but still output reason).
+* If early stop BEFORE build selection still write a minimal artifact containing: header, Execution Timeline (with events so far), and a short note explaining stop reason (unless zero required inputs making even file path ambiguous - then skip file but still output reason).
 
 ## Performance & Limits
 

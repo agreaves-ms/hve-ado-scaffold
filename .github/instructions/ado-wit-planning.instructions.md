@@ -1,15 +1,9 @@
 ---
-description: "Required instructions for workitem planning and creation or updating leveraging mcp ado tool calls."
+description: "Required instructions for work item planning and creation or updating leveraging mcp ado tool calls."
 applyTo: '**/.copilot-tracking/workitems/**'
 ---
 
-# Azure DevOps Work Items Planning Instructions
-
-Provide a single, consistent source of truth for:
-* Defining and maintaining planning workitem files
-* Determining similarity against existing Azure DevOps work items
-* Routine state persistence for summarization and resumable work item planning
-* Define a stable execution handoff for workitem creation and updating
+# Azure DevOps Work Items Planning File Instructions
 
 <!-- <planning-folder-structure> -->
 ## Planning File Definitions & Directory Conventions
@@ -32,7 +26,7 @@ Root planning workspace structure:
 * Choose primary artifact when multiple artifacts and documents are provided or best effort.
 <!-- </planning-folder-structure> -->
 
-### Planning File Requirements
+## Planning File Requirements
 
 * Planning markdown files MUST start with:
   ```
@@ -47,44 +41,48 @@ Root planning workspace structure:
 <!-- <artifact-analysis-md> -->
 ## artifact-analysis.md
 
-Sections (fixed order):
-1. Title line: e.g., `# [Planning Type] Work Item Analysis - [Summarized Title]`
-2. Source Metadata (bolded bullet list): e.g., File(s), Project, AreaPath?, IterationPath?
-3. Planned Work Items (sections with bolded bullet list of details): e.g.,
-  ````markdown
-  ## Planned Work Items
+**Detailed Template:**
+<!-- <template-artifact-analysis-md> -->
+````markdown
+# [Planning Type] Work Item Analysis - [Summarized Title]
+* **Artifact(s)**: [e.g., relative/path/to/artifact-a.md, relative/path/to/artifact-b.md]
+  * [(Optional) Inline Artifacts (e.g., User provided the following: [markdown block follows])]
+* **Project**: [Project Name]
+* **Area Path**: [(Optional) Area Path]
+* **Iteration Path**: [(Optional) Iteration Path]
 
-  ### WI002 - Update Component Functionality A
-  * **Working Title**: As a user, I want functionality A in Component [Suggested and continually modified through discovery]
-  * **Working Type**: User Story
-  * **Key Search Terms**: "example term", "another", "term"
-  * **Working Description**:
-    ```markdown
-    [Suggested and continually modified through discovery]
-    ```
-  * **Working Acceptance Criteria**:
-    ```markdown
-    [Suggested and continually modified through discovery]
-  * **Found Work Item Field Values**:
-    * [Work Item Field (e.g., System.Priority)]: [List of found Work Item Field Values]
-  * **Suggested Work Item Field Values**:
-    * [Work Item Field (e.g., System.Priority)]: [List of found Work Item Field Values]
+## Planned Work Items
 
-  #### WI002 - Related & Discovered Information
-  * Key details from file the/doc/file.ext: Identifies this functionality as a high priority, Suggests related work for this functionality
-  * `Specific Section X` refers to specific requirement described here for functionality A
-  * `Specific Section X` refers to specific requirement described here for functionality C that needs functionality A
-  * `Specific Section W` refers to functional requirements that relates to functionality A:
-    * Functionality A becomes possible
-  * User mentioned specific requirement in conversation
-  * Functionality A needed in codefiles found in codebase [searched codebase]:
-    * relative/path/to/file.ext - supports component but missing functionality A
-    * relative/path/to/file2.ext - references functionality related to functionality A
-  * `Specific Section Y` refers to functionality that's no longer needed after functionality A found in codebase [searched codebase]:
-    * relative/path/to/old-file-3.ext
-  ````
-4. Recommendations (counts create/update/review)
-5. Notes (optional)
+### WI[Reference Number (e.g., 001)] - [one of, Create|Update] - [Summarized Work Item Title]
+* **Working Title**: [Single line value (e.g., As a <persona>, I want <capability> so that <outcome>)]
+* **Working Type**: [Supported Work Item Type]
+* **Key Search Terms**: [Keyword groups (e.g., "primary term", "secondary term", "tertiary")]
+* **Working Description**:
+  ```markdown
+  [Evolving description content constructed from artifacts and discovery]
+  ```
+* **Working Acceptance Criteria**:
+  ```markdown
+  * [Acceptance criterion 1 from artifacts and discovery]
+  * [Acceptance criterion 2 from artifacts and discovery]
+  ```
+* **Found Work Item Field Values**:
+  * [Work Item Field (e.g., System.Priority)]: [Value (e.g., 2, 3)]
+* **Suggested Work Item Field Values**:
+  * [Work Item Field (e.g., System.Priority)]: [Value (e.g., 2, 3)]
+
+#### WI[Reference Number (e.g., 001)] - Related & Discovered Information
+* [(Optional) zero or more Functional and Non-Functional Requirements blocks (e.g., Related Functional Requirements from relative/path/to/artifact-a.md)]
+  * [(Optional) one or more Functional Requirement line items (e.g., FR-001: details of requirement)]
+* [one or more Key Details blocks (e.g., Related Key Details from relative/path/to/artifact-b.md)]
+  * [one or more Key Details line items (e.g., `Section 2.3` references dependency on data ingestion workflow)]
+* [(Optional) zero or more Related Codebase blocks (e.g., Related Codebase Items Mentioned from User)]
+  * [(Optional) one or more Related Codebase line items (e.g., src/components/example.ts: needs to be updated with related functionality, WidgetClass: needs IRepository)]
+
+## Notes
+* [(Optional) Notes worth mentioning (e.g., PRD specifically included two Epics (WI001, WI002))]
+````
+<!-- </template-artifact-analysis-md> -->
 <!-- </artifact-analysis-md> -->
 
 <!-- <work-items-md> -->
@@ -135,7 +133,7 @@ Updating existing user story to add functionality A called out in [Section](../.
 ## As a user (continue to match existing style and tone)
 As a user, I want to update component with new functionality B and new functionality A. So I can do this specific thing that I want with this component.
 
-## Requirements
+## Functional Requirements
 * Functionality A becomes possible
 * Functionality B becomes possible
 * Side-effect is then something
@@ -164,11 +162,9 @@ As a user, I want to update component with new functionality B and new functiona
 <!-- <planning-log-md> -->
 ## planning-log.md
 
-Generic, process-agnostic markdown log.
-
-Planning Log Rules:
-* Sections are routinely added, updated, extended, and removed in-place.
-* Track all new, in-progress, and completed steps routinely.
+* planning-log.md is a living document: sections are routinely added, updated, extended, and removed in-place.
+* Iterating on any planning files requires updates to planning-log.md in order to track progress.
+* Track all new, in-progress, and completed steps for Phases routinely.
 * Update Status section with in-progress review of completed and proposed steps.
 * Update Previous Phase when moving onto any other Phase (not required to be in-order (meaning, Phase-1 could be repeated after Phase-2 due to discovery)).
 
@@ -238,40 +234,33 @@ Planning Log Rules:
 <!-- <handoff-md> -->
 #### handoff.md
 
-Purpose: Stable, concise execution handoff. Required sections:
-1. Source Information (artifacts, project, repository, area path, iteration path)
-2. Execution Parameters (work-items.md relative path, markdown style reference to each work item in work-items.md, wit title, wit description)
-3. Summary (Totals + Action counts + Type counts)
-4. Next Steps (simple ordered list)
+* Must have a reference to each work item in work-items.md for proper handoff.
+* Must have a markdown checkbox next to each work item and include summary.
+* Must have a project relative path to planning files (handoff.md, work-items.md, planning-log.md).
+* Must update Summary section when Work Items section is updated.
 
 Template:
 <!-- <template-handoff-md> -->
 ```markdown
 # Work Item Handoff
-* **Project**: <Project Name>
-* **Repository**: <repo-name>
-* **Area Path**: <Optional Area>
-* **Iteration Path**: <Optional Iteration>
-* **Planning Files**:
-  * work-items.md (authoritative plan)
-  * planning-log.md (state log)
-  * artifact-analysis.md (analysis)
+* **Project**: [`projects` field for mcp ado tool]
+* **Repository**: [(Optional) `repository` field for mcp ado tool]
 
-## Execution Parameters
-* Plan File: ./work-items.md
-* Items:
-  * WI002 (Update) – System.Id 1071 – Update existing user story for functionality A
-  * WI003 (Create) – New user story for functionality C
+## Planning Files:
+  * .copilot-tracking/workitems/<planning-type>/<artifact-normalized-name>/handoff.md
+  * .copilot-tracking/workitems/<planning-type>/<artifact-normalized-name>/work-items.md
+  * .copilot-tracking/workitems/<planning-type>/<artifact-normalized-name>/planning-log.md
 
 ## Summary
 * Total Items: 2
-* Actions: { create: 1, update: 1, review: 0 }
-* Types: { User Story: 2 }
+* Actions: create 1, update 1
+* Types: User Story 2
 
-## Next Steps
-1. Validate similarity scores for WI003 against latest search results <= 24h old
-2. Execute updates / creations in ADO (record resulting IDs in work-items.md)
-3. Refresh planning-log.md relationships section
+## Work Items - work-items.md
+* [ ] (Update) WI[Reference Number (e.g., 001)] [Work Item Type (e.g., User Story)] - System.Id [ADO Work Item ID, (e.g., 1071)]
+  * [Summary (e.g., Update existing user story for functionality A)]
+* [ ] (Create) WI[Reference Number (e.g., 003)] [Work Item Type (e.g., Epic)]
+  * [Summary (e.g., New user story for functionality C)]
 ```
 <!-- </template-handoff-md> -->
 <!-- </handoff-md> -->
@@ -304,7 +293,7 @@ Goal: Deterministic, resumable discovery of existing work items.
 
 <!-- <search-keyword-protocol> -->
 Steps:
-1. Maintain ACTIVE KEYWORD GROUPS: ordered list, each group = 1–4 specific terms (multi‑word allowed) joined by OR.
+1. Maintain ACTIVE KEYWORD GROUPS: ordered list, each group = 1-4 specific terms (multi‑word allowed) joined by OR.
 2. Compose `searchText`:
   * Single group → `(term1 OR "multi word")`
   * Multiple groups → `(group1) AND (group2)` etc.
@@ -323,16 +312,14 @@ Similarity Computation Guidance:
 | Similarity | Action | Interpretation |
 |------------|--------|----------------|
 | ≥ 0.70 | update | Strong alignment with existing item intent |
-| 0.50–0.69 | review | Potential alignment; needs manual confirmation |
+| 0.50-0.69 | review | Potential alignment; needs manual confirmation |
 | < 0.50 | create | No sufficiently aligned existing item |
 <!-- </similarity-decision-matrix> -->
 
 <!-- <state-persistence-protocol> -->
-## Routine State Persistence & Summarization Protocol
+## Routine State Persistence & Summarization Tool Call Protocol
 
-Must maintain planning-log.md routinely by keeping it up to date as information is discovered.
-Must add and update work items in work-items.md as information is discovered.
-Must add and update planning-log.md for each new artifact, keyword group, Azure DevOps work item, etc.
+* Must maintain planning-log.md routinely by keeping it up to date as information is discovered.
 
 ### Required Pre-Summarization
 Summarization must also include the following (or else you will likely cause breaking changes):
