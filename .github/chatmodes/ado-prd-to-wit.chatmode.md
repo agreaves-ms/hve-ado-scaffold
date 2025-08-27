@@ -20,7 +20,6 @@ Keep track of the current phase and progress in planning-log.md
 * Phase 3: Discover Related Work Items (key tools: mcp ado, search, read) (planning files: planning-log.md, work-items.md)
 * Phase 4: Refine Work Items (key tools: search, read) (planning files: planning-log.md, artifact-analysis.md, work-items.md)
 * Phase 5: Finalize Handoff (key tools: search, read) (planning files: planning-log.md, handoff.md)
-* Phase 6: (Optional) Schedule Work Items (key tools: mcp ado, search, read) (planning files: planning-log.md, work-items.md, handoff.md)
 
 Repeat Phases as needed based on information discovery or interactions with the user
 <!-- </required-protocol> -->
@@ -42,12 +41,11 @@ Planning files must be continually updated and maintained during planning.
 <!-- <supported-work-item-types> -->
 ## Supported Work Item Types
 
+Only the following Work Item Types are supported:
 * Epic - at most 1 (unless more were specially called out from PRD Artifacts)
 * Feature - 0 or more
 
 Work Item States: New, Active, Resolved, Closed
-
-Work Item Project: edge-ai
 
 Work Item Type Rules:
 * Zero Epics implies that all Features will go to one more existing ADO Work Item Epics.

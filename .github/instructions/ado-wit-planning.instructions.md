@@ -5,6 +5,8 @@ applyTo: '**/.copilot-tracking/workitems/**'
 
 # Azure DevOps Work Items Planning File Instructions
 
+ADO Work Item Project: edge-ai
+
 <!-- <planning-folder-structure> -->
 ## Planning File Definitions & Directory Conventions
 
@@ -100,9 +102,11 @@ Root planning workspace structure:
 ## WI[Reference Number (e.g, 002)] - [Action (one of, Create|Update)] - [Summarized Title (e.g., Update Component Functionality A)]
 [1-5 Sentence Explanation of Change (e.g., Adding user story for functionality A called out in [Section](../../docs/document.md#the-specific-section))]
 
-* WI[Reference Number] - [Work Item Type Fields (e.g., System.Id, System.WorkItemType, System.Title)]: [Single Line Value (e.g., As a user, I want functionality A in Component)]
+[(Optional) WI[Reference Number] - Similarity: [System.Id Similarity Score (e.g., ADO-1024=0.5, ADO-901=0.8, ADO-1071=0.9)]]
 
-### WI[Reference Number] - [Work Item Type Fields (e.g., System.Description, Microsoft.VSTS.Common.AcceptanceCriteria)]
+* WI[Reference Number] - [Work Item Type Fields for single-line values (e.g., System.Id, System.WorkItemType, System.Title, System.Tags)]: [Single Line Value (e.g., As a user, I want functionality A in Component)]
+
+### WI[Reference Number] - [Work Item Type Fields for multi-line values (e.g., System.Description, Microsoft.VSTS.Common.AcceptanceCriteria)]
 ```[Format (e.g., markdown, html, json)]
 [Multi Line Value]
 ```
@@ -123,6 +127,8 @@ Root planning workspace structure:
 
 ## WI002 - Update - Update Component Functionality A
 Updating existing user story to add functionality A called out in [Section](../../docs/document.md#the-specific-section) from provided document. Found [User Story Title](https://dev.azure.com/Organization/Project%20Name/_workitems/edit/1071/) through conversation with the user and agreed to update. User agreed System.Title should be updated as well.
+
+WI002 - Similarity: ADO-901=0.8, ADO-1071=0.9
 
 * WI002 - System.Id: 1071
 * WI002 - System.WorkItemType: User Story
@@ -167,6 +173,7 @@ As a user, I want to update component with new functionality B and new functiona
 * Track all new, in-progress, and completed steps for Phases routinely.
 * Update Status section with in-progress review of completed and proposed steps.
 * Update Previous Phase when moving onto any other Phase (not required to be in-order (meaning, Phase-1 could be repeated after Phase-2 due to discovery)).
+* Update Current Phase and Previous Phase when transitioning phases.
 
 **Detailed Template:**
 <!-- <template-planning-log-md> -->
@@ -175,6 +182,7 @@ As a user, I want to update component with new functionality B and new functiona
 * **Project**: [`projects` field for mcp ado tool]
 * **Repository**: [(Optional) `repository` field for mcp ado tool]
 * **Previous Phase**: [(Optional) (e.g., Phase-1, Phase-2, N/A, Just Started) (Only if instructions use phases)]
+* **Current Phase**: [(e.g., Phase-1, Phase-2, N/A, Just Started) (Only if instructions use phases)]
 
 ## Status
 [e.g., 1/20 docs reviewed, 0/10 codefiles reviewed, 2/5 ado wit searched]
@@ -191,7 +199,7 @@ As a user, I want to update component with new functionality B and new functiona
 ### **WI[Reference Number]** - [WorkItemType (e.g., User Story)] - [one of, In-Progress|Complete]
 * [WI[Reference Number] - Work Item Section](./artifact-analysis.md)
 * Working Search Keywords: [Working Keywords (e.g., "the keyword OR another keyword")]
-* Related ADO Work Items: [Related work items when identified include similarity (e.g., ADO-1023 (0.5), ADO-102 (0.7), ADO-103(0.8))]
+* Related ADO Work Items - Similarity: [System.Id Similarity Score (e.g., ADO-1023=0.5, ADO-102=0.7, ADO-103=0.8)]
 * Suggested Action: [one of, Create|Update]
 
 [Collected & Discovered Information]
@@ -206,7 +214,6 @@ As a user, I want to update component with new functionality B and new functiona
 
 ## ADO Work Items
 ### ADO-[ADO Work Item ID]
-
 [All content from mcp_ado_wit_get_work_item]
 ````
 <!-- </template-planning-log-md> -->
@@ -235,6 +242,7 @@ As a user, I want to update component with new functionality B and new functiona
 #### handoff.md
 
 * Must have a reference to each work item in work-items.md for proper handoff.
+* Create work items must always be before Update work items.
 * Must have a markdown checkbox next to each work item and include summary.
 * Must have a project relative path to planning files (handoff.md, work-items.md, planning-log.md).
 * Must update Summary section when Work Items section is updated.
@@ -257,10 +265,10 @@ Template:
 * Types: User Story 2
 
 ## Work Items - work-items.md
-* [ ] (Update) WI[Reference Number (e.g., 001)] [Work Item Type (e.g., User Story)] - System.Id [ADO Work Item ID, (e.g., 1071)]
-  * [Summary (e.g., Update existing user story for functionality A)]
-* [ ] (Create) WI[Reference Number (e.g., 003)] [Work Item Type (e.g., Epic)]
+* [ ] (Create) [(Optional) **Needs Review**] WI[Reference Number (e.g., 003)] [Work Item Type (e.g., Epic)]
   * [Summary (e.g., New user story for functionality C)]
+* [ ] (Update) [(Optional) **Needs Review**] WI[Reference Number (e.g., 001)] [Work Item Type (e.g., User Story)] - System.Id [ADO Work Item ID, (e.g., 1071)]
+  * [Summary (e.g., Update existing user story for functionality A)]
 ```
 <!-- </template-handoff-md> -->
 <!-- </handoff-md> -->
@@ -275,12 +283,12 @@ Template:
 * Common Extensions: "Microsoft.VSTS.Common.AcceptanceCriteria", "Microsoft.VSTS.TCM.ReproSteps", "Microsoft.VSTS.Common.Priority", "Microsoft.VSTS.Common.StackRank", "Microsoft.VSTS.Common.ValueArea", "Microsoft.VSTS.Common.BusinessValue", "Microsoft.VSTS.Common.Risk", "Microsoft.VSTS.Common.TimeCriticality", "Microsoft.VSTS.Common.Severity"
 * Estimation & Scheduling: "Microsoft.VSTS.Scheduling.StoryPoints", "Microsoft.VSTS.Scheduling.OriginalEstimate", "Microsoft.VSTS.Scheduling.RemainingWork", "Microsoft.VSTS.Scheduling.CompletedWork", "Microsoft.VSTS.Scheduling.Effort"
 
-**Available Types:**
-| Type | Available | Key Fields |
-|------|-----------|------------|
-| Epic | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Scheduling.Effort |
-| Feature | ✅ | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.Priority |
-| User Story | ✅ | System.Title, System.Description, Microsoft.VSTS.Common.AcceptanceCriteria, Microsoft.VSTS.Scheduling.StoryPoints, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Common.ValueArea |
+**Work Item Types and Available Fields:**
+| Type | Key Fields |
+|------|------------|
+| Epic | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Scheduling.Effort |
+| Feature | System.Title, System.Description, System.AreaPath, System.IterationPath, Microsoft.VSTS.Common.ValueArea, Microsoft.VSTS.Common.BusinessValue, Microsoft.VSTS.Common.Priority |
+| User Story | System.Title, System.Description, Microsoft.VSTS.Common.AcceptanceCriteria, Microsoft.VSTS.Scheduling.StoryPoints, Microsoft.VSTS.Common.Priority, Microsoft.VSTS.Common.ValueArea |
 
 Rules:
 * Feature requires Epic parent.
