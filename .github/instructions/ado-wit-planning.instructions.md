@@ -112,7 +112,7 @@ Root planning workspace structure:
 ```
 
 ### WI[Reference Number] - Relationships
-* WI[Reference Number] - [Link Type (e.g., Child, Predecessor, Successor, Related)] - [Relation ID (either, WI[Related Reference Number], System.Id: [Work Item ID from mcp ado tool])]: [Single Line Reason (e.g., New user story for feature around component)]
+* WI[Reference Number] - [is-a Link Type (e.g., Child, Predecessor, Successor, Related)] - [Relation ID (either, WI[Related Reference Number], System.Id: [Work Item ID from mcp ado tool])]: [Single Line Reason (e.g., New user story for feature around component)]
 ````
 <!-- </template-work-items-md> -->
 
@@ -160,7 +160,8 @@ As a user, I want to update component with new functionality B and new functiona
 ```
 
 ### WI002 - Relationships
-* WI002 - Successor - WI003: Functionality A required in Component before able to add functionality C in new user story WI003
+* WI002 - Predecessor - WI003: Functionality A required in Component before able to add Functionality C in new User Story WI003
+* WI002 - Child - WI001: Functionality A needed for Feature WI001
 ````
 <!-- </example-work-items-md> -->
 <!-- </work-items-md> -->
@@ -266,8 +267,10 @@ Template:
 
 ## Work Items - work-items.md
 * [ ] (Create) [(Optional) **Needs Review**] WI[Reference Number (e.g., 003)] [Work Item Type (e.g., Epic)]
+  * [(Optional) all WI[Reference Number] Relationships as individual line items]
   * [Summary (e.g., New user story for functionality C)]
 * [ ] (Update) [(Optional) **Needs Review**] WI[Reference Number (e.g., 001)] [Work Item Type (e.g., User Story)] - System.Id [ADO Work Item ID, (e.g., 1071)]
+  * [(Optional) all WI[Reference Number] Relationships as individual line items]
   * [Summary (e.g., Update existing user story for functionality A)]
 ```
 <!-- </template-handoff-md> -->
