@@ -6,60 +6,72 @@ applyTo: '**/.copilot-tracking/workitems/**'
 # Azure DevOps Work Items Planning Instructions
 
 Provide a single, consistent source of truth for:
-* Defining and maintaining planning workitem artifacts
+* Defining and maintaining planning workitem files
 * Determining similarity against existing Azure DevOps work items
 * Routine state persistence for summarization and resumable work item planning
 * Define a stable execution handoff for workitem creation and updating
 
-## Artifact Definitions & Directory Conventions
+<!-- <planning-folder-structure> -->
+## Planning File Definitions & Directory Conventions
 
-Root planning workspace structure (PRD-focused planning only):
+Root planning workspace structure:
 
-<!-- <artifact-structure> -->
 ```plain
 .copilot-tracking/
   workitems/
-    <artifact-type>/
+    <planning-type>/
       <artifact-normalized-name>/
         artifact-analysis.md                    # Human-readable table + recommendations
         work-items.md                           # Human/Machine-readable plan (source of truth)
         handoff.md                              # Handoff for workitem execution (optionally references work-items.json if JSON variant produced)
         planning-log.md                         # Structured operational & state log (routinely updated sections)
 ```
-Normalization: lower-case, hyphenated base filename without extension (e.g. `docs/Customer Onboarding PRD.md` → `docs--customer-onboarding-prd`). Avoid spaces and punctuation besides hyphens.
-<!-- </artifact-structure> -->
+**Normalization:**
+* Lower-case, hyphenated base filename without extension (e.g. `docs/Customer Onboarding PRD.md` → `docs--customer-onboarding-prd`).
+* Avoid spaces and punctuation besides hyphens (replace with hyphens).
+* Choose primary artifact when multiple artifacts and documents are provided or best effort.
+<!-- </planning-folder-structure> -->
 
-### Artifact Field / Section Requirements
+### Planning File Requirements
 
-**Markdown required format**:
-* `*.md` files MUST start with:
+* Planning markdown files MUST start with:
   ```
   <!-- markdownlint-disable-file -->
   <!-- markdown-table-prettify-ignore-start -->
   ```
-* `*.md` files MUST end with:
+* Planning markdown files MUST end with (before last newline):
   ```
   <!-- markdown-table-prettify-ignore-end -->
   ```
 
-#### artifact-analysis.md
+<!-- <artifact-analysis-md> -->
+## artifact-analysis.md
 
 Sections (fixed order):
-1. Title line: e.g., `# PRD Work Item Analysis - [Summarized Title]`
-2. Source Metadata (bolded bullet list): e.g., File, Parsed, Project, AreaPath?, IterationPath?
+1. Title line: e.g., `# [Planning Type] Work Item Analysis - [Summarized Title]`
+2. Source Metadata (bolded bullet list): e.g., File(s), Project, AreaPath?, IterationPath?
 3. Planned Work Items (sections with bolded bullet list of details): e.g.,
   ````markdown
   ## Planned Work Items
 
   ### WI002 - Update Component Functionality A
-  * **Working Title**: As a user, I want functionality A in Component
+  * **Working Title**: As a user, I want functionality A in Component [Suggested and continually modified through discovery]
   * **Working Type**: User Story
-  * **Working Action**: Create
   * **Key Search Terms**: "example term", "another", "term"
-  * **Existing IDs**: N/A [or Related WorkItemID (confidence) e.g., 102 (0.5), 103 (0.9), 104 (0.1)]
+  * **Working Description**:
+    ```markdown
+    [Suggested and continually modified through discovery]
+    ```
+  * **Working Acceptance Criteria**:
+    ```markdown
+    [Suggested and continually modified through discovery]
+  * **Found Work Item Field Values**:
+    * [Work Item Field (e.g., System.Priority)]: [List of found Work Item Field Values]
+  * **Suggested Work Item Field Values**:
+    * [Work Item Field (e.g., System.Priority)]: [List of found Work Item Field Values]
 
-  #### WI002 - Working Related & Discovered Information
-  * Key details from file: Identifies this functionality as a high priority, Suggests related work for this functionality
+  #### WI002 - Related & Discovered Information
+  * Key details from file the/doc/file.ext: Identifies this functionality as a high priority, Suggests related work for this functionality
   * `Specific Section X` refers to specific requirement described here for functionality A
   * `Specific Section X` refers to specific requirement described here for functionality C that needs functionality A
   * `Specific Section W` refers to functional requirements that relates to functionality A:
@@ -70,16 +82,13 @@ Sections (fixed order):
     * relative/path/to/file2.ext - references functionality related to functionality A
   * `Specific Section Y` refers to functionality that's no longer needed after functionality A found in codebase [searched codebase]:
     * relative/path/to/old-file-3.ext
-
-
-  #### WI002 - ADO Work Item Discovery
-
-
   ````
 4. Recommendations (counts create/update/review)
 5. Notes (optional)
+<!-- </artifact-analysis-md> -->
 
-#### work-items.md
+<!-- <work-items-md> -->
+## work-items.md
 
 **Detailed Template:**
 <!-- <template-work-items-md> -->
@@ -150,21 +159,31 @@ As a user, I want to update component with new functionality B and new functiona
 * WI002 - Successor - WI003: Functionality A required in Component before able to add functionality C in new user story WI003
 ````
 <!-- </example-work-items-md> -->
+<!-- </work-items-md> -->
 
+<!-- <planning-log-md> -->
+## planning-log.md
 
-#### planning-log.md
+Generic, process-agnostic markdown log.
 
-Generic, process-agnostic markdown log. Sections are routinely UPDATED in-place (tables grow; snapshot replaced; keyword groups rewritten). Historical fidelity is maintained through additive table rows and optional Decisions notes rather than enforcing append-only semantics.
+Planning Log Rules:
+* Sections are routinely added, updated, extended, and removed in-place.
+* Track all new, in-progress, and completed steps routinely.
+* Update Status section with in-progress review of completed and proposed steps.
+* Update Previous Phase when moving onto any other Phase (not required to be in-order (meaning, Phase-1 could be repeated after Phase-2 due to discovery)).
 
 **Detailed Template:**
 <!-- <template-planning-log-md> -->
 ````markdown
-# Work Item Planning Log
+# [Planning Type] - Work Item Planning Log
 * **Project**: [`projects` field for mcp ado tool]
 * **Repository**: [(Optional) `repository` field for mcp ado tool]
+* **Previous Phase**: [(Optional) (e.g., Phase-1, Phase-2, N/A, Just Started) (Only if instructions use phases)]
 
 ## Status
-[e.g., 1/20 docs reviewed, 0/10 codefiles reviewed, 2/5 ado wit searched, 1/]
+[e.g., 1/20 docs reviewed, 0/10 codefiles reviewed, 2/5 ado wit searched]
+
+**Summary**: [e.g., Searching for ADO Work Items based on keywords]
 
 ## Discovered Artifacts & Related Files
 * AT[Reference Number (e.g., 001)] [relative/path/to/file (identified from referenced artifacts, discovered in artifacts, conversation, codebase)] - [one of, Not Started|In-Progress|Complete] - [Processing|Related|N/A]
@@ -214,7 +233,9 @@ Generic, process-agnostic markdown log. Sections are routinely UPDATED in-place 
   ```
 ````
 <!-- </example-planning-log-md-field-values> -->
+<!-- </planning-log-md> -->
 
+<!-- <handoff-md> -->
 #### handoff.md
 
 Purpose: Stable, concise execution handoff. Required sections:
@@ -231,7 +252,7 @@ Template:
 * **Repository**: <repo-name>
 * **Area Path**: <Optional Area>
 * **Iteration Path**: <Optional Iteration>
-* **Source Artifacts**:
+* **Planning Files**:
   * work-items.md (authoritative plan)
   * planning-log.md (state log)
   * artifact-analysis.md (analysis)
@@ -253,7 +274,9 @@ Template:
 3. Refresh planning-log.md relationships section
 ```
 <!-- </template-handoff-md> -->
+<!-- </handoff-md> -->
 
+<!-- <work-item-fields> -->
 ## Work Item Fields
 
 **Relative Work Item Type Fields:**
@@ -273,6 +296,7 @@ Template:
 Rules:
 * Feature requires Epic parent.
 * User Story requires Feature parent.
+<!-- </work-item-fields> -->
 
 ## Search Keyword & Search Text Protocol
 
@@ -303,10 +327,9 @@ Similarity Computation Guidance:
 | < 0.50 | create | No sufficiently aligned existing item |
 <!-- </similarity-decision-matrix> -->
 
-
+<!-- <state-persistence-protocol> -->
 ## Routine State Persistence & Summarization Protocol
 
-<!-- <state-persistence-protocol> -->
 Must maintain planning-log.md routinely by keeping it up to date as information is discovered.
 Must add and update work items in work-items.md as information is discovered.
 Must add and update planning-log.md for each new artifact, keyword group, Azure DevOps work item, etc.
@@ -314,12 +337,12 @@ Must add and update planning-log.md for each new artifact, keyword group, Azure 
 ### Required Pre-Summarization
 Summarization must also include the following (or else you will likely cause breaking changes):
 * Full paths to all working files with a summary describing each file and its purpose
-* Anything that was not captured into the planning-log.md file or other artifacts that should have been captured before summarization
-  * Specifically state exactly what needs to be done again (use the mcp_ado_wit_get_work_item tool with ID ### again, etc)
+* Anything that was not captured into the planning-log.md file or other planning files that should have been captured before summarization
+  * Specifically state exactly what needs to be done again (e.g., use the mcp_ado_wit_get_work_item tool with ID ### again, etc)
 * Exact work item IDs that were already reviewed
 * Exact work item IDs that are left to be reviewed
-* Exact work item IDs that were already reviewed but likely not captured into the planning-log.md file or other artifacts
-* Exact planning steps that you were previously on (must repeat if data was not captured into artifacts)
+* Exact work item IDs that were already reviewed but likely not captured into the planning-log.md file or other planning files
+* Exact planning steps that you were previously on (must repeat if data was not captured into planning files)
 * Exact planning steps that are still required
 * Any potential work item search criteria that is still required
 
@@ -328,7 +351,7 @@ If context has `<summary>` and only one tool call, then immediately do the follo
 
 1. **State File Validation**:
   * It's likely you've lost valuable information and you are now required to recover your context to avoid broken changes
-  * Use the `list_dir` tool under the `.copilot-tracking/workitems/<artifact-type>/<artifact-normalized-name>` working folder
+  * Use the `list_dir` tool under the `.copilot-tracking/workitems/<planning-type>/<artifact-normalized-name>` working folder
   * Use the `read_file` tool to read back in all of the planning-log.md to build back context
 
 2. **Context Reconstruction User Update**:
