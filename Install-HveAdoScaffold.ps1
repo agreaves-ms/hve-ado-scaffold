@@ -46,49 +46,49 @@ $REPO_URL = "https://raw.githubusercontent.com/agreaves-ms/hve-ado-scaffold/main
 # Files to download and their target locations
 $FILES_TO_COPY = @(
     # VS Code configuration
-    @{ Source = ".vscode/settings.json"; Target = ".vscode/settings.json"; Category = "VSCode" }
-    @{ Source = ".vscode/mcp.json"; Target = ".vscode/mcp.json"; Category = "VSCode" }
+    @{ FilePath = ".vscode/settings.json"; Category = "VSCode" }
+    @{ FilePath = ".vscode/mcp.json"; Category = "VSCode" }
 
     # Dev container
-    @{ Source = ".devcontainer/devcontainer.json"; Target = ".devcontainer/devcontainer.json"; Category = "DevContainer" }
+    @{ FilePath = ".devcontainer/devcontainer.json"; Category = "DevContainer" }
 
     # GitHub configuration
-    @{ Source = ".github/copilot-instructions.md"; Target = ".github/copilot-instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/copilot-instructions.md"; Category = "Core" }
 
     # Prompts
-    @{ Source = ".github/prompts/ado-get-build-info.prompt.md"; Target = ".github/prompts/ado-get-build-info.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/ado-get-my-work-items.prompt.md"; Target = ".github/prompts/ado-get-my-work-items.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/ado-process-my-work-items-for-task-planning.prompt.md"; Target = ".github/prompts/ado-process-my-work-items-for-task-planning.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/ado-update-wit-items.prompt.md"; Target = ".github/prompts/ado-update-wit-items.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/git-commit.prompt.md"; Target = ".github/prompts/git-commit.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/git-commit-message.prompt.md"; Target = ".github/prompts/git-commit-message.prompt.md"; Category = "Core" }
-    @{ Source = ".github/prompts/git-setup.prompt.md"; Target = ".github/prompts/git-setup.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/ado-get-build-info.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/ado-get-my-work-items.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/ado-process-my-work-items-for-task-planning.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/ado-update-wit-items.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/git-commit.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/git-commit-message.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/git-setup.prompt.md"; Category = "Core" }
 
     # Chat modes
-    @{ Source = ".github/chatmodes/adr-creation.chatmode.md"; Target = ".github/chatmodes/adr-creation.chatmode.md"; Category = "Core" }
-    @{ Source = ".github/chatmodes/ado-prd-to-wit.chatmode.md"; Target = ".github/chatmodes/ado-prd-to-wit.chatmode.md"; Category = "Core" }
-    @{ Source = ".github/chatmodes/prd-builder.chatmode.md"; Target = ".github/chatmodes/prd-builder.chatmode.md"; Category = "Core" }
-    @{ Source = ".github/chatmodes/prompt-builder.chatmode.md"; Target = ".github/chatmodes/prompt-builder.chatmode.md"; Category = "Core" }
-    @{ Source = ".github/chatmodes/task-planner.chatmode.md"; Target = ".github/chatmodes/task-planner.chatmode.md"; Category = "Core" }
-    @{ Source = ".github/chatmodes/task-researcher.chatmode.md"; Target = ".github/chatmodes/task-researcher.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/adr-creation.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/ado-prd-to-wit.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/prd-builder.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/prompt-builder.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/task-planner.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/task-researcher.chatmode.md"; Category = "Core" }
 
     # Instructions
-    @{ Source = ".github/instructions/ado-get-build-info.instructions.md"; Target = ".github/instructions/ado-get-build-info.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/ado-update-wit-items.instructions.md"; Target = ".github/instructions/ado-update-wit-items.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/ado-wit-planning.instructions.md"; Target = ".github/instructions/ado-wit-planning.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/commit-message.instructions.md"; Target = ".github/instructions/commit-message.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/markdown.instructions.md"; Target = ".github/instructions/markdown.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/task-implementation.instructions.md"; Target = ".github/instructions/task-implementation.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/csharp/csharp.instructions.md"; Target = ".github/instructions/csharp/csharp.instructions.md"; Category = "Core" }
-    @{ Source = ".github/instructions/csharp/csharp-tests.instructions.md"; Target = ".github/instructions/csharp/csharp-tests.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/ado-get-build-info.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/ado-update-wit-items.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/ado-wit-planning.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/commit-message.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/markdown.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/task-implementation.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/csharp/csharp.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/csharp/csharp-tests.instructions.md"; Category = "Core" }
 
     # Documentation template
-    @{ Source = "docs/solution-adr-library/adr-template-solutions.md"; Target = "docs/solution-adr-library/adr-template-solutions.md"; Category = "Core" }
+    @{ FilePath = "docs/solution-adr-library/adr-template-solutions.md"; Category = "Core" }
 
     # Configuration files
-    @{ Source = ".markdownlint.json"; Target = ".markdownlint.json"; Category = "Core" }
-    @{ Source = ".cspell.json"; Target = ".cspell.json"; Category = "Core" }
-    @{ Source = ".cspell-dictionary.txt"; Target = ".cspell-dictionary.txt"; Category = "Core" }
+    @{ FilePath = ".markdownlint.json"; Category = "Core" }
+    @{ FilePath = ".cspell.json"; Category = "Core" }
+    @{ FilePath = ".cspell-dictionary.txt"; Category = "Core" }
 )
 
 function Write-ColoredOutput {
@@ -208,10 +208,10 @@ function Show-PreInstallSummary {
     foreach ($category in $categories) {
         Write-ColoredOutput "  $($category.Name):" "Cyan"
         foreach ($file in $category.Group) {
-            $exists = Test-FileExists -Path $file.Target
+            $exists = Test-FileExists -Path $file.FilePath
             $status = if ($exists) { "[EXISTS]" } else { "[NEW]" }
             $color = if ($exists) { "Yellow" } else { "Green" }
-            Write-ColoredOutput "    $status $($file.Target)" $color
+            Write-ColoredOutput "    $status $($file.FilePath)" $color
         }
     }
 
@@ -275,15 +275,15 @@ try {
     $failCount = 0
 
     foreach ($file in $filesToInstall) {
-        $sourceUrl = "$REPO_URL/$($file.Source)"
+        $sourceUrl = "$REPO_URL/$($file.FilePath)"
         $forceThis = $Force -or $script:ForceAll
 
-        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.Target -Force:$forceThis
+        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.FilePath -Force:$forceThis
 
         if ($result) {
             $successCount++
         }
-        elseif (Test-FileExists -Path $file.Target) {
+        elseif (Test-FileExists -Path $file.FilePath) {
             $skipCount++
         }
         else {
