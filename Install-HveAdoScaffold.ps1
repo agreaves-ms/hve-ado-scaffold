@@ -137,16 +137,16 @@ function Test-FileExists {
 function Copy-FileWithPrompt {
     param(
         [string]$SourceUrl,
-        [string]$TargetPath,
+        [string]$TargetFile,
         [switch]$Force
     )
 
-    $fullTargetPath = Join-Path $TargetPath $TargetPath
+    $fullTargetPath = Join-Path $TargetPath $TargetFile
     $shouldCopy = $true
 
     if ((Test-Path $fullTargetPath) -and -not $Force) {
         do {
-            $response = Read-Host "File '$TargetPath' already exists. Overwrite? (y/N/a=all)"
+            $response = Read-Host "File '$TargetFile' already exists. Overwrite? (y/N/a=all)"
             $response = $response.ToLower()
 
             switch ($response) {
@@ -164,21 +164,21 @@ function Copy-FileWithPrompt {
 
     if ($shouldCopy) {
         try {
-            New-DirectoryIfNotExists -Path $TargetPath
+            New-DirectoryIfNotExists -Path $TargetFile
 
-            Write-ColoredOutput "⬇️  Downloading: $TargetPath" "Cyan"
+            Write-ColoredOutput "⬇️  Downloading: $TargetFile" "Cyan"
             Invoke-WebRequest -Uri $SourceUrl -OutFile $fullTargetPath -ErrorAction Stop
 
-            Write-ColoredOutput "✅ Installed: $TargetPath" "Green"
+            Write-ColoredOutput "✅ Installed: $TargetFile" "Green"
             return $true
         }
         catch {
-            Write-ColoredOutput "❌ Failed to download $TargetPath : $($_.Exception.Message)" "Red"
+            Write-ColoredOutput "❌ Failed to download $TargetFile : $($_.Exception.Message)" "Red"
             return $false
         }
     }
     else {
-        Write-ColoredOutput "⏭️  Skipped: $TargetPath" "Yellow"
+        Write-ColoredOutput "⏭️  Skipped: $TargetFile" "Yellow"
         return $false
     }
 }
@@ -278,7 +278,7 @@ try {
         $sourceUrl = "$REPO_URL/$($file.Source)"
         $forceThis = $Force -or $script:ForceAll
 
-        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetPath $file.Target -Force:$forceThis
+        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.Target -Force:$forceThis
 
         if ($result) {
             $successCount++
