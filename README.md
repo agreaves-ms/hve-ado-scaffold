@@ -34,6 +34,48 @@ Use it as‑is or cherry‑pick only the folders you want.
 
 ## Quick start 🏁
 
+### Option 1: Automated Installation (Recommended) 🤖
+
+Install HVE ADO Scaffold into your existing repository using the PowerShell script:
+
+1. **Download and run the installer:**
+
+   ```powershell
+   # Download the installer script
+   Invoke-WebRequest -Uri "https://raw.githubusercontent.com/agreaves-ms/hve-ado-scaffold/main/Install-HveAdoScaffold.ps1" -OutFile "Install-HveAdoScaffold.ps1"
+
+   # Run the installer from your repository root
+   .\Install-HveAdoScaffold.ps1
+   ```
+
+2. **Configure MCP settings:**
+   * Edit `.vscode/mcp.json` with your Azure DevOps organization details
+   * The installer will prompt you for each file that already exists
+
+3. **Start using the workflows:**
+   * Open VS Code and try the prompts from `.github/prompts/` in Copilot Chat
+
+**Installation options:**
+
+```powershell
+# Install with prompts for existing files
+.\Install-HveAdoScaffold.ps1
+
+# Force overwrite existing files
+.\Install-HveAdoScaffold.ps1 -Force
+
+# Skip VS Code settings
+.\Install-HveAdoScaffold.ps1 -SkipVSCodeSettings
+
+# Skip dev container configuration
+.\Install-HveAdoScaffold.ps1 -SkipDevContainer
+
+# Install to a specific directory
+.\Install-HveAdoScaffold.ps1 -TargetPath "./my-project"
+```
+
+### Option 2: Manual Setup 📋
+
 1. Clone the repo
    * You can work directly in this scaffold or copy the pieces into your own repo.
 
@@ -218,7 +260,13 @@ Use `prd-builder` for structured product specification prior to backlog seeding:
 
 ## Recommended setup in your repo 🔧
 
-If you're copying things into a different repository:
+**🤖 Automated (Recommended):**
+
+Use the PowerShell installer script (see [Quick start](#quick-start-)) - it handles all the file copying and directory structure automatically.
+
+**📋 Manual approach:**
+
+If you prefer to copy things manually into a different repository:
 
 1. Copy [`.vscode/settings.json`](./.vscode/settings.json) so Copilot Chat discovers your prompts/instructions.
 2. Copy [`.vscode/mcp.json`](./.vscode/mcp.json) so Copilot Chat has required external tools; **keep secrets out of source control**.
