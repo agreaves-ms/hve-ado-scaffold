@@ -42,7 +42,6 @@ param(
 
 # Configuration
 $REPO_URL = "https://raw.githubusercontent.com/agreaves-ms/hve-ado-scaffold/main"
-$TEMP_DIR = Join-Path $env:TEMP "hve-ado-scaffold-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
 # Files to download and their target locations
 $FILES_TO_COPY = @(
