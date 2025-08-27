@@ -116,54 +116,59 @@ Here are the key parts and why you'd want them:
 
 ### Copilot Prompts (.github/prompts) for AzDO 🔧
 
-Located in [`.github/prompts/`](./.github/prompts/). Each prompt is an executable mini-workflow. Current catalog:
+Located in [`.github/prompts/`](./.github/prompts/). Each prompt is an executable, opinionated workflow. Updated catalog (filenames now use consistent `ado-` / `git-` prefixes):
 
-* [`get-my-work-items.prompt.md`](./.github/prompts/get-my-work-items.prompt.md)
-  * `/get-my-work-items` - Full @Me retrieval with paging + progressive JSON hydration (`.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json`).
-  * Prioritized + fallback types, strict field list persistence, no WIQL dependency.
+* [`ado-get-my-work-items.prompt.md`](./.github/prompts/ado-get-my-work-items.prompt.md)
+  * `/ado-get-my-work-items` - Retrieve & hydrate ALL @Me items (prioritized types first, optional fallback) with progressive JSON persistence to `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.raw.json` and strict field merge rules (no WIQL queries, no deprecated shortcuts).
 
-* [`create-my-work-items-handoff.prompt.md`](./.github/prompts/create-my-work-items-handoff.prompt.md)
-  * `/create-my-work-items-handoff` - Generates a rich, resumable markdown handoff (`*.handoff.md`) from the raw file with repository file context, selecting a top recommendation.
+* [`ado-process-my-work-items-for-task-planning.prompt.md`](./.github/prompts/ado-process-my-work-items-for-task-planning.prompt.md)
+  * `/ado-process-my-work-items-for-task-planning` - Generates a resumable enriched handoff (`*.handoff.md`) from the latest raw JSON: selects a top recommendation (boost / force logic), adds repository context (files, hypotheses, risks) & seeds Task Researcher.
 
-* [`ado-update-wit-prd-items.prompt.md`](./.github/prompts/ado-update-wit-prd-items.prompt.md)
-  * `/ado-update-wit-prd-items` - Consumes a PRD→WIT handoff to create/update/link work items (Epics → Features → Stories) with batching, retries, relationship linking, and execution report artifacts.
+* [`ado-update-wit-items.prompt.md`](./.github/prompts/ado-update-wit-items.prompt.md)
+  * `/ado-update-wit-items` - Executes a `handoff.md` (Create/Update ordering, hierarchy, relationships) following planning + update instructions to create/update/link Epics → Features → Stories with resilient batching & structured `handoff-logs.md` tracking.
 
-* [`gen-commit-message.prompt.md`](./.github/prompts/gen-commit-message.prompt.md)
-  * `/gen-commit-message` - Conventional Commit generation using staged changes only.
+* [`ado-get-build-info.prompt.md`](./.github/prompts/ado-get-build-info.prompt.md)
+  * `/ado-get-build-info` - Targeted or latest PR build metadata + focused log extraction into `.copilot-tracking/pr/*-build-*-logs.md` (error/warning segments, optional full logs, execution timeline, compliance checklist).
 
-* [`commit.prompt.md`](./.github/prompts/commit.prompt.md)
-  * `/commit` - Stages everything, generates & applies commit message, then displays it (atomic workflow).
+* [`git-commit-message.prompt.md`](./.github/prompts/git-commit-message.prompt.md)
+  * `/git-commit-message` - Generates a Conventional Commit message (staged changes only) per strict rules (type + <=4 change points, optional body, emoji footer).
+
+* [`git-commit.prompt.md`](./.github/prompts/git-commit.prompt.md)
+  * `/git-commit` - Atomic stage → generate → commit workflow using only allowed git commands; prints authoritative message after committing.
 
 * [`git-setup.prompt.md`](./.github/prompts/git-setup.prompt.md)
-  * `/git-setup` - Verification‑first Git configuration assistant (identity, signing, editor/diff/merge tooling) with safe, confirm-before-change flow.
+  * `/git-setup` - Safe, verification‑first Git config assistant (identity, signing, diff/merge tooling) with confirm-before-change guidance.
 
-Why these prompts? Together they implement: collect → contextualize → handoff → plan/execute → commit.
+Why these prompts? Together they implement: collect → contextualize → handoff → plan/research → implement → validate (build) → commit.
 
 ### Copilot Chat Modes (.github/chatmodes) for workflow automation 🤖
 
-Located in [`.github/chatmodes/`](./.github/chatmodes/). Specialized persistent personas:
+Located in [`.github/chatmodes/`](./.github/chatmodes/). Specialized persistent personas (filenames normalized; one new ADO-prefixed mode):
 
-* [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md) - Deep evidence-driven research (creates `.copilot-tracking/research/*.md`).
-* [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md) - Produces synchronized plan / details / implementation prompt triplet.
-* [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md) - Prompt + instruction authoring & validation (dual Builder/Tester persona).
-* [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md) - Socratic ADR coaching, progressive draft to finalized decision artifact.
-* [`prd-builder.chatmode.md`](./.github/chatmodes/prd-builder.chatmode.md) - Structured Product Requirements Document creation with state resumption.
-* [`prd-to-wit.chatmode.md`](./.github/chatmodes/prd-to-wit.chatmode.md) - (Used upstream of `ado-update-wit-prd-items`) transforms PRD analysis into executable work item handoff.
+* [`task-researcher.chatmode.md`](./.github/chatmodes/task-researcher.chatmode.md) - Deep, evidence-driven research (`.copilot-tracking/research/*.md`) using a mandated research template & aggressive context recovery.
+* [`task-planner.chatmode.md`](./.github/chatmodes/task-planner.chatmode.md) - Generates synchronized `plans/`, `details/`, and implementation prompt triplet enabling progressive execution.
+* [`prompt-builder.chatmode.md`](./.github/chatmodes/prompt-builder.chatmode.md) - Author / refactor prompts & instruction files with builder + tester roles.
+* [`adr-creation.chatmode.md`](./.github/chatmodes/adr-creation.chatmode.md) - Guided ADR flow (context, alternatives, decision) leveraging reusable ADR template.
+* [`prd-builder.chatmode.md`](./.github/chatmodes/prd-builder.chatmode.md) - Structured PRD authoring with resumable session state.
+* [`ado-prd-to-wit.chatmode.md`](./.github/chatmodes/ado-prd-to-wit.chatmode.md) - Transforms PRD output into actionable WI planning artifacts consumed by update prompt.
 
-Why chat modes? They reduce drift: each mode enforces domain‑specific rigor and artifacts.
+Why chat modes? They stabilize multi-phase flows: each encapsulates domain rigor, artifact lifecycle, and compliance checklists reducing conversational drift.
 
 ### Instruction files (what guides Copilot) 🧭
 
-Located in [`.github/instructions/`](./.github/instructions/) - these shape how Copilot behaves when generating content.
+Located in [`.github/instructions/`](./.github/instructions/) - these are loaded automatically (see VS Code settings) and layered with a global meta policy file (`copilot-instructions.md`). Key files:
 
-* [`commit-message.instructions.md`](./.github/instructions/commit-message.instructions.md)
-  * Conventional Commit rules and examples; used by the commit message prompt.
-* [`markdown.instructions.md`](./.github/instructions/markdown.instructions.md)
-  * Markdown style guide used by markdownlint and by Copilot when drafting docs.
-* [`task-implementation.instructions.md`](./.github/instructions/task-implementation.instructions.md)
-  * For progressive task execution and change logging in `.copilot-tracking/**` (useful for larger feature work tracked across steps).
-* [`csharp/`](./.github/instructions/csharp/) folder
-  * [`csharp.instructions.md`](./.github/instructions/csharp/csharp.instructions.md) and [`csharp-tests.instructions.md`](./.github/instructions/csharp/csharp-tests.instructions.md) define coding and testing conventions if you build C# projects here.
+* Root Meta: [`copilot-instructions.md`](./.github/copilot-instructions.md)
+  * Declares HIGHEST PRIORITY policies: breaking changes allowed, no unrequested tests/docs, minimal factual comments, proactive fixes, mandatory re-reads before edits.
+* Commits: [`commit-message.instructions.md`](./.github/instructions/commit-message.instructions.md) - Conventional Commit syntax (types, scopes, body/footer rules, emoji footer contract).
+* Markdown: [`markdown.instructions.md`](./.github/instructions/markdown.instructions.md) - Style guide aligned with `.markdownlint.json` (headings, spacing, code fences, lists, tables, links consistency).
+* Implementation Loop: [`task-implementation.instructions.md`](./.github/instructions/task-implementation.instructions.md) - Progressive plan execution & `.copilot-tracking/changes/*.md` logging (Added / Modified / Removed + release summary gating).
+* ADO Planning: [`ado-wit-planning.instructions.md`](./.github/instructions/ado-wit-planning.instructions.md) - Canonical planning workspace (artifact-analysis, work-items, handoff, planning-log) + normalization & similarity matrix.
+* ADO Update Execution: [`ado-update-wit-items.instructions.md`](./.github/instructions/ado-update-wit-items.instructions.md) - Handoff-driven create/update/link protocol + resilient sequencing & logging.
+* ADO Build Diagnostics: [`ado-get-build-info.instructions.md`](./.github/instructions/ado-get-build-info.instructions.md) - Deterministic build selection + error-focused segmented log artifact with execution timeline & compliance checklist.
+* Language Conventions: [`csharp.instructions.md`](./.github/instructions/csharp/csharp.instructions.md) & [`csharp-tests.instructions.md`](./.github/instructions/csharp/csharp-tests.instructions.md) - Coding + test architecture (SOLID, ordering, BDD XUnit patterns, base test reuse).
+
+Layering Model: meta > domain (build / planning / update / implementation) > content-type (markdown / commit) > language (csharp + tests). Conflicts resolve by earliest file declaring **HIGHEST PRIORITY** segment. Always re-read relevant instruction files before edits (enforced by meta policy & prompt logic).
 
 ### Docs you can reuse 📚
 
@@ -175,39 +180,41 @@ Located in [`.github/instructions/`](./.github/instructions/) - these shape how 
 
 ### Azure DevOps Work Items Loop
 
-1. `/get-my-work-items` → Progressive raw + hydration JSON
-2. `/create-my-work-items-handoff` → Rich markdown handoff (top recommendation + seeds)
-3. `task-researcher` → Deep evidence doc for chosen item
-4. `task-planner` → Plan + details + implementation prompt
-5. Implementation prompt (executes plan via task implementation instructions)
-6. `/commit` or `/gen-commit-message` → Clean commit
+1. `/ado-get-my-work-items` → Progressive raw + hydration JSON
+2. `/ado-process-my-work-items-for-task-planning` → Enriched markdown handoff (top recommendation + seeds)
+3. `task-researcher` → Evidence-driven research doc for chosen item
+4. `task-planner` → Plan + details + implementation prompt triplet
+5. Implementation prompt (guided by task implementation instructions) → code changes + `.copilot-tracking/changes/*`
+6. `/git-commit-message` or `/git-commit` → Conventional commit
+7. (Optional) `/ado-get-build-info` → Diagnose failing build for feedback loop
 
 ### Work Item Handoff Generation
 
-Adds repository context (relevant files, tags, risks) + structured seeds so research begins with grounded hypotheses instead of blank exploration.
+Adds repository context (candidate & top files, hypotheses, risks, relationships) + ready-to-research seed so research begins grounded (idempotent & resumable). Supports boost / force top selection strategies.
 
 ### Research → Plan → Implement Loop
 
 | Phase | Chat Mode / Prompt | Artifact(s) |
 |-------|--------------------|-------------|
 | Research | task-researcher | `.copilot-tracking/research/*.md` |
-| Plan | task-planner | `plans/`, `details/`, `prompts/` files |
-| Implement | implementation prompt | `changes/*.md` progressive log + code edits |
-| Commit | commit / gen-commit-message | Conventional commit message |
+| Plan | task-planner | `.copilot-tracking/plans/**`, `details/**`, `prompts/**` |
+| Implement | implementation prompt | `.copilot-tracking/changes/*.md` + code edits |
+| Commit | git-commit / git-commit-message | Conventional commit message |
+| Diagnose (optional) | ado-get-build-info | `.copilot-tracking/pr/*-build-*-logs.md` |
 
 ### PRD Authoring Flow
 
-Use `prd-builder` when you need a structured product specification prior to backlog seeding:
+Use `prd-builder` for structured product specification prior to backlog seeding:
 
-1. Start ambiguous idea → builder asks refinement questions.
-2. Creates `docs/prds/<name>.md` + state JSON in `.copilot-tracking/prd-sessions/`.
-3. Iteratively populates: goals, personas, FR/NFR tables, risks, metrics.
-4. Handoff to `prd-to-wit` to synthesize work item creation plan.
-5. Execute with `/ado-update-wit-prd-items` to realize backlog.
+1. Ambiguous idea → refinement Q&A.
+2. Produces `docs/prds/<name>.md` + session state under `.copilot-tracking/prd-sessions/`.
+3. Populates goals, personas, FR/NFR, risks, metrics iteratively.
+4. Handoff to `ado-prd-to-wit` to synthesize WI plan artifacts.
+5. Execute with `/ado-update-wit-items` to realize backlog (Epics → Features → Stories).
 
 ### ADR Creation Flow
 
-`adr-creation` guides: discover decision context → draft rationale → compare alternatives → finalize ADR (using template in `docs/solution-adr-library`).
+`adr-creation` guides: context discovery → alternative evaluation → single decision → final ADR using reusable template (`docs/solution-adr-library`).
 
 ## Recommended setup in your repo 🔧
 
@@ -226,11 +233,12 @@ Tip: You can start simple-use the prompts and instructions as-is-and grow over t
 
 | Command | Purpose | Primary Artifact |
 |---------|---------|------------------|
-| `/get-my-work-items` | Retrieve & hydrate @Me items | `*.raw.json` |
-| `/create-my-work-items-handoff` | Build enriched handoff | `*.handoff.md` |
-| `/ado-update-wit-prd-items` | Create/update/link WITs from PRD handoff | Execution log / ID map |
-| `/gen-commit-message` | Generate commit message | (message only) |
-| `/commit` | Stage + generate + commit | Git commit |
+| `/ado-get-my-work-items` | Retrieve & hydrate @Me items | `*-assigned-to-me.raw.json` |
+| `/ado-process-my-work-items-for-task-planning` | Build enriched handoff | `*-assigned-to-me.handoff.md` |
+| `/ado-update-wit-items` | Create/update/link WIs from handoff | `handoff-logs.md` |
+| `/ado-get-build-info` | Build + log diagnostics | `pr-*-build-*-logs.md` |
+| `/git-commit-message` | Generate commit message | (message only) |
+| `/git-commit` | Stage + generate + commit | Git commit |
 | `/git-setup` | Audit & propose git config | (none) |
 
 ### Chat Modes
@@ -239,10 +247,11 @@ Tip: You can start simple-use the prompts and instructions as-is-and grow over t
 |------|-------|--------|
 | task-researcher | Deep evidence research | `research/*.md` |
 | task-planner | Actionable plan & details | `plans/`, `details/`, `prompts/` |
-| prompt-builder | Prompt/instructions authoring | Updated `.github/prompts\|instructions` |
+| prompt-builder | Prompt / instruction authoring | Updated `.github/{prompts,instructions}` |
 | adr-creation | Architecture decisions | ADR drafts/finals |
-| prd-builder | Product requirements | `docs/prds/*.md`, state JSON |
-| prd-to-wit | PRD → backlog handoff | Work item handoff JSON/markdown |
+| prd-builder | Product requirements | `docs/prds/*.md`, session state |
+| ado-prd-to-wit | PRD → backlog planning | WI planning artifacts |
+| (implementation prompt) | Execute plan | `.copilot-tracking/changes/*.md` |
 
 ## Security & Secrets
 
@@ -272,13 +281,13 @@ Swap AzDO prompts with equivalents (e.g., GitHub Issues MCP server) by:
 Yes - just keep the [settings](./.vscode/settings.json) pointing to the right locations so Copilot can find your files. Update the `chat.instructionsFilesLocations` and `chat.promptFilesLocations` accordingly.
 
 **Do I have to use MCP?**
-Yes for AzDO prompts/instructions/chatmodes - The AzDO prompts require the Azure DevOps MCP server, but you can use the instruction files and chatmodes without MCP.
+Yes for AzDO-centric prompts/chatmodes: they rely on Azure DevOps + Microsoft Docs MCP servers. Non-AzDO instruction files (markdown, commit, C#) work without MCP.
 
 **Will this work outside VS Code?**
 The [VS Code settings](./.vscode/settings.json) are editor-specific, but the prompts, instructions, and chatmodes are just Markdown files - you can adapt them to other editors or use them manually.
 
 **How do I add my own prompts or instructions?**
-Add a `*.prompt.md` to [`.github/prompts/`](./.github/prompts/), a `*.instructions.md` to [`.github/instructions/`](./.github/instructions/), or a `*.chatmode.md` to[`.github/chatmodes/](./.github/chatmodes/). VS Code will automatically discover them.
+Add a `*.prompt.md` to [`.github/prompts/`](./.github/prompts/), a `*.instructions.md` to [`.github/instructions/`](./.github/instructions/), or a `*.chatmode.md` to [`.github/chatmodes/`](./.github/chatmodes/). VS Code auto-discovers per workspace settings.
 
 **What if I don't use Azure DevOps?**
-You can adapt the workflow to other project management tools by modifying the prompts and using different MCP servers (GitHub, Jira, etc.).
+Replace ADO prompts with equivalents (e.g., GitHub Issues or Jira MCP servers) keeping artifact contracts (raw JSON → handoff → planning → implementation → commit) intact.
