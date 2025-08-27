@@ -84,11 +84,6 @@ $FILES_TO_COPY = @(
 
     # Documentation template
     @{ FilePath = "docs/solution-adr-library/adr-template-solutions.md"; Category = "Core" }
-
-    # Configuration files
-    @{ FilePath = ".markdownlint.json"; Category = "Core" }
-    @{ FilePath = ".cspell.json"; Category = "Core" }
-    @{ FilePath = ".cspell-dictionary.txt"; Category = "Core" }
 )
 
 function Write-ColoredOutput {
