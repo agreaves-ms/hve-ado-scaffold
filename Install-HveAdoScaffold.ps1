@@ -246,7 +246,27 @@ try {
     Write-Host ""
 
     # Resolve and validate target path
-    $TargetPath = Resolve-Path $TargetPath -ErrorAction Stop
+    if (-not (Test-Path $TargetPath)) {
+        $createPath = Read-Host "Target path '$TargetPath' does not exist. Create it? (Y/n)"
+        if ($createPath.ToLower() -in @('n', 'no')) {
+            Write-ColoredOutput "❌ Installation cancelled - target path does not exist." "Red"
+            exit 1
+        }
+        try {
+            New-Item -ItemType Directory -Path $TargetPath -Force | Out-Null
+            Write-ColoredOutput "✅ Created target directory: $TargetPath" "Green"
+        }
+        catch {
+            Write-ColoredOutput "❌ Failed to create target directory: $($_.Exception.Message)" "Red"
+            exit 1
+        }
+    }
+    elseif (-not (Get-Item $TargetPath).PSIsContainer) {
+        Write-ColoredOutput "❌ Target path '$TargetPath' exists but is not a directory." "Red"
+        exit 1
+    }
+
+    $TargetPath = Resolve-Path $TargetPath
 
     # Show pre-install summary and get filtered file list
     $filesToInstall = Show-PreInstallSummary
