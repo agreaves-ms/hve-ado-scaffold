@@ -9,6 +9,9 @@ Use it as‑is or cherry‑pick only the folders you want.
 * [Hyper-Velocity Engineering (HVE) ADO Scaffold 🚀](#hyper-velocity-engineering-hve-ado-scaffold-)
   * [Table of Contents](#table-of-contents)
   * [Quick start 🏁](#quick-start-)
+    * [Prerequisites (Mac users only)](#prerequisites-mac-users-only)
+    * [Option 1: Automated Installation (Recommended) 🤖](#option-1-automated-installation-recommended-)
+    * [Option 2: Manual Setup 📋](#option-2-manual-setup-)
   * [What's available 📦](#whats-available-)
     * [VS Code settings ⚙️](#vs-code-settings-️)
     * [MCP configuration 🧩](#mcp-configuration-)
@@ -33,6 +36,16 @@ Use it as‑is or cherry‑pick only the folders you want.
   * [FAQ ❓](#faq-)
 
 ## Quick start 🏁
+
+### Prerequisites (Mac users only)
+
+```bash
+# Install PowerShell on macOS
+brew install powershell
+
+# Start a PowerShell session
+pwsh
+```
 
 ### Option 1: Automated Installation (Recommended) 🤖
 
