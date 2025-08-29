@@ -9,10 +9,6 @@
 
     The script will merge in all important configuration files, prompts, chatmodes, and instructions
     needed to supercharge GitHub Copilot + Azure DevOps workflows.
-.PARAMETER SkipVSCodeSettings
-    Skip copying VS Code settings files (.vscode/settings.json and .vscode/mcp.json)
-.PARAMETER SkipDevContainer
-    Skip copying the dev container configuration (.devcontainer/devcontainer.json)
 .PARAMETER TargetPath
     Target directory to install files into (defaults to current directory)
 .PARAMETER WhatIf
@@ -22,20 +18,10 @@
 .EXAMPLE
     .\Install-HveAdoScaffold.ps1
     Install all HVE ADO scaffold files to the current directory
-.EXAMPLE
-    .\Install-HveAdoScaffold.ps1 -SkipDevContainer
-    Install files but skip the dev container configuration
-
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    [Parameter()]
-    [switch]$SkipVSCodeSettings,
-
-    [Parameter()]
-    [switch]$SkipDevContainer,
-
     [Parameter()]
     [string]$TargetPath = "."
 )
@@ -44,46 +30,46 @@ param(
 $REPO_URL = "https://raw.githubusercontent.com/agreaves-ms/hve-ado-scaffold/main"
 
 # Files to download and their target locations
-$FILES_TO_COPY = @(
+$FILES_TO_INSTALL = @(
     # VS Code configuration
-    @{ FilePath = ".vscode/settings.json"; Category = "VSCode" }
-    @{ FilePath = ".vscode/mcp.json"; Category = "VSCode" }
+    @{ FilePath = ".vscode/settings.json" }
+    @{ FilePath = ".vscode/mcp.json" }
 
     # Dev container
-    @{ FilePath = ".devcontainer/devcontainer.json"; Category = "DevContainer" }
+    @{ FilePath = ".devcontainer/devcontainer.json" }
 
     # GitHub configuration
-    @{ FilePath = ".github/copilot-instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/copilot-instructions.md" }
 
     # Prompts
-    @{ FilePath = ".github/prompts/ado-get-build-info.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/ado-get-my-work-items.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/ado-process-my-work-items-for-task-planning.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/ado-update-wit-items.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/git-commit.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/git-commit-message.prompt.md"; Category = "Core" }
-    @{ FilePath = ".github/prompts/git-setup.prompt.md"; Category = "Core" }
+    @{ FilePath = ".github/prompts/ado-get-build-info.prompt.md" }
+    @{ FilePath = ".github/prompts/ado-get-my-work-items.prompt.md" }
+    @{ FilePath = ".github/prompts/ado-process-my-work-items-for-task-planning.prompt.md" }
+    @{ FilePath = ".github/prompts/ado-update-wit-items.prompt.md" }
+    @{ FilePath = ".github/prompts/git-commit.prompt.md" }
+    @{ FilePath = ".github/prompts/git-commit-message.prompt.md" }
+    @{ FilePath = ".github/prompts/git-setup.prompt.md" }
 
     # Chat modes
-    @{ FilePath = ".github/chatmodes/adr-creation.chatmode.md"; Category = "Core" }
-    @{ FilePath = ".github/chatmodes/ado-prd-to-wit.chatmode.md"; Category = "Core" }
-    @{ FilePath = ".github/chatmodes/prd-builder.chatmode.md"; Category = "Core" }
-    @{ FilePath = ".github/chatmodes/prompt-builder.chatmode.md"; Category = "Core" }
-    @{ FilePath = ".github/chatmodes/task-planner.chatmode.md"; Category = "Core" }
-    @{ FilePath = ".github/chatmodes/task-researcher.chatmode.md"; Category = "Core" }
+    @{ FilePath = ".github/chatmodes/adr-creation.chatmode.md" }
+    @{ FilePath = ".github/chatmodes/ado-prd-to-wit.chatmode.md" }
+    @{ FilePath = ".github/chatmodes/prd-builder.chatmode.md" }
+    @{ FilePath = ".github/chatmodes/prompt-builder.chatmode.md" }
+    @{ FilePath = ".github/chatmodes/task-planner.chatmode.md" }
+    @{ FilePath = ".github/chatmodes/task-researcher.chatmode.md" }
 
     # Instructions
-    @{ FilePath = ".github/instructions/ado-get-build-info.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/ado-update-wit-items.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/ado-wit-planning.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/commit-message.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/markdown.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/task-implementation.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/csharp/csharp.instructions.md"; Category = "Core" }
-    @{ FilePath = ".github/instructions/csharp/csharp-tests.instructions.md"; Category = "Core" }
+    @{ FilePath = ".github/instructions/ado-get-build-info.instructions.md" }
+    @{ FilePath = ".github/instructions/ado-update-wit-items.instructions.md" }
+    @{ FilePath = ".github/instructions/ado-wit-planning.instructions.md" }
+    @{ FilePath = ".github/instructions/commit-message.instructions.md" }
+    @{ FilePath = ".github/instructions/markdown.instructions.md" }
+    @{ FilePath = ".github/instructions/task-implementation.instructions.md" }
+    @{ FilePath = ".github/instructions/csharp/csharp.instructions.md" }
+    @{ FilePath = ".github/instructions/csharp/csharp-tests.instructions.md" }
 
     # Documentation template
-    @{ FilePath = "docs/solution-adr-library/adr-template-solutions.md"; Category = "Core" }
+    @{ FilePath = "docs/solution-adr-library/adr-template-solutions.md" }
 )
 
 function Write-ColoredOutput {
@@ -142,40 +128,23 @@ function Resolve-FilePath {
 }
 
 function Show-PreInstallSummary {
+    Write-Host ""
     Write-ColoredOutput "🚀 HVE ADO Scaffold Installer" "Magenta"
     Write-ColoredOutput "==============================" "Magenta"
     Write-Host ""
     Write-ColoredOutput "Target directory: $(Resolve-FilePath $TargetPath)" "Blue"
     Write-Host ""
 
-    $filesToInstall = $FILES_TO_COPY
-
-    if ($SkipVSCodeSettings) {
-        $filesToInstall = $filesToInstall | Where-Object { $_.Category -ne "VSCode" }
-        Write-ColoredOutput "🚫 Skipping VS Code settings (--SkipVSCodeSettings specified)" "Yellow"
-    }
-
-    if ($SkipDevContainer) {
-        $filesToInstall = $filesToInstall | Where-Object { $_.Category -ne "DevContainer" }
-        Write-ColoredOutput "🚫 Skipping dev container config (--SkipDevContainer specified)" "Yellow"
-    }
-
     Write-ColoredOutput "📋 Files to install:" "Blue"
 
-    $categories = $filesToInstall | Group-Object Category
-    foreach ($category in $categories) {
-        Write-ColoredOutput "  $($category.Name):" "Cyan"
-        foreach ($file in $category.Group) {
-            $exists = Test-FileExists -Path $file.FilePath
-            $status = if ($exists) { "[EXISTS]" } else { "[NEW]" }
-            $color = if ($exists) { "Yellow" } else { "Green" }
-            Write-ColoredOutput "    $status $($file.FilePath)" $color
-        }
+    foreach ($file in $FILES_TO_INSTALL) {
+        $exists = Test-FileExists -Path $file.FilePath
+        $status = if ($exists) { "[EXISTS]" } else { "[NEW]" }
+        $color = if ($exists) { "Yellow" } else { "Green" }
+        Write-ColoredOutput "    $status $($file.FilePath)" $color
     }
 
     Write-Host ""
-
-    return $filesToInstall
 }
 
 function Install-AllFiles {
@@ -196,28 +165,29 @@ function Install-AllFiles {
     $skipCount = 0
     $failCount = 0
 
-    foreach ($file in $filesToInstall) {
-        $sourceUrl = "$REPO_URL/$($file.FilePath)"
+    foreach ($file in $FILES_TO_INSTALL) {
+        $filePath = $file.FilePath
+        $sourceUrl = "$REPO_URL/$($filePath)"
 
-        New-DirectoryIfNotExists -Path $file.FilePath | Out-Null
+        New-DirectoryIfNotExists -Path $filePath | Out-Null
 
-        Write-ColoredOutput "📥 Installing $file.FilePath" "Blue"
-        $fullTargetPath = Join-Path $TargetPath $file.FilePath
+        Write-ColoredOutput "📥 Installing $filePath" "Blue"
+        $fullTargetPath = Join-Path $TargetPath $filePath
         $targetPathExists = Test-Path $fullTargetPath
-        if ($targetPathExists -and -not $PSCmdlet.ShouldProcess($file.FilePath, "Installing over existing file")) {
-            Write-ColoredOutput "  ⚠️  Skipping existing file: $file.FilePath" "Yellow"
+        if ($targetPathExists -and -not $PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
+            Write-ColoredOutput "  ⚠️  Skipping existing file: $filePath" "Yellow"
             $skipCount++
         }
         else {
             try {
-                Write-ColoredOutput "  ⬇️  Downloading: $file.FilePath" "Cyan"
+                Write-ColoredOutput "  ⬇️  Downloading: $filePath" "Cyan"
                 Invoke-WebRequest -Uri $sourceUrl -OutFile $fullTargetPath -ErrorAction Stop
 
-                Write-ColoredOutput "  ✅ Installed: $file.FilePath" "Green"
+                Write-ColoredOutput "  ✅ Installed: $filePath" "Green"
                 $successCount++
             }
             catch {
-                Write-ColoredOutput "  ❌ Failed to download $file.FilePath : $($_.Exception.Message)" "Red"
+                Write-ColoredOutput "  ❌ Failed to download $filePath : $($_.Exception.Message)" "Red"
                 $failCount++
             }
         }
@@ -254,10 +224,7 @@ function Show-PostInstallInstructions {
 
 # Main execution
 try {
-    Write-Host ""
-
-    # Show pre-install summary and get filtered file list
-    $filesToInstall = Show-PreInstallSummary
+    Show-PreInstallSummary
 
     if ($WhatIfPreference) {
         Write-ColoredOutput "ℹ️  Run without WhatIf specified to actually install the files." "Yellow"
