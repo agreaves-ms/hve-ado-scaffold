@@ -9,27 +9,27 @@
 
     The script will merge in all important configuration files, prompts, chatmodes, and instructions
     needed to supercharge GitHub Copilot + Azure DevOps workflows.
-.PARAMETER Force
-    Overwrite existing files without prompting
 .PARAMETER SkipVSCodeSettings
     Skip copying VS Code settings files (.vscode/settings.json and .vscode/mcp.json)
 .PARAMETER SkipDevContainer
     Skip copying the dev container configuration (.devcontainer/devcontainer.json)
 .PARAMETER TargetPath
     Target directory to install files into (defaults to current directory)
+.PARAMETER WhatIf
+    Shows what would happen if the command runs. No files will be downloaded or overwritten.
+.PARAMETER Confirm
+    Prompts for confirmation before executing actions that change files.
 .EXAMPLE
     .\Install-HveAdoScaffold.ps1
     Install all HVE ADO scaffold files to the current directory
 .EXAMPLE
-    .\Install-HveAdoScaffold.ps1 -Force -SkipDevContainer
-    Install files, overwriting existing ones, but skip the dev container configuration
+    .\Install-HveAdoScaffold.ps1 -SkipDevContainer
+    Install files but skip the dev container configuration
+
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
-    [Parameter()]
-    [switch]$Force,
-
     [Parameter()]
     [switch]$SkipVSCodeSettings,
 
@@ -132,29 +132,26 @@ function Test-FileExists {
 function Copy-FileWithPrompt {
     param(
         [string]$SourceUrl,
-        [string]$TargetFile,
-        [switch]$Force
+        [string]$TargetFile
     )
 
     $fullTargetPath = Join-Path $TargetPath $TargetFile
     $shouldCopy = $true
 
-    if ((Test-Path $fullTargetPath) -and -not $Force) {
+    if ((Test-Path $fullTargetPath)) {
         do {
-            $response = Read-Host "File '$TargetFile' already exists. Overwrite? (y/N/a=all)"
+            $response = Read-Host "File '$TargetFile' already exists. Overwrite? (y/N)"
             $response = $response.ToLower()
 
             switch ($response) {
                 'y' { $shouldCopy = $true; break }
                 'yes' { $shouldCopy = $true; break }
-                'a' { $shouldCopy = $true; $script:ForceAll = $true; break }
-                'all' { $shouldCopy = $true; $script:ForceAll = $true; break }
                 'n' { $shouldCopy = $false; break }
                 'no' { $shouldCopy = $false; break }
                 '' { $shouldCopy = $false; break }
-                default { Write-ColoredOutput "Please enter 'y', 'n', or 'a'" "Yellow" }
+                default { Write-ColoredOutput "Please enter 'y' or 'n'" "Yellow" }
             }
-        } while ($response -notin @('y', 'yes', 'n', 'no', 'a', 'all', ''))
+        } while ($response -notin @('y', 'yes', 'n', 'no', ''))
     }
 
     if ($shouldCopy) {
@@ -178,11 +175,21 @@ function Copy-FileWithPrompt {
     }
 }
 
+function Resolve-FilePath {
+    param([string]$Path)
+    try {
+        return (Resolve-Path -Path $Path -ErrorAction Stop).Path
+    }
+    catch {
+        return (Join-Path (Get-Location) $Path)
+    }
+}
+
 function Show-PreInstallSummary {
     Write-ColoredOutput "🚀 HVE ADO Scaffold Installer" "Magenta"
     Write-ColoredOutput "==============================" "Magenta"
     Write-Host ""
-    Write-ColoredOutput "Target directory: $(Resolve-Path $TargetPath)" "Blue"
+    Write-ColoredOutput "Target directory: $(Resolve-FilePath $TargetPath)" "Blue"
     Write-Host ""
 
     $filesToInstall = $FILES_TO_COPY
@@ -212,10 +219,6 @@ function Show-PreInstallSummary {
 
     Write-Host ""
 
-    if ($Force) {
-        Write-ColoredOutput "⚠️  Force mode enabled - existing files will be overwritten" "Yellow"
-    }
-
     return $filesToInstall
 }
 
@@ -238,48 +241,20 @@ function Show-PostInstallInstructions {
     Write-ColoredOutput "Repository: https://github.com/agreaves-ms/hve-ado-scaffold" "Cyan"
 }
 
-# Initialize global variable for force-all mode
-$script:ForceAll = $false
-
 # Main execution
 try {
     Write-Host ""
 
-    # Resolve and validate target path
-    if (-not (Test-Path $TargetPath)) {
-        $createPath = Read-Host "Target path '$TargetPath' does not exist. Create it? (Y/n)"
-        if ($createPath.ToLower() -in @('n', 'no')) {
-            Write-ColoredOutput "❌ Installation cancelled - target path does not exist." "Red"
-            exit 1
-        }
-        try {
-            New-Item -ItemType Directory -Path $TargetPath -Force | Out-Null
-            Write-ColoredOutput "✅ Created target directory: $TargetPath" "Green"
-        }
-        catch {
-            Write-ColoredOutput "❌ Failed to create target directory: $($_.Exception.Message)" "Red"
-            exit 1
-        }
-    }
-    elseif (-not (Get-Item $TargetPath).PSIsContainer) {
-        Write-ColoredOutput "❌ Target path '$TargetPath' exists but is not a directory." "Red"
-        exit 1
-    }
-
-    $TargetPath = Resolve-Path $TargetPath
-
     # Show pre-install summary and get filtered file list
     $filesToInstall = Show-PreInstallSummary
 
-    # Confirm installation
-    if (-not $Force) {
-        Write-Host ""
-        $confirm = Read-Host "Proceed with installation? (Y/n)"
-        if ($confirm.ToLower() -in @('n', 'no')) {
-            Write-ColoredOutput "❌ Installation cancelled by user." "Yellow"
-            exit 0
-        }
-    }
+    # Create target directory if it doesn't exist
+    New-DirectoryIfNotExists -Path $TargetPath
+    $TargetPath = Resolve-Path $TargetPath
+
+    exit 2
+
+    ######################################################################################################
 
     Write-Host ""
     Write-ColoredOutput "🔄 Starting installation..." "Blue"
@@ -291,9 +266,8 @@ try {
 
     foreach ($file in $filesToInstall) {
         $sourceUrl = "$REPO_URL/$($file.FilePath)"
-        $forceThis = $Force -or $script:ForceAll
 
-        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.FilePath -Force:$forceThis
+        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.FilePath
 
         if ($result) {
             $successCount++
