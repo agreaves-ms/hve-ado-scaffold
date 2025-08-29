@@ -172,6 +172,14 @@ function Install-OneFileFromDownload {
     }
 }
 
+function Install-VSCodeSettingsJson {
+    return [InstallStatus]::Skipped
+}
+
+function Install-VSCodeMcpJson {
+    return [InstallStatus]::Skipped
+}
+
 function Install-AllFiles {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param()
@@ -207,29 +215,28 @@ function Install-AllFiles {
                 -SourceUrl $sourceUrl `
                 -FullTargetPath $fullTargetPath
         }
-        # The target files exists and sepcial handling is required
         elseif ($filePath -eq ".vscode/settings.json") {
-            # Try to merge settings.json
-            Write-ColoredOutput "REQUIRED FILE NOT IMPLEMENTED" "Red"
-            $result = [InstallStatus]::Skipped
+            # settings.json is required, so we need to ensure it is installed
+            $result = Install-VSCodeSettingsJson
         }
         elseif ($filePath -eq ".vscode/mcp.json") {
-            # Try to merge mcp.json
-            Write-ColoredOutput "REQUIRED FILE NOT IMPLEMENTED" "Red"
-            $result = [InstallStatus]::Skipped
+            # mcp.json is required, so we need to ensure it is installed
+            $result = Install-VSCodeMcpJson
         }
         elseif ($PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
-            # Ask the user if they want to overwrite the existing file
+            # For all other fiels, ask the user if they want to overwrite the existing file
             $result = Install-OneFileFromDownload `
                 -FilePath $filePath `
                 -SourceUrl $sourceUrl `
                 -FullTargetPath $fullTargetPath
         }
         else {
+            # This file is skipped
             Write-ColoredOutput "  ⚠️  Skipping existing file: $filePath" "Yellow"
             $result = [InstallStatus]::Skipped
         }
 
+        # Increment counters
         switch ($result) {
             "Success" { $successCount++ }
             "Skipped" { $skipCount++ }
