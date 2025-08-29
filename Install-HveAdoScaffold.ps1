@@ -172,12 +172,232 @@ function Install-OneFileFromDownload {
     }
 }
 
+function Merge-JsonArraysCaseInsensitive {
+    param(
+        [array]$ExistingArray,
+        [array]$NewArray
+    )
+
+    if (-not $ExistingArray) { return $NewArray }
+    if (-not $NewArray) { return $ExistingArray }
+
+    $merged = @($ExistingArray)
+    foreach ($newItem in $NewArray) {
+        $exists = $false
+        foreach ($existingItem in $ExistingArray) {
+            if ($newItem -eq $existingItem -or
+                ($newItem -is [string] -and $existingItem -is [string] -and
+                $newItem.ToLowerInvariant() -eq $existingItem.ToLowerInvariant())) {
+                $exists = $true
+                break
+            }
+        }
+        if (-not $exists) {
+            $merged += $newItem
+        }
+    }
+    return $merged
+}
+
+function Merge-JsonObjectsCaseInsensitive {
+    param(
+        [hashtable]$ExistingObject,
+        [hashtable]$NewObject
+    )
+
+    if (-not $ExistingObject) { return $NewObject }
+    if (-not $NewObject) { return $ExistingObject }
+
+    $merged = $ExistingObject.Clone()
+    foreach ($key in $NewObject.Keys) {
+        $existingKey = $null
+        foreach ($existingKeyName in $ExistingObject.Keys) {
+            if ($key.ToLowerInvariant() -eq $existingKeyName.ToLowerInvariant()) {
+                $existingKey = $existingKeyName
+                break
+            }
+        }
+        if (-not $existingKey) {
+            $merged[$key] = $NewObject[$key]
+        }
+    }
+    return $merged
+}
+
+function Update-JsonFileContent {
+    param(
+        [string]$FilePath,
+        [hashtable]$Updates
+    )
+
+    if (-not (Test-Path $FilePath)) {
+        Write-ColoredOutput "  ❌ File not found: $FilePath" "Red"
+        return $false
+    }
+
+    try {
+        $content = Get-Content -Path $FilePath -Raw
+        $originalContent = $content
+
+        # Parse the JSON content
+        $jsonObject = $content | ConvertFrom-Json -AsHashtable
+
+        # Apply updates
+        $changed = $false
+        foreach ($key in $Updates.Keys) {
+            if (-not $jsonObject.ContainsKey($key) -or $jsonObject[$key] -ne $Updates[$key]) {
+                $jsonObject[$key] = $Updates[$key]
+                $changed = $true
+            }
+        }
+
+        # Only write if content changed
+        if ($changed) {
+            $newContent = $jsonObject | ConvertTo-Json -Depth 10
+            Set-Content -Path $FilePath -Value $newContent -NoNewline
+            return $true
+        }
+        return $false
+    }
+    catch {
+        Write-ColoredOutput "  ❌ Error updating JSON file: $($_.Exception.Message)" "Red"
+        return $false
+    }
+}
+
 function Install-VSCodeSettingsJson {
-    return [InstallStatus]::Skipped
+    $targetPath = Join-Path $TargetPath ".vscode/settings.json"
+    $sourceUrl = "$REPO_URL/.vscode/settings.json"
+
+    try {
+        Write-ColoredOutput "  ⬇️  Downloading source settings.json for merging..." "Cyan"
+        $tempFile = [System.IO.Path]::GetTempFileName()
+        Invoke-WebRequest -Uri $sourceUrl -OutFile $tempFile -ErrorAction Stop
+
+        # Parse both files
+        $sourceContent = Get-Content -Path $tempFile -Raw | ConvertFrom-Json -AsHashtable
+        $targetContent = @{}
+
+        if (Test-Path $targetPath) {
+            $targetContent = Get-Content -Path $targetPath -Raw | ConvertFrom-Json -AsHashtable
+        }
+
+        # Prepare updates
+        $updates = @{}
+
+        # Add commitMessageGeneration.instructions if it doesn't exist
+        if (-not $targetContent.ContainsKey("github.copilot.chat.commitMessageGeneration.instructions")) {
+            $updates["github.copilot.chat.commitMessageGeneration.instructions"] = $sourceContent["github.copilot.chat.commitMessageGeneration.instructions"]
+        }
+
+        # Add chat.todoListTool.enabled if it doesn't exist
+        if (-not $targetContent.ContainsKey("chat.todoListTool.enabled")) {
+            $updates["chat.todoListTool.enabled"] = $sourceContent["chat.todoListTool.enabled"]
+        }
+
+        # Merge chat.instructionsFilesLocations
+        if ($sourceContent.ContainsKey("chat.instructionsFilesLocations")) {
+            $existingInstructions = if ($targetContent.ContainsKey("chat.instructionsFilesLocations")) { $targetContent["chat.instructionsFilesLocations"] } else { @{} }
+            $mergedInstructions = Merge-JsonObjectsCaseInsensitive -ExistingObject $existingInstructions -NewObject $sourceContent["chat.instructionsFilesLocations"]
+            $updates["chat.instructionsFilesLocations"] = $mergedInstructions
+        }
+
+        # Merge chat.promptFilesLocations
+        if ($sourceContent.ContainsKey("chat.promptFilesLocations")) {
+            $existingPrompts = if ($targetContent.ContainsKey("chat.promptFilesLocations")) { $targetContent["chat.promptFilesLocations"] } else { @{} }
+            $mergedPrompts = Merge-JsonObjectsCaseInsensitive -ExistingObject $existingPrompts -NewObject $sourceContent["chat.promptFilesLocations"]
+            $updates["chat.promptFilesLocations"] = $mergedPrompts
+        }
+
+        Remove-Item $tempFile -Force
+
+        if ($updates.Count -eq 0) {
+            Write-ColoredOutput "  ⚠️  No changes needed for settings.json" "Yellow"
+            return [InstallStatus]::Skipped
+        }
+
+        # Apply updates using regex replacement
+        if (Update-JsonFileContent -FilePath $targetPath -Updates $updates) {
+            Write-ColoredOutput "  ✅ Updated settings.json with required changes" "Green"
+            return [InstallStatus]::Success
+        }
+        else {
+            Write-ColoredOutput "  ⚠️  No changes were needed in settings.json" "Yellow"
+            return [InstallStatus]::Skipped
+        }
+    }
+    catch {
+        Write-ColoredOutput "  ❌ Failed to merge settings.json: $($_.Exception.Message)" "Red"
+        return [InstallStatus]::Failed
+    }
 }
 
 function Install-VSCodeMcpJson {
-    return [InstallStatus]::Skipped
+    $targetPath = Join-Path $TargetPath ".vscode/mcp.json"
+    $sourceUrl = "$REPO_URL/.vscode/mcp.json"
+
+    try {
+        Write-ColoredOutput "  ⬇️  Downloading source mcp.json for merging..." "Cyan"
+        $tempFile = [System.IO.Path]::GetTempFileName()
+        Invoke-WebRequest -Uri $sourceUrl -OutFile $tempFile -ErrorAction Stop
+
+        # Parse both files
+        $sourceContent = Get-Content -Path $tempFile -Raw | ConvertFrom-Json -AsHashtable
+        $targetContent = @{}
+
+        if (Test-Path $targetPath) {
+            $targetContent = Get-Content -Path $targetPath -Raw | ConvertFrom-Json -AsHashtable
+        }
+
+        # Prepare updates
+        $updates = @{}
+        $adoServerAdded = $false
+
+        # Merge servers with case-insensitive union merge
+        if ($sourceContent.ContainsKey("servers")) {
+            $existingServers = if ($targetContent.ContainsKey("servers")) { $targetContent["servers"] } else { @{} }
+            $mergedServers = Merge-JsonObjectsCaseInsensitive -ExistingObject $existingServers -NewObject $sourceContent["servers"]
+
+            # Check if 'ado' server was added
+            $adoServerAdded = $sourceContent["servers"].ContainsKey("ado") -and -not $existingServers.ContainsKey("ado")
+            foreach ($key in $existingServers.Keys) {
+                if ($key.ToLowerInvariant() -eq "ado") {
+                    $adoServerAdded = $false
+                    break
+                }
+            }
+
+            $updates["servers"] = $mergedServers
+        }
+
+        # Only merge inputs if ADO server was added
+        if ($adoServerAdded -and $sourceContent.ContainsKey("inputs")) {
+            $existingInputs = if ($targetContent.ContainsKey("inputs")) { $targetContent["inputs"] } else { @() }
+            $mergedInputs = Merge-JsonArraysCaseInsensitive -ExistingArray $existingInputs -NewArray $sourceContent["inputs"]
+            $updates["inputs"] = $mergedInputs
+        }
+
+        Remove-Item $tempFile -Force
+
+        if ($updates.Count -eq 0) {
+            Write-ColoredOutput "  ⚠️  No changes needed for mcp.json" "Yellow"
+            return [InstallStatus]::Skipped
+        }
+
+        # Apply updates using regex replacement
+        if (Update-JsonFileContent -FilePath $targetPath -Updates $updates) {
+            Write-ColoredOutput "  ✅ Updated mcp.json with required changes" "Green"
+            return [InstallStatus]::Success
+        }
+        else {
+            Write-ColoredOutput "  ⚠️  No changes were needed in mcp.json" "Yellow"
+            return [InstallStatus]::Skipped
+        }
+    }
+    catch {
+        Write-ColoredOutput "  ❌ Failed to merge mcp.json: $($_.Exception.Message)" "Red"
+        return [InstallStatus]::Failed
+    }
 }
 
 function Install-AllFiles {
@@ -217,22 +437,24 @@ function Install-AllFiles {
         }
         elseif ($filePath -eq ".vscode/settings.json") {
             # settings.json is required, so we need to ensure it is installed
+            Write-ColoredOutput "  ⚠️  Existing settings.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
             if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
                 $result = Install-VSCodeSettingsJson
             }
             else {
-                Write-ColoredOutput "  ❌️  User skipped required file: $filePath" "Red"
-                $result = [InstallStatus]::Failed
+                Write-ColoredOutput "  ⚠️  User skipped required file: $filePath" "Yellow"
+                $result = [InstallStatus]::Skipped
             }
         }
         elseif ($filePath -eq ".vscode/mcp.json") {
             # mcp.json is required, so we need to ensure it is installed
+            Write-ColoredOutput "  ⚠️  Existing mcp.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
             if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
                 $result = Install-VSCodeMcpJson
             }
             else {
-                Write-ColoredOutput "  ❌️  User skipped required file: $filePath" "Red"
-                $result = [InstallStatus]::Failed
+                Write-ColoredOutput "  ⚠️  User skipped required file: $filePath" "Yellow"
+                $result = [InstallStatus]::Skipped
             }
         }
         elseif ($PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
