@@ -70,17 +70,11 @@ Install HVE ADO Scaffold into your existing repository using the PowerShell scri
 # Install with prompts for existing files
 .\Install-HveAdoScaffold.ps1
 
-# Force overwrite existing files
-.\Install-HveAdoScaffold.ps1 -Force
-
-# Skip VS Code settings
-.\Install-HveAdoScaffold.ps1 -SkipVSCodeSettings
-
-# Skip dev container configuration
-.\Install-HveAdoScaffold.ps1 -SkipDevContainer
-
 # Install to a specific directory
 .\Install-HveAdoScaffold.ps1 -TargetPath "./my-project"
+
+# Preview changes that installation would perform
+.\Install-HveAdoScaffold.ps1 -WhatIf
 ```
 
 ### Option 2: Manual Setup 📋
