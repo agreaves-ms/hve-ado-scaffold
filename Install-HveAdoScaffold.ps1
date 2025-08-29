@@ -217,11 +217,23 @@ function Install-AllFiles {
         }
         elseif ($filePath -eq ".vscode/settings.json") {
             # settings.json is required, so we need to ensure it is installed
-            $result = Install-VSCodeSettingsJson
+            if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
+                $result = Install-VSCodeSettingsJson
+            }
+            else {
+                Write-ColoredOutput "  ❌️  User skipped required file: $filePath" "Red"
+                $result = [InstallStatus]::Failed
+            }
         }
         elseif ($filePath -eq ".vscode/mcp.json") {
             # mcp.json is required, so we need to ensure it is installed
-            $result = Install-VSCodeMcpJson
+            if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
+                $result = Install-VSCodeMcpJson
+            }
+            else {
+                Write-ColoredOutput "  ❌️  User skipped required file: $filePath" "Red"
+                $result = [InstallStatus]::Failed
+            }
         }
         elseif ($PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
             # For all other fiels, ask the user if they want to overwrite the existing file
