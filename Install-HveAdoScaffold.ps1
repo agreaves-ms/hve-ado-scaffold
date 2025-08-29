@@ -120,6 +120,8 @@ function New-DirectoryIfNotExists {
         Write-ColoredOutput "📁 Creating directory: $directory" "Blue"
         New-Item -ItemType Directory -Path $directory -Force | Out-Null
     }
+
+    return Test-Path $directory
 }
 
 function Test-FileExists {
@@ -127,52 +129,6 @@ function Test-FileExists {
 
     $fullPath = Join-Path $TargetPath $Path
     return Test-Path $fullPath
-}
-
-function Copy-FileWithPrompt {
-    param(
-        [string]$SourceUrl,
-        [string]$TargetFile
-    )
-
-    $fullTargetPath = Join-Path $TargetPath $TargetFile
-    $shouldCopy = $true
-
-    if ((Test-Path $fullTargetPath)) {
-        do {
-            $response = Read-Host "File '$TargetFile' already exists. Overwrite? (y/N)"
-            $response = $response.ToLower()
-
-            switch ($response) {
-                'y' { $shouldCopy = $true; break }
-                'yes' { $shouldCopy = $true; break }
-                'n' { $shouldCopy = $false; break }
-                'no' { $shouldCopy = $false; break }
-                '' { $shouldCopy = $false; break }
-                default { Write-ColoredOutput "Please enter 'y' or 'n'" "Yellow" }
-            }
-        } while ($response -notin @('y', 'yes', 'n', 'no', ''))
-    }
-
-    if ($shouldCopy) {
-        try {
-            New-DirectoryIfNotExists -Path $TargetFile
-
-            Write-ColoredOutput "⬇️  Downloading: $TargetFile" "Cyan"
-            Invoke-WebRequest -Uri $SourceUrl -OutFile $fullTargetPath -ErrorAction Stop
-
-            Write-ColoredOutput "✅ Installed: $TargetFile" "Green"
-            return $true
-        }
-        catch {
-            Write-ColoredOutput "❌ Failed to download $TargetFile : $($_.Exception.Message)" "Red"
-            return $false
-        }
-    }
-    else {
-        Write-ColoredOutput "⏭️  Skipped: $TargetFile" "Yellow"
-        return $false
-    }
 }
 
 function Resolve-FilePath {
@@ -222,6 +178,61 @@ function Show-PreInstallSummary {
     return $filesToInstall
 }
 
+function Install-AllFiles {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param()
+
+    Write-ColoredOutput "🔄 Starting installation..." "Blue"
+
+    # Create target directory if it doesn't exist
+    if (-not (New-DirectoryIfNotExists -Path $TargetPath)) {
+        Write-ColoredOutput "❌ Failed to create target directory: $TargetPath" "Red"
+        exit 1
+    }
+    $TargetPath = Resolve-Path $TargetPath
+
+    # Download and install files
+    $successCount = 0
+    $skipCount = 0
+    $failCount = 0
+
+    foreach ($file in $filesToInstall) {
+        $sourceUrl = "$REPO_URL/$($file.FilePath)"
+
+        New-DirectoryIfNotExists -Path $file.FilePath | Out-Null
+
+        Write-ColoredOutput "📥 Installing $file.FilePath" "Blue"
+        $fullTargetPath = Join-Path $TargetPath $file.FilePath
+        $targetPathExists = Test-Path $fullTargetPath
+        if ($targetPathExists -and -not $PSCmdlet.ShouldProcess($file.FilePath, "Installing over existing file")) {
+            Write-ColoredOutput "  ⚠️  Skipping existing file: $file.FilePath" "Yellow"
+            $skipCount++
+        }
+        else {
+            try {
+                Write-ColoredOutput "  ⬇️  Downloading: $file.FilePath" "Cyan"
+                Invoke-WebRequest -Uri $sourceUrl -OutFile $fullTargetPath -ErrorAction Stop
+
+                Write-ColoredOutput "  ✅ Installed: $file.FilePath" "Green"
+                $successCount++
+            }
+            catch {
+                Write-ColoredOutput "  ❌ Failed to download $file.FilePath : $($_.Exception.Message)" "Red"
+                $failCount++
+            }
+        }
+    }
+
+    # Show results summary
+    Write-Host ""
+    Write-ColoredOutput "📊 Installation Summary:" "Blue"
+    Write-ColoredOutput "  ✅ Installed: $successCount files" "Green"
+    Write-ColoredOutput "  ⏭️  Skipped: $skipCount files" "Yellow"
+    Write-ColoredOutput "  ❌ Failed: $failCount files" "Red"
+
+    return $failCount
+}
+
 function Show-PostInstallInstructions {
     Write-Host ""
     Write-ColoredOutput "🎉 Installation Complete!" "Green"
@@ -248,44 +259,12 @@ try {
     # Show pre-install summary and get filtered file list
     $filesToInstall = Show-PreInstallSummary
 
-    # Create target directory if it doesn't exist
-    New-DirectoryIfNotExists -Path $TargetPath
-    $TargetPath = Resolve-Path $TargetPath
-
-    exit 2
-
-    ######################################################################################################
-
-    Write-Host ""
-    Write-ColoredOutput "🔄 Starting installation..." "Blue"
-
-    # Download and install files
-    $successCount = 0
-    $skipCount = 0
-    $failCount = 0
-
-    foreach ($file in $filesToInstall) {
-        $sourceUrl = "$REPO_URL/$($file.FilePath)"
-
-        $result = Copy-FileWithPrompt -SourceUrl $sourceUrl -TargetFile $file.FilePath
-
-        if ($result) {
-            $successCount++
-        }
-        elseif (Test-FileExists -Path $file.FilePath) {
-            $skipCount++
-        }
-        else {
-            $failCount++
-        }
+    if ($WhatIfPreference) {
+        Write-ColoredOutput "ℹ️  Run without WhatIf specified to actually install the files." "Yellow"
+        exit 0
     }
 
-    # Show results summary
-    Write-Host ""
-    Write-ColoredOutput "📊 Installation Summary:" "Blue"
-    Write-ColoredOutput "  ✅ Installed: $successCount files" "Green"
-    Write-ColoredOutput "  ⏭️  Skipped: $skipCount files" "Yellow"
-    Write-ColoredOutput "  ❌ Failed: $failCount files" "Red"
+    $failCount = Install-AllFiles
 
     if ($failCount -eq 0) {
         Show-PostInstallInstructions
