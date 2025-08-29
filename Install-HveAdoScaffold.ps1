@@ -147,6 +147,31 @@ function Show-PreInstallSummary {
     Write-Host ""
 }
 
+enum InstallStatus {
+    Success
+    Skipped
+    Failed
+}
+
+function Install-OneFileFromDownload {
+    param(
+        [string]$FilePath,
+        [string]$SourceUrl,
+        [string]$FullTargetPath
+    )
+    try {
+        Write-ColoredOutput "  ⬇️  Downloading: $FilePath" "Cyan"
+        Invoke-WebRequest -Uri $SourceUrl -OutFile $FullTargetPath -ErrorAction Stop
+
+        Write-ColoredOutput "  ✅ Installed: $FilePath" "Green"
+        return [InstallStatus]::Success
+    }
+    catch {
+        Write-ColoredOutput "  ❌ Failed to download $FilePath : $($_.Exception.Message)" "Red"
+        return [InstallStatus]::Failed
+    }
+}
+
 function Install-AllFiles {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param()
@@ -174,22 +199,41 @@ function Install-AllFiles {
         Write-ColoredOutput "📥 Installing $filePath" "Blue"
         $fullTargetPath = Join-Path $TargetPath $filePath
         $targetPathExists = Test-Path $fullTargetPath
-        if ($targetPathExists -and -not $PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
-            Write-ColoredOutput "  ⚠️  Skipping existing file: $filePath" "Yellow"
-            $skipCount++
+
+        # If the file doesn't exist, simply download it
+        if (-not $targetPathExists) {
+            $result = Install-OneFileFromDownload `
+                -FilePath $filePath `
+                -SourceUrl $sourceUrl `
+                -FullTargetPath $fullTargetPath
+        }
+        # The target files exists and sepcial handling is required
+        elseif ($filePath -eq ".vscode/settings.json") {
+            # Try to merge settings.json
+            Write-ColoredOutput "REQUIRED FILE NOT IMPLEMENTED" "Red"
+            $result = [InstallStatus]::Skipped
+        }
+        elseif ($filePath -eq ".vscode/mcp.json") {
+            # Try to merge mcp.json
+            Write-ColoredOutput "REQUIRED FILE NOT IMPLEMENTED" "Red"
+            $result = [InstallStatus]::Skipped
+        }
+        elseif ($PSCmdlet.ShouldProcess($filePath, "Installing over existing file")) {
+            # Ask the user if they want to overwrite the existing file
+            $result = Install-OneFileFromDownload `
+                -FilePath $filePath `
+                -SourceUrl $sourceUrl `
+                -FullTargetPath $fullTargetPath
         }
         else {
-            try {
-                Write-ColoredOutput "  ⬇️  Downloading: $filePath" "Cyan"
-                Invoke-WebRequest -Uri $sourceUrl -OutFile $fullTargetPath -ErrorAction Stop
+            Write-ColoredOutput "  ⚠️  Skipping existing file: $filePath" "Yellow"
+            $result = [InstallStatus]::Skipped
+        }
 
-                Write-ColoredOutput "  ✅ Installed: $filePath" "Green"
-                $successCount++
-            }
-            catch {
-                Write-ColoredOutput "  ❌ Failed to download $filePath : $($_.Exception.Message)" "Red"
-                $failCount++
-            }
+        switch ($result) {
+            "Success" { $successCount++ }
+            "Skipped" { $skipCount++ }
+            "Failed" { $failCount++ }
         }
     }
 
@@ -200,7 +244,11 @@ function Install-AllFiles {
     Write-ColoredOutput "  ⏭️  Skipped: $skipCount files" "Yellow"
     Write-ColoredOutput "  ❌ Failed: $failCount files" "Red"
 
-    return $failCount
+    return @{
+        SuccessCount = $successCount
+        SkipCount    = $skipCount
+        FailCount    = $failCount
+    }
 }
 
 function Show-PostInstallInstructions {
@@ -231,9 +279,9 @@ try {
         exit 0
     }
 
-    $failCount = Install-AllFiles
+    $installStats = Install-AllFiles
 
-    if ($failCount -eq 0) {
+    if ($installStats.FailCount -eq 0) {
         Show-PostInstallInstructions
         exit 0
     }
