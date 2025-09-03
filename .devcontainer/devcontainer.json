@@ -3,6 +3,7 @@
 {
 	"name": "hve-ado-scaffold",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// "image": "mcr.microsoft.com/devcontainers/base",
 	"image": "mcr.microsoft.com/devcontainers/base",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
@@ -57,23 +58,37 @@
 				// "GitHub.copilot@prerelease",
 				// "GitHub.copilot-chat@prerelease"
 				"GitHub.copilot",
-				"GitHub.copilot-chat"
-			]
+				"GitHub.copilot-chat",
+				"specstory.specstory-vscode"
+			],
+			"mcp": {
+				"servers": {
+					"playwright": {
+						"command": "npx",
+						"args": [
+							"-y",
+							"@microsoft/mcp-server-playwright"
+						]
+					}
+				}
+			}
 		}
 	},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8080],
-
+	"forwardPorts": [
+		8080
+	],
 	// Container environment variables
 	"containerEnv": {
 		"BROWSER": "code --new-window"
 	},
-
+	"remoteEnv": {
+		"PATH": "/home/vscode/.local/bin:${containerEnv:PATH}"
+	},
 	"onCreateCommand": {
 		"apt": "sudo apt update && sudo apt install -y shellcheck",
 	},
-
+	"postCreateCommand": "bash -lc 'set -eux; curl -LsSf https://astral.sh/uv/install.sh | sh; echo \"export PATH=\\\"$HOME/.local/bin:$PATH\\\"\" >> /home/vscode/.bashrc; /home/vscode/.local/bin/uv --version'",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }
