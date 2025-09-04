@@ -1,144 +1,193 @@
 ---
 mode: "agent"
-description: "Generate a single comprehensive work item handoff markdown from latest raw assigned-to-me work items with repo context enrichment."
+description: "Process retrieved work items for task planning and generate task-planning-logs.md handoff file"
 ---
 
-# Work Item Handoff (Repo-Enriched, Resumable, Markdown-Only)
+# Process My Work Items for Task Planning
 
-You WILL read the latest raw JSON produced by `get-my-work-items` and generate ONE (1) comprehensive handoff markdown file (`*.handoff.md`). You WILL enrich items using repository context. Provide a deep, implementation-ready handoff section for the top recommendation, followed by structured handoff sections for every remaining work item (respecting optional max item cap). File must be idempotent & resumable.
-Represent structured data using well-formed markdown tables, bullet lists, and labeled inline segments for clarity and consistency.
+Follow all instructions from #file:../instructions/ado-wit-planning.instructions.md for work item planning and planning file definitions.
+
+You WILL process work items from the planning file structure created by `ado-get-my-work-items.prompt.md` and generate a comprehensive task planning handoff file. This creates enriched work item documentation ready for task research and detailed implementation planning.
+
+## General User Conversation Guidance
+
+Keep the user up-to-date while processing work items.
+
+Follow these guidelines whenever interacting with the user through conversation:
+* Utilize markdown styling whenever interacting with the user.
+* Provide double newlines for each paragraph or new section.
+* Use bolding for title words and italics for emphasis.
+* For all unordered lists use markdown `*` instead of only using newlines.
+* Use emoji's to help get your point across.
+* Avoid giving the user an overwhelming amount of information.
 
 ## Inputs
 
-* ${input:rawPath}: Optional explicit path to raw JSON; else discover latest `.copilot-tracking/workitems/*-assigned-to-me.raw.json` (use `list_dir`).
-* ${input:handoffPath}: Optional explicit output path (must end with `.handoff.md`). If omitted, derive `.copilot-tracking/workitems/YYYYMMDD-assigned-to-me.handoff.md` (date from raw file name or current UTC date if ambiguous).
-* ${input:maxItems:all}: Optional numeric cap; default all.
-* ${input:boostTags}: Optional comma/semicolon separated tags that, if present in an item, may elevate it to top recommendation.
-* ${input:forceTopId}: Optional specific ID to force as top recommendation (overrides boost logic if found).
+* ${input:planningDir:`.copilot-tracking/workitems/current-work/my-assigned-work-items/`}: (Required) Path to planning directory containing work-items.md
+* ${input:project}: (Required) Azure DevOps project name or ID
+* ${input:maxItems:all}: Maximum number of work items to process. Default: all.
+* ${input:boostTags}: (Optional) Comma/semicolon separated tags that elevate work items to top recommendation
+* ${input:forceTopId}: (Optional) Specific work item ID to force as top recommendation
 
-## Azure DevOps Comment Retrieval
+## 1. Required Protocol
 
-<!-- <ado-comment-tools> -->
+Processing protocol:
+* Read planning files from specified directory (`work-items.md`, `artifact-analysis.md`, `planning-log.md`)
+* Enrich work items with repository context using semantic search and file analysis
+* Generate comprehensive `task-planning-logs.md` handoff file for task research and planning
+* Create structured handoff sections ready for `task-researcher.chatmode.md` and `task-planner.chatmode.md`
+* Update planning-log.md with processing progress and discoveries
+* Provide conversational summary of processed work items and handoff file location
 
-Use `mcp_ado_wit_list_work_item_comments` to fetch comments when missing from the *.raw.json file. If none, omit "Comments Relevant".
+## 2. Work Item Enrichment Phase
 
-Keep only materially useful units: problems, decisions, deployments, errors/stack traces (use fenced `text` block for multi-line), metrics, blockers. Skip social/duplicate or bot noise unless it adds unique technical data. Preserve exact error strings & file/config names.
+**Repository Context Enhancement:**
+1. Read work items from `work-items.md` planning file
+2. For each work item, use semantic search to find related repository files
+3. Analyze file contents to understand implementation context
+4. Identify key functions, classes, and integration points
+5. Document configuration touchpoints and data dependencies
+6. Map work item relationships and dependencies
+
+**Azure DevOps Comment Integration:**
+
+Use `mcp_ado_wit_list_work_item_comments` to fetch recent comments for additional context.
+
+Keep only materially useful information: problems, decisions, deployments, errors/stack traces (use fenced `text` block for multi-line), metrics, blockers. Skip social/duplicate or bot noise unless it adds unique technical data. Preserve exact error strings & file/config names.
 
 Format each unit as a bullet starting with `Author - YYYY-MM-DD:`. Split multiple units from one comment into separate bullets. Order by timestamp ascending. Omit section if no retained units.
 
-<!-- </ado-comment-tools> -->
+**Error Handling:**
+* Missing planning files: Surface error and guide user to run ado-get-my-work-items first
+* Repository context failures: Continue processing with available information
+* Azure DevOps API failures: Log errors and continue with planning file data
 
-## Outputs
+## 3. Task Planning Log Generation
 
-### Handoff Content Requirements Per Item
+### 3.1 Create task-planning-logs.md Structure
 
-Each work item section MUST surface enough context to transition directly into detailed technical research & planning.
+Generate comprehensive handoff file: `${input:planningDir}/task-planning-logs.md`
 
-Include (when present):
+### 3.2 Top Work Item Recommendation
 
-* Metadata: Id, WorkItemType, Title, State, Priority, StackRank, Parent, Tags (split semicolon/comma), AssignedTo, ChangedDate.
-* Narrative Summary: 2-5 sentence synthesized intent & desired outcome.
-* Description & Acceptance Criteria (verbatim or distilled if very long-retain critical bullet points).
-* Blockers / Risks: extraction from State/Reason/comments.
-* Comments Relevant: concise actionable excerpts with author + date `(Author - YYYY-MM-DD): excerpt`.
-* Stack Traces: fenced code block(s) when present.
-* Errors / Issues: bulleted list of distinct error messages or problem statements.
-* Repository Context:
-  * Top Files (≤10): `path` + short rationale.
-  * Other Related Files Summary: bullet lines for broader areas or patterns.
-  * Implementation Detail Leads: hypotheses, key functions/classes, integration points.
-  * Data / Config Touchpoints: env vars, config files, infra modules.
-  * Related Items: IDs with brief relation rationale (parent/child/sibling/feature).
-* Ready-to-Research Prompt Seed: concise markdown list (no code fence) capturing Objective, Unknowns, Candidate Files, Risks, Next Steps.
+Select top priority work item based on:
+1. `${input:forceTopId}` if specified and valid
+2. Work items with `${input:boostTags}` (highest tag density)
+3. First work item by priority/stack rank order
 
-Ordering: The top recommendation section appears first with deeper elaboration (may expand Implementation Detail Leads & Unknowns). Remaining items get a consistent but slightly more concise format.
+Provide detailed analysis including:
+* Repository context with top 10 most relevant files
+* Implementation detail leads and integration points
+* Ready-to-research prompt seed for task planning
+* Comprehensive metadata and current state analysis
 
-### Required Handoff Markdown File
+### 3.3 Additional Work Item Handoffs
 
-Do not duplicate full per-item details here.
+For remaining work items (up to `${input:maxItems}`):
+* Condensed handoff sections with key repository context
+* Top 5 most relevant files per work item
+* Implementation leads and blockers analysis
+* Ready-to-research seeds for each item
 
-<!-- <handoff-structure> -->
+## 4. Handoff Content Requirements
 
-Top-level title:
-Assigned to Me - Handoff (YYYY-MM-DD)
+Each work item section in task-planning-logs.md MUST include:
 
-Sections (order MUST match):
+**Metadata:**
+* Work Item ID, Type, Title, State, Priority, Stack Rank
+* Parent relationships, Tags, Assigned To, Last Changed Date
 
-1. Top Work Item Recommendation Handoff
-2. Additional Work Item Handoffs
-3. Progress
-4. Next Step - Task Researcher Handoff
+**Context Analysis:**
+* 2-5 sentence narrative summary of intent and desired outcome
+* Description and Acceptance Criteria (from planning files)
+* Blockers, risks, and current state assessment
 
-#### Top Work Item Recommendation Handoff
+**Repository Integration:**
+* Top Files (≤10 for primary recommendation, ≤5 for others) with implementation rationale
+* Related file patterns and broader codebase areas
+* Key functions, classes, and integration touchpoints
+* Configuration files, environment variables, and data dependencies
+* Related work item connections with relationship rationale
 
-Heading format: `## Top Recommendation - WI {id} ({WorkItemType})`
-Subsections (suggested): Summary, Metadata Table, Description & Acceptance Criteria, Blockers / Risks, Comments Relevant, (optional) Stack Traces, (optional) Errors / Issues, Repository Context (Top Files, Other Related Files Summary, Implementation Detail Leads, Data / Config Touchpoints, Related Items), Ready-to-Research Prompt Seed (markdown bullet / label list: Objective, Unknowns, Candidate Files, Risks, Next Steps).
+**Task Planning Seeds:**
+* Objective: Clear goal statement
+* Unknowns: Key questions requiring research
+* Candidate Files: Primary files for investigation
+* Risks: Technical and implementation risks
+* Next Steps: Immediate actions for task research/planning
 
-#### Additional Work Item Handoffs
+## 5. Output Requirements
 
-Heading: `## WI {id} - {Title}` (truncate Title >80 chars with ellipsis). Condensed subsections: Summary, Metadata, Key Files (≤5), Blockers/Risks (if any), Implementation Detail Leads, Ready-to-Research Seed (bullet / label list: Objective, Unknowns, Candidate Files, Next Steps).
+**Generated Files:**
+1. `${input:planningDir}/task-planning-logs.md` - Comprehensive task planning handoff
+2. Updated `${input:planningDir}/planning-log.md` - Processing progress and discoveries
 
-#### Progress
+**task-planning-logs.md Structure:**
+```markdown
+# Work Items - Task Planning Handoff (YYYY-MM-DD)
 
-Counts: `Summarized: X / Total: Y` plus summarized ID list and remaining ID list.
+## Top Recommendation - WI {id} ({WorkItemType})
+[Detailed analysis with all sections]
 
-#### Next Step - Task Researcher Handoff
+## Additional Work Item Handoffs
+### WI {id} - {Title}
+[Condensed analysis sections]
 
-Guidance: choose the Top Recommendation or any other Ready-to-Research Prompt Seed to begin next-phase research. Provide a consolidated Handoff Payload bullet list (no fenced code):
+## Progress Summary
+Processed: X / Total: Y work items
+Top Recommendation: WI {id}
+Additional Items: [WI IDs]
 
-* Top Recommendation ID: <id>
-* All Summarized IDs: <comma-separated list>
-* Date: YYYY-MM-DD
+## Task Researcher Handoff Payload
+* Planning Directory: {planningDir}
+* Top Recommendation ID: {id}
+* All Processed IDs: [comma-separated list]
+* Processing Date: YYYY-MM-DD
+* Ready for: task-researcher.chatmode.md, task-planner.chatmode.md
+```
 
-<!-- </handoff-structure> -->
+**Conversation Summary:**
+* Count of work items processed and enriched
+* Top recommendation selection rationale
+* Task planning handoff file location
+* Summary of repository context discoveries
+* Guidance for next steps with task research/planning tools
 
-#### Handoff File Naming Rules
+## 6. Processing Protocol
 
-* Must end with `.handoff.md`.
-* Must reside in the SAME directory as the raw JSON file.
-* Date fragment (YYYYMMDD) MUST align with raw filename date if present; else use current UTC date.
+Processing protocol steps:
+1. **Load Planning Files**: Read work-items.md, artifact-analysis.md, and planning-log.md from specified directory
+2. **Validate Structure**: Ensure planning files contain valid work item definitions
+3. **Select Top Recommendation**: Apply forceTopId, boostTags, or priority-based selection
+4. **Repository Context Research**: Use semantic search and file analysis for each work item
+5. **Comment Integration**: Fetch Azure DevOps comments for additional context
+6. **Generate task-planning-logs.md**: Create comprehensive handoff file with all sections
+7. **Update planning-log.md**: Document processing progress and discoveries
+8. **Provide Summary**: Conversational update with handoff file location and next steps
 
-## Summarization Protocol
+**Resumable Behavior:**
+* If task-planning-logs.md already exists, parse existing sections to determine processed work items
+* Append only missing work items while preserving existing content
+* Never duplicate work item sections, maintain original order for existing sections
+* Update Progress Summary section with latest processing status
 
-Update the task list with the following:
+**Error Handling:**
+* Missing planning directory: Guide user to run ado-get-my-work-items first
+* Invalid work-items.md format: Surface specific validation errors
+* Repository context failures: Continue with available planning file information
+* Azure DevOps API errors: Log issues and proceed with offline analysis
 
-1. Discover / load raw JSON (validate structure: must contain `items`).
-2. Determine handoff path (input override or derived path).
-3. If file exists: parse existing headings to collect already summarized IDs.
-4. Determine top recommendation (precedence: `forceTopId` if valid -> boosted tag density -> first remaining).
-5. Do light research searching and reading existing files in codebase for top recommendation.
-6. Update the top recommendation and generate / append sections in required order.
-7. Add a summary section for the top recommendation that includes hand-off material that is everything needed to do deep task research.
-8. Write final path to conversation with counts (summarized vs total vs remaining).
-9. Do NOT create ANY `.summary.json` or other JSON artifacts.
+## 7. Handoff Examples
 
-Important: If the user wants to use a different work item for a top recommendation then you must:
-  1. Remove the top recommendation.
-  2. Add the user's top recommendation.
-  3. Do light research for the new top recommendation from the user.
-  4. Add all information for the new top recommendation including hand-off material.
+**Top Recommendation Section Structure:**
 
-Important: If the *.handoff.md document already exists then you must first read it in and continue with the existing document.
-
-### Resumable Behavior
-
-* If the handoff file already exists, parse existing section headers to determine already summarized IDs (pattern: `## WI {id} -`).
-* Append only missing items while preserving prior content verbatim.
-* Never duplicate a work item section. Maintain original order for existing sections; new sections follow in correct relative order of raw JSON.
-
-## Handoff Examples
-
-<!-- <example-top-recommendation-section> -->
-
-````markdown
+```markdown
 ## Top Recommendation - WI 1234 (Bug)
 
 ### Summary
-
-User sessions intermittently expire due to race in token refresh pipeline causing 401 cascades.
+User sessions intermittently expire due to race condition in token refresh pipeline causing authentication failures.
 
 ### Metadata
-
 | Field     | Value            |
 | --------- | ---------------- |
 | State     | Active           |
@@ -148,101 +197,71 @@ User sessions intermittently expire due to race in token refresh pipeline causin
 | Tags      | auth;performance |
 
 ### Description & Acceptance Criteria
-
-<verbatim or distilled content>
+[Content from work-items.md planning file]
 
 ### Blockers / Risks
-
-* Potential data loss if refresh fails mid-transaction.
+* Potential data loss if refresh fails mid-transaction
+* Customer impact during peak hours
 
 ### Comments Relevant
-
-John Doe - 2025-08-20: Observed spike in 401s after deployment.
-
-### Stack Traces
-
-```text
-TraceLine1
-TraceLine2
-```
-
-### Errors / Issues
-
-* 401 Unauthorized after token refresh
+* John Doe - 2025-08-20: Observed 401 spike after latest deployment
+* Jane Smith - 2025-08-22: Stack trace shows race in refresh logic
 
 ### Repository Context
 
 **Top Files**
-
-1. src/auth/refresh.ts - Implements refresh logic suspected in race.
-2. src/middleware/session.ts - Consumes refreshed token.
-
-**Other Related Files Summary**
-
-* src/config/\* - Token TTL settings.
+1. src/auth/refresh.ts - Token refresh implementation with suspected race condition
+2. src/middleware/session.ts - Session management consuming refreshed tokens
+3. src/config/auth.ts - Authentication configuration and timeout settings
 
 **Implementation Detail Leads**
-
-* Add mutex around refresh sequence.
+* Add mutex/lock around token refresh sequence
+* Implement retry logic with exponential backoff
+* Review session validation timing
 
 **Data / Config Touchpoints**
-
-* ENV TOKEN_REFRESH_SKEW_MS
+* ENV TOKEN_REFRESH_TIMEOUT_MS
+* config/auth.json - Token settings
+* Redis session store configuration
 
 **Related Items**
+* WI 1250 (Task) - Add integration tests for auth flow
+* WI 1260 (Bug) - Related session timeout issues
 
-* WI 1250 (Task) - Add integration tests.
-
-### Summary
-
-**Objective:** Eliminate race in token refresh to stop session invalidation spikes.
-**Unknowns:** Exact concurrency trigger; Impact on downstream cache
-**Candidate Files:** src/auth/refresh.ts; src/middleware/session.ts
-**Risks:** Session expiry cascade
-**Next Steps:** Instrument refresh path; Add lock or idempotent guard
-````
-
-<!-- </example-top-recommendation-section> -->
-
-<!-- <example-additional-item-section> -->
-
-```markdown
-## WI 1300 - Refactor logging adapter for async streams
-
-**Summary:** Logging adapter drops messages under high concurrency; refactor for backpressure.
-**Metadata:** State=Active | Priority=2 | StackRank=14000 | Type=Task | Parent=1200
-**Key Files:** src/logging/adapter.ts (drops messages), src/logging/queue.ts (enqueue latency)
-**Blockers/Risks:** Potential data loss; noisy retries.
-**Implementation Detail Leads:** Consider bounded channel; ensure flush on shutdown.
-**Ready-to-Research Prompt Seed:**
-Objective: Ensure lossless async logging
-Unknowns: Optimal buffer size
-Candidate Files: src/logging/adapter.ts
-Next Steps: Benchmark current drop rate
+### Ready-to-Research Prompt Seed
+**Objective:** Eliminate race condition in token refresh to prevent session invalidation
+**Unknowns:** Exact concurrency trigger mechanism; Downstream cache impact
+**Candidate Files:** src/auth/refresh.ts; src/middleware/session.ts; src/config/auth.ts
+**Risks:** Session expiry cascades; Data loss during refresh
+**Next Steps:** Instrument refresh path; Add concurrency controls; Design integration tests
 ```
 
-<!-- </example-additional-item-section> -->
+**Additional Work Item Section Structure:**
 
-## Compliance Checklist
+```markdown
+### WI 1300 - Refactor logging adapter for async streams
 
-<!-- <important-compliance-checklist-summarize-handoff> -->
+**Summary:** Current logging adapter drops messages under high concurrency; requires refactor for proper backpressure handling.
 
-* [ ] Located latest raw JSON (or used provided rawPath)
-* [ ] Derived handoff path with .handoff.md extension in same directory
-* [ ] Resumed without duplicating existing WI sections
-* [ ] Selected top recommendation via forceTopId / boostTags / fallback order
-* [ ] Generated Top Recommendation section with all required subsections
-* [ ] Generated sections for ALL remaining (within maxItems) work items
-* [ ] Included Progress section with summarized & remaining IDs
-* [ ] Included Next Step section with minimal bullet-list Handoff Payload
-* [ ] All structured data rendered as well-formed markdown (tables, bullets, labeled lists)
-* [ ] Did NOT create ANY .summary.json or other JSON artifacts
-* [ ] Limited Top Files to ≤10, Additional Items Key Files to ≤5
-* [ ] Omitted empty sections (e.g., Stack Traces) when data absent
-* [ ] Truncated long headings (>80 chars)
+**Metadata:** State=Active | Priority=2 | StackRank=14000 | Type=Task | Parent=1200
 
-<!-- </important-compliance-checklist-summarize-handoff> -->
+**Key Files:**
+1. src/logging/adapter.ts - Main logging implementation dropping messages
+2. src/logging/queue.ts - Message queue with latency issues
+3. src/config/logging.ts - Buffer size and timeout configurations
+
+**Implementation Detail Leads:**
+* Implement bounded channel pattern for message buffering
+* Add flush-on-shutdown mechanism
+* Review async stream backpressure handling
+
+**Ready-to-Research Prompt Seed:**
+**Objective:** Ensure lossless async logging under high load
+**Unknowns:** Optimal buffer size; Memory usage patterns
+**Candidate Files:** src/logging/adapter.ts; src/logging/queue.ts
+**Next Steps:** Benchmark current drop rate; Design backpressure solution
+```
 
 ---
 
-Proceed following the summarization protocol
+Proceed with work item processing and task planning handoff generation by following all phases in order

@@ -1,227 +1,143 @@
 ---
 mode: "agent"
-description: "Retrieve ALL @Me work items (prioritized types first, then fallback) using mcp_ado_search_workitem with paging; progressively persist raw + hydrated JSON and output summary table."
+description: "Retrieve user's current Azure DevOps work items and organize them into planning file definitions"
 ---
 
-# Get My Work Items (Full Retrieval, Progressive Raw Export)
+# Get My Work Items and Create Planning Files
 
-You WILL retrieve all work items assigned to the current user (`@Me`) within the specified Azure DevOps project using ONLY the provided Azure DevOps tools. High-level flow: search (with optional fallback) -> progressive raw persistence -> per-item hydration (individual `mcp_ado_wit_get_work_item` calls) -> final summary/table. Detailed steps are defined in Phases and Outputs sections.
+Follow all instructions from #file:../instructions/ado-wit-planning.instructions.md for work item planning and planning file definitions.
 
-NO local re-ordering beyond natural server return order. NO reliance on saved queries. DO NOT use `wit_my_work_items` anywhere.
+You WILL retrieve all work items assigned to the current user (`@Me`) within the specified Azure DevOps project using Azure DevOps tools, then organize them into the standardized planning file structure. This creates a foundation for future work item planning and execution.
+
+## General User Conversation Guidance
+
+Keep the user up-to-date while processing work items.
+
+Follow these guidelines whenever interacting with the user through conversation:
+* Utilize markdown styling whenever interacting with the user.
+* Provide double newlines for each paragraph or new section.
+* Use bolding for title words and italics for emphasis.
+* For all unordered lists use markdown `*` instead of only using newlines.
+* Use emoji's to help get your point across.
+* Avoid giving the user an overwhelming amount of information.
 
 ## Inputs
 
-* ${input:project}: Azure DevOps project name or ID (REQUIRED, either provided by the user or determined from ado-get-build-info.instructions.md)
-* ${input:types:Bug, Task}: Comma-separated prioritized Work Item Types to fetch first (case-insensitive). Default: Bug, Task.
-* ${input:fallbackTypes:User Story}: Comma-separated secondary Work Item Types to fetch ONLY IF the first pass returns zero results. Default: User Story.
-* ${input:states:Active, New}: (Optional) Comma-separated workflow states to include. If empty, include all states. Default restricts to Active, New.
-* ${input:areaPath}: (Optional) Area Path filter. If supplied, include only work items under this Area Path (exact or descendant as supported by search behavior).
-* ${input:iterationPath}: (Optional) IterationPath filter. When provided, you MUST append ` IterationPath:"${input:iterationPath}"`to the`searchText` (note the leading space) so that server-side search scopes results to that iteration. Do NOT add if empty.
-* ${input:fields}: (Optional) Explicit additional fields to hydrate (beyond defaults) when calling `mcp_ado_wit_get_work_item` for each work item.
-* ${input:pageSize:200}: Page size for each `mcp_ado_search_workitem` call (attempt to use 200; adjust down only if API enforces a lower maximum).
+* ${input:project}: (Required) Azure DevOps project name or ID
+* ${input:areaPath}: (Optional) Area Path filter for work items
+* ${input:iterationPath}: (Optional) Iteration Path filter for work items
+* ${input:types:Bug, Task, User Story}: Comma-separated Work Item Types to fetch (case-insensitive). Default: Bug, Task, User Story.
+* ${input:states:Active, New, Resolved}: (Optional) Comma-separated workflow states to include. Default: Active, New, Resolved.
+* ${input:planningType:current-work}: Planning type for organizing retrieved work items. Default: current-work.
 
-## Outputs
+## 1. Required Protocol
 
-You MUST produce and/or update the following artifacts (referenced in Detailed Required Behavior):
+Processing protocol:
+* Create planning file structure in `.copilot-tracking/workitems/${input:planningType}/my-assigned-work-items/`
+* Retrieve all assigned work items using mcp ado tool calls
+* Hydrate each work item with complete field information
+* Organize work items into planning file definitions:
+  * `artifact-analysis.md` - Human-readable analysis and recommendations
+  * `work-items.md` - Machine-readable work item definitions
+  * `planning-log.md` - Operational log tracking progress and discoveries
+* Provide conversational summary of retrieved work items with planning file locations
 
-1. Progressive Raw JSON Artifact (Search Phase): `.copilot-tracking/workitems/{YYYYMMDD}-assigned-to-me.raw.json` containing minimal fields for each discovered work item plus search metadata. (See Outputs JSON Structure.)
-2. Hydrated JSON (Same File, Updated): Same path; enriched fields merged batch-wise; includes `hydration` status section and completion flags.
-3. Conversation Summary Table: Markdown table (ID | Type | Title | Tags | Priority | Stack Rank) with `<br />` inserted for Title wrapping (~70 char boundaries) and between tag tokens.
-4. Completion Summary: Count of hydrated work items, JSON file path, whether fallback types were used, and the table (or explicit statement that none were found).
+## 2. Search and Retrieval Phase
 
-### Outputs JSON Structure
+**Search Strategy:**
+1. Use `mcp_ado_wit_my_work_items` with specified parameters
+2. For each discovered work item, call `mcp_ado_wit_get_work_item` to get complete field information
+3. Organize work items by type and priority for planning structure
 
-Always keep this output structure top of mind:
+**Error Handling:**
+* Failed retrieval: Surface error and continue with remaining work items
+* Missing fields: Note missing information in planning files
+* Empty results: Create planning structure with note about no assigned work items
 
-<!-- <output-json-structure> -->
-```json
-{
-  "project": "${input:project}",
-  "timestamp": "<ISO8601>",
-  "usedFallback": false,
-  "search": {
-    "types": ["Bug", "Task"],
-    "fallbackTypes": ["User Story"],
-    "states": ["Active", "New"],
-    "areaPath": null,
-    "iterationPath": null,
-    "pageSize": 200,
-  },
-  "idsOrdered": [123, 124], // all ids returned from mcp_ado_search_workitem calls
-  "hydration": {
-    "remainingIds": [124],  // initially set to all ids after mcp_ado_search_workitem calls
-  },
-  "items": [
-    {
-      "id": 123,
-      "fields": {
-        /* any additional matching returned fields and ${input:fields} after mcp_ado_wit_get_work_item calls */
-        "System.Id": 123,
-        "System.WorkItemType": "Bug",
-        "System.Title": "...",
-        "System.State": "Active",
-        "System.Tags": "...",
-        "System.CreatedDate": "...",
-        "System.ChangedDate": "...",
-        "System.Reason": "...",
-        "System.Parent": "...",
-        "System.AreaPath": "...",
-        "System.IterationPath": "...",
-        "System.TeamProject": "...",
-        "System.Tags": "...",
-        "System.Description": "...",
-        "Microsoft.VSTS.Common.AcceptanceCriteria": "...",
-        "Microsoft.VSTS.TCM.ReproSteps": "...",
-        "Microsoft.VSTS.Common.Priority": "...",
-        "Microsoft.VSTS.Common.StackRank": "...",
-        "Microsoft.VSTS.Common.ValueArea": "...",
-        "Microsoft.VSTS.Common.BusinessValue": "...",
-        "Microsoft.VSTS.Common.Risk": "...",
-        "Microsoft.VSTS.Common.TimeCriticality": "...",
-        "Microsoft.VSTS.Scheduling.StoryPoints": "...",
-        "Microsoft.VSTS.Scheduling.OriginalEstimate": "...",
-        "Microsoft.VSTS.Scheduling.RemainingWork": "...",
-        "Microsoft.VSTS.Scheduling.CompletedWork": "...",
-        "System.AssignedTo": "...",
-        "System.CreatedBy": "...",
-        "System.CreatedDate": "...",
-        "System.ChangedBy": "...",
-        "System.ChangedDate": "...",
-        "System.CommentCount": "...",
-        "Microsoft.VSTS.Common.Severity": "...",
-        "System.BoardColumn": "...",
-        "System.BoardColumnDone": "...",
-        "System.BoardLane": "..."
-      }
-    }
-  ]
-}
-```
-<!-- <output-json-structure> -->
+## 3. Planning File Generation
 
-## Phases (Overview)
+### 3.1 Create Planning Directory Structure
 
-Update the task list with the following:
+Create directory (if not already exist): `.copilot-tracking/workitems/${input:planningType}/my-assigned-work-items/`
 
-0. List Dir Existing Workitems (update or create raw file)
-1. Build Search Criteria (construct filters & searchText)
-2. First Search Pass (paging when needed)
-3. Optional Fallback Search Pass (only if first search produced zero items)
-4. Persist Raw JSON (See Outputs JSON Structure)
-5. Required Re-state All Item Fields (See Outputs JSON Structure)
-6. Hydration Get Work Item (See Outputs JSON Structure)
-7. Final Output Table (See Outputs)
+Replace the `artifact-analysis.md`, `work-items.md`, `planning-log.md` if already exist
+* Use the list_dir tool to identify if these planning files already exist for my-assigned-work-items
+* Confirm with the user on replacing these files
+* If confirmed, delete the files without reading them and proceed onto the next steps, otherwise attempt to work in the existing files.
 
-## Detailed Required Behavior
+### 3.2 Generate artifact-analysis.md
 
-### 0. List Dir Existing Workitems
+Follow template structure from planning instructions:
+* Document all retrieved work items with analysis
+* Include work item summaries and key field values
+* Provide recommendations for work item organization
+* Reference original Azure DevOps work item URLs
 
-You must first `list_dir` on `.copilot-tracking/workitems` and identify if there is already an existing `.copilot-tracking/workitems/{YYYYMMDD}-assigned-to-me.raw.json` file that you will be updating (if exists) or creating (if not existing).
+### 3.3 Generate work-items.md
 
-### 1. Build Search Criteria
+Follow template structure from planning instructions:
+* Create WI reference numbers for each retrieved work item
+* Map all relevant Azure DevOps fields to planning format
+* Include work item relationships and dependencies
+* Use markdown format for multi-line fields
 
-Parse `${input:types}` and `${input:fallbackTypes}` into two ordered, case-insensitive sets (trim whitespace). Parse `${input:states}` similarly (unless blank). Build `searchText` ALWAYS including `a:@Me`. If `${input:iterationPath}` present, append ` IterationPath:"${input:iterationPath}"` exactly (space-prefixed) to `searchText`. (If state filters provided, use `state` parameter; do NOT redundantly embed state text inside `searchText`).
+### 3.4 Generate planning-log.md
 
-### 2. First Search Pass (Prioritized Types)
+Follow template structure from planning instructions:
+* Track retrieval progress and discoveries
+* Document any issues or missing information
+* Log work item processing status
+* Include links to Azure DevOps work items
 
-Call `mcp_ado_search_workitem` repeatedly with:
+## 4. Field Mapping Requirements
 
-* `project`: array containing `${input:project}`
-* `searchText`: must include `a:@Me`
-* `workItemType`: array of prioritized types (parsed from `${input:types}`) OR omit if empty after parsing
-* `state`: array of states if provided
-* `areaPath`: pass only if `${input:areaPath}` provided
-* `top`: `${input:pageSize}`
-* `skip`: advance by `${input:pageSize}` until a page returns fewer than `${input:pageSize}` or zero
+Map all Azure DevOps Work Item fields outlined in planning file format instructions
 
-After each page (See Outputs JSON Structure):
+## 5. Output Requirements
 
-* Add `System.Id`'s to `idsOrdered` list if missing.
-  * Only when `System.Id` is added to `idsOrdered` then you must add it to `hydration.remainingIds`.
+**Planning Files Created:**
+1. `.copilot-tracking/workitems/${input:planningType}/my-assigned-work-items/artifact-analysis.md`
+2. `.copilot-tracking/workitems/${input:planningType}/my-assigned-work-items/work-items.md`
+3. `.copilot-tracking/workitems/${input:planningType}/my-assigned-work-items/planning-log.md`
 
-### 3. Optional Fallback Search Pass
+**Conversation Summary:**
+* Total count of work items retrieved and organized
+* Breakdown by work item type
+* Planning file locations
+* Summary table with key work item information
+* Any issues or recommendations for work item management
 
-If, after exhausting paging for prioritized types, zero items were collected, perform the same paging logic using fallback types list (`${input:fallbackTypes}`). Reinitialize paging counters but reuse the SAME output file (overwrite structure with empty items first if not yet written). Mark a boolean `"usedFallback": true` in the JSON (include this key only if fallback was used).
+## 6. Planning File Content Requirements
 
-### 4. Persist Raw JSON (See Outputs JSON Structure)
+### artifact-analysis.md Content
 
-File path: `.copilot-tracking/workitems/{YYYYMMDD}-assigned-to-me.raw.json` (UTC date), refer to Outputs JSON Structure section for detailed JSON structure to output and update. Ensure folder exists.
+* **Artifact(s)**: "Azure DevOps assigned work items retrieval"
+* **Project**: `${input:project}`
+* **Area Path**: `${input:areaPath}` if provided
+* **Iteration Path**: `${input:iterationPath}` if provided
+* Individual work item analysis sections for each retrieved item
+* Working titles and descriptions derived from System.Title and System.Description
+* Key search terms extracted from titles and descriptions
+* Suggested field values based on current Azure DevOps state
 
-Update after each page: refresh `timestamp`, append to `items`, recalc `idsOrdered` (ordered by initial encounter). Keep `search.completed = false` until hydration finishes.
+### work-items.md Content
 
-### 5. Required Re-state All Item Fields (See Outputs JSON Structure)
+* Project, Area Path, Iteration Path metadata
+* WI reference number assignment for each work item
+* Complete field mapping from Azure DevOps to planning format
+* Action designation (typically "Update" for existing work items)
+* Relationship mapping between connected work items
+* Proper markdown formatting for multi-line content
 
-You are now required to review the Outputs JSON Structure and re-state exactly the items fields (as a markdown list) that you will be persisting when hydrating each item.
-The user must see exactly what you are looking for and what you will be persisting.
-When persisting you must verify that you've included all fields from this list
-**Warning**, if you skip this step then you may not persist all of the required data.
+### planning-log.md Content
 
-### 6. Hydration Get Work Item (See Outputs JSON Structure)
-
-After all search pages (and fallback if used) complete AND there is at least one item in `hydration.remainingIds`:
-
-* Iterate `hydration.remainingIds` in order. For each remainingId, call `mcp_ado_wit_get_work_item`.
-* After 3-5 `mcp_ado_wit_get_work_item` calls, merge (hydrate) returned field values into the corresponding `items[i].fields` (overwrite any previously stored fields).
-* After EACH successful item hydration, remove that id from `hydration.remainingIds`.
-* Important, if a `mcp_ado_wit_get_work_item` call fails, surface the error and stop (leave remaining ids intact for potential retry in a subsequent run).
-
-#### 6.a Hydration Field Persistence Rule (Critical)
-
-ALL fields returned by `mcp_ado_wit_get_work_item` that are part of the requested hydration field list (See Outputs JSON Structure) MUST be written immediately into the single JSON artifact `.copilot-tracking/workitems/{YYYYMMDD}-assigned-to-me.raw.json` during that same hydration cycle.
-
-Mandatory rules:
-* No temporary, staging, or intermediate files may be created; the ONLY persistence target is the dated `*.raw.json` file.
-* If the server omits a requested field, do not fabricate it; absence is acceptable. If it returns the field with `null` or empty value, persist as-is.
-* Never remove previously stored fields when adding new ones; merges are additive/overwriting per field key.
-* User-provided `${input:fields}` are treated identically to defaults: if returned, they MUST appear under the item's `fields` object after that hydration step.
-* The on-disk JSON after each hydration call must reflect the latest known complete set of fields for every hydrated item so far (idempotent on re-runs).
-
-### 7. Final Output Table (See Outputs)
-
-After hydration completes (or if zero items found), output to the conversation:
-
-* A markdown table with columns: ID | Type | Title | Tags | Priority | Stack Rank
-* For Title: Replace long text by inserting `<br />` every ~70 characters at natural space boundaries (best-effort) to wrap.
-* For Tags: If empty or null, leave cell blank. Otherwise split semicolon- or comma-delimited tag strings (trim whitespace) into separate lines joined by `<br />`.
-* If Priority or Stack Rank missing, display `-`.
-
-### Error Handling
-
-* If any tool call fails, surface the raw error content and stop further processing (persist whatever progress possible before stopping).
-
-## Edge Cases & Rules
-
-* If both prioritized and fallback passes are empty, do not perform hydration phase.
-* NEVER invoke `wit_my_work_items`, `wit_get_query`, or `wit_get_query_results_by_id` in this prompt.
-
-## Completion Summary Requirements (See Outputs: Completion Summary)
-
-When done, provide:
-
-* Count of work items hydrated
-* Path to JSON file
-* Whether fallback types were used
-* The markdown table described above (or a statement that none were found)
-
-## Compliance Checklist (Self-Evaluate Before Responding)
-
-<!-- <important-compliance-checklist> -->
-* [ ] No disallowed tools used (`wit_my_work_items`, query tools)
-* [ ] Paging implemented for full retrieval
-* [ ] Progressive persistence of raw json artifact file
-* [ ] Hydration merged additional fields in-place in raw json artifact file
-* [ ] IDs/order preserved; no reordering
-* [ ] Fallback executed only if prioritized search yielded zero items
-* [ ] Output table uses `<br />` for Title wrapping & Tag splitting
-* [ ] Empty / null tags → blank cell
-* [ ] IterationPath appended to searchText only if provided
-* [ ] Single JSON artifact file updated throughout
-* [ ] All requested hydration fields persisted for each item
-* [ ] No temporary files created
-* [ ] No requested field suppressed/filtered/deferred
-* [ ] Read-in and reviewed the final JSON artifact file before any response to the user
-<!-- </important-compliance-checklist> -->
+* Processing status tracking
+* Discovery log of work items found
+* Field mapping and content organization progress
+* Any errors or missing information encountered
+* Links to original Azure DevOps work items
+* Recommendations for future work item management
 
 ---
 
-Proceed getting my work items by following all phases in order
+Proceed with work item retrieval and planning file generation by following all phases in order
