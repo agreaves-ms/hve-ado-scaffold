@@ -9,8 +9,8 @@ description: "Retrieve Azure DevOps build metadata and relevant diagnostic logs 
 
 ## Inputs
 
-* ${input:project:edge-ai}: Azure DevOps project name or ID (REQUIRED)
-* ${input:repository:edge-ai}: Repository name or ID (RECOMMENDED when deriving PR from commit; required if using commit discovery without prId/buildId)
+* ${input:project}: Azure DevOps project name or ID (REQUIRED, either provided by the user or determined from ado-get-build-info.instructions.md).
+* ${input:repository}: Repository name or ID (OPTIONAL, utilize git commands to discovery if not provided when using commit discovery without prId/buildId)
 * ${input:prId}: Pull Request numeric ID (OPTIONAL if buildId supplied OR derivable from current commit). Used to derive branchName `refs/pull/${input:prId}/merge`.
 * ${input:buildId}: Explicit Build ID to inspect (OPTIONAL). If provided, it TAKES PRIORITY over prId or commit discovery.
 * ${input:includeAllLogs:false}: Boolean; when true, persist entire logs (not just filtered excerpts) in addition to summary sections.

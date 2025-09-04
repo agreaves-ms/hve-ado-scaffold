@@ -5,7 +5,8 @@ applyTo: '**/.copilot-tracking/workitems/**'
 
 # Azure DevOps Work Items Planning File Instructions
 
-ADO Work Item Project: edge-ai
+ADO Work Item Project: [INSERT-ADO-PROJECT]
+* Important: If the ado project is missing above then instruct the user to update `.github/instructions/ado-wit-planning.instructions.md` with their project name.
 
 <!-- <planning-folder-structure> -->
 ## Planning File Definitions & Directory Conventions

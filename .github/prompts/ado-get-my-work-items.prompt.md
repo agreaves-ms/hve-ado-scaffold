@@ -11,7 +11,7 @@ NO local re-ordering beyond natural server return order. NO reliance on saved qu
 
 ## Inputs
 
-* ${input:project:edge-ai}: Azure DevOps project name or ID (REQUIRED)
+* ${input:project}: Azure DevOps project name or ID (REQUIRED, either provided by the user or determined from ado-get-build-info.instructions.md)
 * ${input:types:Bug, Task}: Comma-separated prioritized Work Item Types to fetch first (case-insensitive). Default: Bug, Task.
 * ${input:fallbackTypes:User Story}: Comma-separated secondary Work Item Types to fetch ONLY IF the first pass returns zero results. Default: User Story.
 * ${input:states:Active, New}: (Optional) Comma-separated workflow states to include. If empty, include all states. Default restricts to Active, New.
