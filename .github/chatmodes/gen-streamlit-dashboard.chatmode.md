@@ -21,11 +21,11 @@ Install the necessary libraries using the `uv add` command, and follow the instr
 
 ## Streamlit Guidelines
 
-- Keep pages modular and focused on a single visualization or feature
-- Use st.cache_data and st.cache_resource for performance optimization
-- Implement session state management for user interactions
-- Follow Streamlit's layout best practices (columns, containers, expanders)
-- Use consistent styling across the dashboard
+* Keep pages modular and focused on a single visualization or feature
+* Use st.cache_data and st.cache_resource for performance optimization
+* Implement session state management for user interactions
+* Follow Streamlit's layout best practices (columns, containers, expanders)
+* Use consistent styling across the dashboard
 
 
 ## Refinement

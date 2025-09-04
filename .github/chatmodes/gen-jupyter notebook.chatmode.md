@@ -1,3 +1,4 @@
+---
 description: 'Create a structured exploratory data analysis Jupyter notebook leveraging available data sources & generated data dictionaries WITHOUT directly embedding raw data dumps.'
 tools: ['runCommands', 'runTasks', 'edit', 'notebooks', 'search', 'new', 'extensions', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'githubRepo', 'todos', 'search', 'context7', 'copilotCodingAgent', 'activePullRequest', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment']
 ---
@@ -13,9 +14,9 @@ Generate a reusable, modular exploratory data analysis (EDA) notebook scaffold t
 Before writing any code cells:
 1. Inspect file names & data dictionary outputs in `outputs/` (e.g. `data-dictionary-*.md`, `data-summary-*.md`, `data-profile-*.json`). Do NOT read full raw datasets inside the notebook creation step—simply reference their schema & key fields.
 2. Identify:
-	- Primary entities (tables/files)
-	- Key variable types (numeric, categorical, datetime, boolean)
-	- Potential join keys or time indices
+	* Primary entities (tables/files)
+	* Key variable types (numeric, categorical, datetime, boolean)
+	* Potential join keys or time indices
 3. Draft a short markdown synopsis section summarizing available data assets and intended analytical focus.
 
 ## Notebook Section Layout (Required Order)
@@ -25,18 +26,18 @@ Before writing any code cells:
 4. Data Loading (parameterized paths; small samples if needed)
 5. Data Quality & Structure Checks (shape, dtypes, missingness overview)
 6. Univariate Distributions
-	- Numeric: histograms, KDE, boxplots, violin (where relevant)
-	- Categorical: count plots / bar charts (top-N if high cardinality)
+	* Numeric: histograms, KDE, boxplots, violin (where relevant)
+	* Categorical: count plots / bar charts (top-N if high cardinality)
 7. Multivariate Relationships
-	- Scatter / pair plots (sample if large)
-	- Correlation matrix (filtered to numeric, optionally masked)
-	- Grouped statistics (aggregation examples)
-	- Conditional density or boxplots faceted by key categorical variables
+	* Scatter / pair plots (sample if large)
+	* Correlation matrix (filtered to numeric, optionally masked)
+	* Grouped statistics (aggregation examples)
+	* Conditional density or boxplots faceted by key categorical variables
 8. Time Series / Temporal Trends (include ONLY if datetime fields exist)
-	- Line plots with rolling means
-	- Seasonal decomposition placeholder (optional)
+	* Line plots with rolling means
+	* Seasonal decomposition placeholder (optional)
 9. Feature Interactions / Faceting
-	- Multi-facet grid examples (e.g. seaborn FacetGrid)
+	* Multi-facet grid examples (e.g. seaborn FacetGrid)
 10. Outliers & Anomalies (IQR / z-score / rolling deviation examples)
 11. Derived Features (placeholder: engineered columns, transformations)
 12. Summary Insights & Hypotheses (markdown placeholders)
@@ -48,13 +49,13 @@ Primary visualization library: Plotly Express (interactive, concise). Use seabor
 2. You need layered customization not yet required in Plotly
 
 Principles:
-- One concept per cell (keep code under ~15 logical lines)
-- Always precede with a markdown rationale: what question the plot answers
-- Favor wide-form → tidy transforms explicitly (show minimal reshaping steps)
-- Prefer readable, semantic figure variable names (e.g., `fig_corr`, `fig_room_energy`)
-- Apply consistent theming & axis labeling; no unexplained abbreviations
-- Use transparency (`opacity`) & sampling for dense scatter plots
-- Add trend lines (`trendline='ols'`) where relationship strength is informative
+* One concept per cell (keep code under ~15 logical lines)
+* Always precede with a markdown rationale: what question the plot answers
+* Favor wide-form → tidy transforms explicitly (show minimal reshaping steps)
+* Prefer readable, semantic figure variable names (e.g., `fig_corr`, `fig_room_energy`)
+* Apply consistent theming & axis labeling; no unexplained abbreviations
+* Use transparency (`opacity`) & sampling for dense scatter plots
+* Add trend lines (`trendline='ols'`) where relationship strength is informative
 
 Standard Plotly Express Pattern:
 ```python
@@ -64,12 +65,12 @@ fig.show()
 ```
 
 Heatmaps:
-- Use `px.imshow` for pivoted matrices (e.g., energy vs hour vs room)
-- Provide color scale rationale in markdown (e.g., sequential for magnitude, diverging for signed correlations)
+* Use `px.imshow` for pivoted matrices (e.g., energy vs hour vs room)
+* Provide color scale rationale in markdown (e.g., sequential for magnitude, diverging for signed correlations)
 
 Faceting:
-- Prefer `facet_col` (wrapped) for comparisons across categories ≤ 12
-- Use `facet_col_wrap` to avoid horizontal scrolling
+* Prefer `facet_col` (wrapped) for comparisons across categories ≤ 12
+* Use `facet_col_wrap` to avoid horizontal scrolling
 
 Correlation:
 1. Filter numeric columns
@@ -77,22 +78,22 @@ Correlation:
 3. Use `px.imshow(corr_df, text_auto=True)` with `zmin=-1, zmax=1` and diverging scale
 
 Time Series:
-- Derive temporal features (hour, day_of_week) in a dedicated preprocessing cell
-- Use lines with markers for aggregated series; show range (min/max) only if narratively useful
+* Derive temporal features (hour, day_of_week) in a dedicated preprocessing cell
+* Use lines with markers for aggregated series; show range (min/max) only if narratively useful
 
 Multivariate Density / Distribution:
-- Use histogram with `marginal='box'` or `marginal='violin'` instead of separate plots when appropriate
+* Use histogram with `marginal='box'` or `marginal='violin'` instead of separate plots when appropriate
 
 3D / High-dimensional:
-- Restrict 3D scatter usage to compelling multi-axis tradeoff illustration (e.g., temperature vs humidity vs energy)
-- Avoid gratuitous 3D if 2D suffices
+* Restrict 3D scatter usage to compelling multi-axis tradeoff illustration (e.g., temperature vs humidity vs energy)
+* Avoid gratuitous 3D if 2D suffices
 
 Outliers:
-- Use box/violin marginal options or dedicated filtered scatter
-- Consider IQR-based filtering demonstration (explanatory, not destructive)
+* Use box/violin marginal options or dedicated filtered scatter
+* Consider IQR-based filtering demonstration (explanatory, not destructive)
 
 Artifact Plots:
-- If derived features created, add a clearly separated subsection: "Derived Feature Validation"
+* If derived features created, add a clearly separated subsection: "Derived Feature Validation"
 
 Markdown Rationale Template (preceding each plot):
 ```
@@ -125,15 +126,15 @@ uv add pandas seaborn plotly
 
 ## Data Handling Constraints
 Must:
-- Avoid printing entire DataFrames (show `.head()`, `.info()` summarizations only)
-- Parameterize file paths (e.g., `DATA_DIR = Path('data')`)
-- Add lightweight caching or sampling if dataset is large
- - Persist any curated/derived interim datasets into `data/processed/` with semantic, lowercase, hyphenated filenames
+* Avoid printing entire DataFrames (show `.head()`, `.info()` summarizations only)
+* Parameterize file paths (e.g., `DATA_DIR = Path('data')`)
+* Add lightweight caching or sampling if dataset is large
+ * Persist any curated/derived interim datasets into `data/processed/` with semantic, lowercase, hyphenated filenames
 Should:
-- Use explicit dtype coercion where helpful (e.g. parse dates)
+* Use explicit dtype coercion where helpful (e.g. parse dates)
 Should NOT:
-- Copy full data dictionary text; link or summarize
-- Hard-code environment-specific absolute paths
+* Copy full data dictionary text; link or summarize
+* Hard-code environment-specific absolute paths
 
 ### Processed Data Persistence Policy
 Directory: `data/processed/`
@@ -200,23 +201,23 @@ Encapsulate repetitive transforms into small helper functions in a "Utilities" c
 
 ## Placeholders to Include
 Add markdown TODO blocks for:
-- Data limitations
-- Emerging hypotheses
-- Potential feature engineering ideas
-- Questions for domain experts
+* Data limitations
+* Emerging hypotheses
+* Potential feature engineering ideas
+* Questions for domain experts
 
 ## Minimum Required Cells (Checklist)
-- [ ] Overview & context
-- [ ] Imports & configuration
-- [ ] Data loading (lazy / parameterized)
-- [ ] Structural summary (shape, dtypes, missingness)
-- [ ] At least 3 univariate plots
-- [ ] At least 2 multivariate relationship plots
-- [ ] Correlation matrix (if >=2 numeric vars)
-- [ ] Temporal trend (if datetime present)
-- [ ] Outlier inspection
-- [ ] Insights & next steps section
-- [ ] Processed artifacts registry & summary table
+* [ ] Overview & context
+* [ ] Imports & configuration
+* [ ] Data loading (lazy / parameterized)
+* [ ] Structural summary (shape, dtypes, missingness)
+* [ ] At least 3 univariate plots
+* [ ] At least 2 multivariate relationship plots
+* [ ] Correlation matrix (if >=2 numeric vars)
+* [ ] Temporal trend (if datetime present)
+* [ ] Outlier inspection
+* [ ] Insights & next steps section
+* [ ] Processed artifacts registry & summary table
 
 ## Quality Bar
 Notebook should run top-to-bottom without manual edits after user sets file paths. All visualization cells must be guarded (e.g., check column existence before plotting) to avoid runtime errors if a column is missing.

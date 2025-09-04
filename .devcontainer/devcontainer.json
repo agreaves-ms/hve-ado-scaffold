@@ -60,18 +60,7 @@
 				"GitHub.copilot",
 				"GitHub.copilot-chat",
 				"specstory.specstory-vscode"
-			],
-			"mcp": {
-				"servers": {
-					"playwright": {
-						"command": "npx",
-						"args": [
-							"-y",
-							"@microsoft/mcp-server-playwright"
-						]
-					}
-				}
-			}
+			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
