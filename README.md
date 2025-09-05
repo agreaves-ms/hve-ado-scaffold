@@ -324,7 +324,7 @@ Swap AzDO prompts with equivalents (e.g., GitHub Issues MCP server) by:
 1. New prompt: add `*.prompt.md` under `.github/prompts/` (follow existing structure, include frontmatter `mode:` + `description:`).
 2. New instructions: drop into `.github/instructions/` or a subfolder; update settings if relocating.
 3. New chat mode: create `*.chatmode.md` under `.github/chatmodes/` with `description`, `tools` array, and clear role directives.
-4. Run `/gen-commit-message` to standardize the commit message.
+4. Run `/git-commit-message` to standardize the commit message.
 
 ## FAQ ❓
 

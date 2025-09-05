@@ -60,6 +60,8 @@ Do NOT emit these unless needed; adapt values after user confirmation. Each comm
 
 <!-- <example-audit-commands> -->
 ```bash
+# initialize a new git repository (if needed)
+git init
 # Single baseline audit (read-only; captures all keys and their source files):
 git config --list --show-origin
 ```
