@@ -1,4 +1,5 @@
 {
+	// VS Code Variable Reference: https://code.visualstudio.com/docs/reference/variables-reference
 	"inputs": [
 		{
 			"id": "ado_org",
@@ -12,6 +13,21 @@
 		}
 	],
 	"servers": {
+		"microsoft-docs": {
+			"type": "http",
+			"url": "https://learn.microsoft.com/api/mcp"
+		},
+		"ado": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@azure-devops/mcp",
+				"${input:ado_org}",
+				"--tenant",
+				"${input:ado_tenant}"
+			]
+		},
 		"playwright": {
 			"command": "npx",
 			"args": [

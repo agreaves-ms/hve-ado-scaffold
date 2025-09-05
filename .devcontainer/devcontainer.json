@@ -57,8 +57,7 @@
 				// "GitHub.copilot@prerelease",
 				// "GitHub.copilot-chat@prerelease"
 				"GitHub.copilot",
-				"GitHub.copilot-chat",
-				"specstory.specstory-vscode"
+				"GitHub.copilot-chat"
 			]
 		}
 	},
