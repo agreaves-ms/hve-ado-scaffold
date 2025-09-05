@@ -2,12 +2,17 @@
     /*
         Useful VS Code settings for automatic linting and formatting
     */
+
     "json.schemaDownload.enable": true,
+
     "files.eol": "\n",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+
     "diffEditor.ignoreTrimWhitespace": false,
+
     "editor.insertSpaces": true,
+
     "markdownlint.configFile": ".markdownlint.json",
     "markdownlint.lintWorkspaceGlobs": [
         "**/*.{md,mkd,mdwn,mdown,markdown,markdn,mdtxt,mdtext,workbook}",
@@ -18,6 +23,7 @@
         "!**/.git",
         "!**/vendor"
     ],
+
     "[chatmode]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
         "editor.formatOnSave": true,
@@ -33,6 +39,7 @@
             "other": "off"
         }
     },
+
     "[prompt]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
         "editor.formatOnSave": true,
@@ -48,6 +55,7 @@
             "other": "off"
         }
     },
+
     "[instructions]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
         "editor.formatOnSave": true,
@@ -63,6 +71,7 @@
             "other": "off"
         }
     },
+
     "[markdown]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
         "editor.formatOnSave": true,
@@ -70,12 +79,15 @@
         "editor.detectIndentation": false,
         "editor.tabSize": 2
     },
+
     "[csharp]": {
         "editor.formatOnSave": true,
         "editor.tabSize": 4,
     },
+
     "shellcheck.enableQuickFix": true,
     "shellcheck.run": "onSave",
+
     "yaml.schemas": {
         "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json": "*-pipelines.yml",
         "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml",
@@ -89,9 +101,11 @@
         "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format",
         "tag:yaml.org,2002:python/object/apply:pymdownx.slugs.slugify mapping"
     ],
+
     /*
         Important GitHub Copilot settings
     */
+
     // Enables the thinking tool used by models that want to think
     "github.copilot.chat.agent.thinkingTool": true,
     // Enables semantic search on the codebase
@@ -104,11 +118,13 @@
     ],
     // (08-21-2025 Currently Preview) Enables a task list directly in Copilot Chat
     "chat.todoListTool.enabled": true,
+
     /*
         Important GitHub Copilot Chat instruction and prompt file locations
         * Task Planner generates prompts and instructions under .copilot-tracking
         * Framework specific grouping for instructions files
     */
+
     // *.instruction.md locations
     "chat.instructionsFilesLocations": {
         ".github/instructions": true,
@@ -124,3 +140,4 @@
         ".copilot-tracking/prompts": true
     },
 }
+
