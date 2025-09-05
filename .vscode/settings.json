@@ -19,7 +19,7 @@
         "!**/vendor"
     ],
     "[chatmode]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
         "editor.formatOnSave": true,
         "editor.detectIndentation": false,
         "editor.tabSize": 2,
