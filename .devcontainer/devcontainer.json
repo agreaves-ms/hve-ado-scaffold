@@ -3,7 +3,6 @@
 {
 	"name": "hve-ado-scaffold",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	// "image": "mcr.microsoft.com/devcontainers/base",
 	"image": "mcr.microsoft.com/devcontainers/base",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
