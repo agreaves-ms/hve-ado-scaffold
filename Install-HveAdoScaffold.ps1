@@ -103,7 +103,7 @@ function New-DirectoryIfNotExists {
     $directory = Split-Path $fullPath -Parent
 
     if ($directory -and -not (Test-Path $directory)) {
-        Write-ColoredOutput "📁 Creating directory: $directory" "Blue"
+        Write-ColoredOutput "[+] Creating directory: $directory" "Blue"
         New-Item -ItemType Directory -Path $directory -Force | Out-Null
     }
 
@@ -129,13 +129,13 @@ function Resolve-FilePath {
 
 function Show-PreInstallSummary {
     Write-Host ""
-    Write-ColoredOutput "🚀 HVE ADO Scaffold Installer" "Magenta"
+    Write-ColoredOutput "*** HVE ADO Scaffold Installer ***" "Magenta"
     Write-ColoredOutput "==============================" "Magenta"
     Write-Host ""
     Write-ColoredOutput "Target directory: $(Resolve-FilePath $TargetPath)" "Blue"
     Write-Host ""
 
-    Write-ColoredOutput "📋 Files to install:" "Blue"
+    Write-ColoredOutput ">>> Files to install:" "Blue"
 
     foreach ($file in $FILES_TO_INSTALL) {
         $exists = Test-FileExists -Path $file.FilePath
@@ -160,14 +160,14 @@ function Install-OneFileFromDownload {
         [string]$FullTargetPath
     )
     try {
-        Write-ColoredOutput "  ⬇️  Downloading: $FilePath" "Cyan"
+        Write-ColoredOutput "  -> Downloading: $FilePath" "Cyan"
         Invoke-WebRequest -Uri $SourceUrl -OutFile $FullTargetPath -ErrorAction Stop
 
-        Write-ColoredOutput "  ✅ Installed: $FilePath" "Green"
+        Write-ColoredOutput "  [OK] Installed: $FilePath" "Green"
         return [InstallStatus]::Success
     }
     catch {
-        Write-ColoredOutput "  ❌ Failed to download $FilePath : $($_.Exception.Message)" "Red"
+        Write-ColoredOutput "  [ERROR] Failed to download $FilePath : $($_.Exception.Message)" "Red"
         return [InstallStatus]::Failed
     }
 }
@@ -231,7 +231,7 @@ function Update-JsonFileContent {
     )
 
     if (-not (Test-Path $FilePath)) {
-        Write-ColoredOutput "  ❌ File not found: $FilePath" "Red"
+        Write-ColoredOutput "  [ERROR] File not found: $FilePath" "Red"
         return $false
     }
 
@@ -260,7 +260,7 @@ function Update-JsonFileContent {
         return $false
     }
     catch {
-        Write-ColoredOutput "  ❌ Error updating JSON file: $($_.Exception.Message)" "Red"
+        Write-ColoredOutput "  [ERROR] Error updating JSON file: $($_.Exception.Message)" "Red"
         return $false
     }
 }
@@ -270,7 +270,7 @@ function Install-VSCodeSettingsJson {
     $sourceUrl = "$REPO_URL/.vscode/settings.json"
 
     try {
-        Write-ColoredOutput "  ⬇️  Downloading source settings.json for merging..." "Cyan"
+        Write-ColoredOutput "  -> Downloading source settings.json for merging..." "Cyan"
         $tempFile = [System.IO.Path]::GetTempFileName()
         Invoke-WebRequest -Uri $sourceUrl -OutFile $tempFile -ErrorAction Stop
 
@@ -312,22 +312,22 @@ function Install-VSCodeSettingsJson {
         Remove-Item $tempFile -Force
 
         if ($updates.Count -eq 0) {
-            Write-ColoredOutput "  ⚠️  No changes needed for settings.json" "Yellow"
+            Write-ColoredOutput "  [!] No changes needed for settings.json" "Yellow"
             return [InstallStatus]::Skipped
         }
 
         # Apply updates using regex replacement
         if (Update-JsonFileContent -FilePath $targetPath -Updates $updates) {
-            Write-ColoredOutput "  ✅ Updated settings.json with required changes" "Green"
+            Write-ColoredOutput "  [OK] Updated settings.json with required changes" "Green"
             return [InstallStatus]::Success
         }
         else {
-            Write-ColoredOutput "  ⚠️  No changes were needed in settings.json" "Yellow"
+            Write-ColoredOutput "  [!] No changes were needed in settings.json" "Yellow"
             return [InstallStatus]::Skipped
         }
     }
     catch {
-        Write-ColoredOutput "  ❌ Failed to merge settings.json: $($_.Exception.Message)" "Red"
+        Write-ColoredOutput "  [ERROR] Failed to merge settings.json: $($_.Exception.Message)" "Red"
         return [InstallStatus]::Failed
     }
 }
@@ -337,7 +337,7 @@ function Install-VSCodeMcpJson {
     $sourceUrl = "$REPO_URL/.vscode/mcp.json"
 
     try {
-        Write-ColoredOutput "  ⬇️  Downloading source mcp.json for merging..." "Cyan"
+        Write-ColoredOutput "  -> Downloading source mcp.json for merging..." "Cyan"
         $tempFile = [System.IO.Path]::GetTempFileName()
         Invoke-WebRequest -Uri $sourceUrl -OutFile $tempFile -ErrorAction Stop
 
@@ -380,22 +380,22 @@ function Install-VSCodeMcpJson {
         Remove-Item $tempFile -Force
 
         if ($updates.Count -eq 0) {
-            Write-ColoredOutput "  ⚠️  No changes needed for mcp.json" "Yellow"
+            Write-ColoredOutput "  [!] No changes needed for mcp.json" "Yellow"
             return [InstallStatus]::Skipped
         }
 
         # Apply updates using regex replacement
         if (Update-JsonFileContent -FilePath $targetPath -Updates $updates) {
-            Write-ColoredOutput "  ✅ Updated mcp.json with required changes" "Green"
+            Write-ColoredOutput "  [OK] Updated mcp.json with required changes" "Green"
             return [InstallStatus]::Success
         }
         else {
-            Write-ColoredOutput "  ⚠️  No changes were needed in mcp.json" "Yellow"
+            Write-ColoredOutput "  [!] No changes were needed in mcp.json" "Yellow"
             return [InstallStatus]::Skipped
         }
     }
     catch {
-        Write-ColoredOutput "  ❌ Failed to merge mcp.json: $($_.Exception.Message)" "Red"
+        Write-ColoredOutput "  [ERROR] Failed to merge mcp.json: $($_.Exception.Message)" "Red"
         return [InstallStatus]::Failed
     }
 }
@@ -404,11 +404,11 @@ function Install-AllFiles {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param()
 
-    Write-ColoredOutput "🔄 Starting installation..." "Blue"
+    Write-ColoredOutput "[*] Starting installation..." "Blue"
 
     # Create target directory if it doesn't exist
     if (-not (New-DirectoryIfNotExists -Path $TargetPath)) {
-        Write-ColoredOutput "❌ Failed to create target directory: $TargetPath" "Red"
+        Write-ColoredOutput "[ERROR] Failed to create target directory: $TargetPath" "Red"
         exit 1
     }
     $TargetPath = Resolve-Path $TargetPath
@@ -424,7 +424,7 @@ function Install-AllFiles {
 
         New-DirectoryIfNotExists -Path $filePath | Out-Null
 
-        Write-ColoredOutput "📥 Installing $filePath" "Blue"
+        Write-ColoredOutput ">> Installing $filePath" "Blue"
         $fullTargetPath = Join-Path $TargetPath $filePath
         $targetPathExists = Test-Path $fullTargetPath
 
@@ -437,23 +437,23 @@ function Install-AllFiles {
         }
         elseif ($filePath -eq ".vscode/settings.json") {
             # settings.json is required, so we need to ensure it is installed
-            Write-ColoredOutput "  ⚠️  Existing settings.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
+            Write-ColoredOutput "  [!] Existing settings.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
             if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
                 $result = Install-VSCodeSettingsJson
             }
             else {
-                Write-ColoredOutput "  ⚠️  User skipped required file: $filePath" "Yellow"
+                Write-ColoredOutput "  [!] User skipped required file: $filePath" "Yellow"
                 $result = [InstallStatus]::Skipped
             }
         }
         elseif ($filePath -eq ".vscode/mcp.json") {
             # mcp.json is required, so we need to ensure it is installed
-            Write-ColoredOutput "  ⚠️  Existing mcp.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
+            Write-ColoredOutput "  [!] Existing mcp.json detected. Merging required changes for HVE Scaffolding..." "Yellow"
             if ($PSCmdlet.ShouldProcess($filePath, "Modify existing file with minimum required changes.")) {
                 $result = Install-VSCodeMcpJson
             }
             else {
-                Write-ColoredOutput "  ⚠️  User skipped required file: $filePath" "Yellow"
+                Write-ColoredOutput "  [!] User skipped required file: $filePath" "Yellow"
                 $result = [InstallStatus]::Skipped
             }
         }
@@ -466,7 +466,7 @@ function Install-AllFiles {
         }
         else {
             # This file is skipped
-            Write-ColoredOutput "  ⚠️  Skipping existing file: $filePath" "Yellow"
+            Write-ColoredOutput "  [!] Skipping existing file: $filePath" "Yellow"
             $result = [InstallStatus]::Skipped
         }
 
@@ -480,10 +480,10 @@ function Install-AllFiles {
 
     # Show results summary
     Write-Host ""
-    Write-ColoredOutput "📊 Installation Summary:" "Blue"
-    Write-ColoredOutput "  ✅ Installed: $successCount files" "Green"
-    Write-ColoredOutput "  ⏭️  Skipped: $skipCount files" "Yellow"
-    Write-ColoredOutput "  ❌ Failed: $failCount files" "Red"
+    Write-ColoredOutput "=== Installation Summary ===" "Blue"
+    Write-ColoredOutput "  [OK] Installed: $successCount files" "Green"
+    Write-ColoredOutput "  [-] Skipped: $skipCount files" "Yellow"
+    Write-ColoredOutput "  [X] Failed: $failCount files" "Red"
 
     return @{
         SuccessCount = $successCount
@@ -494,19 +494,19 @@ function Install-AllFiles {
 
 function Show-PostInstallInstructions {
     Write-Host ""
-    Write-ColoredOutput "🎉 Installation Complete!" "Green"
+    Write-ColoredOutput "*** Installation Complete! ***" "Green"
     Write-ColoredOutput "=========================" "Green"
     Write-Host ""
     Write-ColoredOutput "Next steps:" "Blue"
     Write-ColoredOutput "1.  Open VS Code and start using Copilot Chat with the new prompts and chatmodes" "White"
-    Write-ColoredOutput "2. 📖 Check out the README.md in the HVE ADO Scaffold repo for workflow examples" "White"
+    Write-ColoredOutput "2. [*] Check out the README.md in the HVE ADO Scaffold repo for workflow examples" "White"
     Write-Host ""
     Write-ColoredOutput "Key features now available:" "Blue"
-    Write-ColoredOutput "• Azure DevOps work item integration" "White"
-    Write-ColoredOutput "• Automated task planning and research workflows" "White"
-    Write-ColoredOutput "• PRD and ADR creation chatmodes" "White"
-    Write-ColoredOutput "• Enhanced commit message generation" "White"
-    Write-ColoredOutput "• Markdown linting and spell checking" "White"
+    Write-ColoredOutput "* Azure DevOps work item integration" "White"
+    Write-ColoredOutput "* Automated task planning and research workflows" "White"
+    Write-ColoredOutput "* PRD and ADR creation chatmodes" "White"
+    Write-ColoredOutput "* Enhanced commit message generation" "White"
+    Write-ColoredOutput "* Markdown linting and spell checking" "White"
     Write-Host ""
     Write-ColoredOutput "Repository: https://github.com/agreaves-ms/hve-ado-scaffold" "Cyan"
 }
@@ -516,7 +516,7 @@ try {
     Show-PreInstallSummary
 
     if ($WhatIfPreference) {
-        Write-ColoredOutput "ℹ️  Run without WhatIf specified to actually install the files." "Yellow"
+        Write-ColoredOutput "[i] Run without WhatIf specified to actually install the files." "Yellow"
         exit 0
     }
 
@@ -527,11 +527,11 @@ try {
         exit 0
     }
     else {
-        Write-ColoredOutput "⚠️  Some files failed to install. Check the errors above." "Yellow"
+        Write-ColoredOutput "[!] Some files failed to install. Check the errors above." "Yellow"
         exit 1
     }
 }
 catch {
-    Write-ColoredOutput "❌ Unexpected error: $($_.Exception.Message)" "Red"
+    Write-ColoredOutput "[ERROR] Unexpected error: $($_.Exception.Message)" "Red"
     exit 1
 }
