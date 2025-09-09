@@ -1,6 +1,6 @@
 ---
 mode: "agent"
-tools: ['runCommands', 'runTasks', 'edit', 'search', 'think', 'problems', 'githubRepo', 'context7', 'search', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages', 'websearch']
+tools: ['think', 'problems', 'githubRepo', 'runCommands', 'runTasks', 'editFiles', 'search', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages']
 description: "Create a uv project in the current workspace"
 ---
 

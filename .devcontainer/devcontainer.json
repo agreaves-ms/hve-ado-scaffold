@@ -54,7 +54,9 @@
 				// "GitHub.copilot-chat@prerelease"
 				"GitHub.copilot",
 				"GitHub.copilot-chat",
-				"specstory.specstory-vscode"
+				"specstory.specstory-vscode",
+				"donjayamanne.python-extension-pack",
+				"ms-toolsai.jupyter"
 			]
 		}
 	},

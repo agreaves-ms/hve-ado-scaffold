@@ -1,11 +1,18 @@
 # GitHub Copilot for Data Science
 
+## Copilot Instructions (.github/instructions) what guides Copilot
+
+* [instructions/uv-projects.instructions.md](.github/instructions/uv-projects.instructions.md) - Instructions for managing Python environments with uv. Handles project initialization, dependency management, and CUDA detection for ML workflows.
+
+## Copilot Prompts
+
+* [prompts/uv-manage.prompt.md](.github/prompts/uv-manage.prompt.md) - Prompt for creating and managing uv projects
+
 ## Copilot Chat Modes (.github/chatmodes) for workflow automation
 
 Located in [`.github/chatmodes/`](./.github/chatmodes/). Specialized persistent personas for data science workflows:
 
 * [`gen-data-spec.chatmode.md`](./.github/chatmodes/gen-data-spec.chatmode.md) - Systematic data discovery and content review. Analyzes directory structures, previews data formats, and creates exploration plans in `docs/notes/`.
-* [`uv-env.chatmode.md`](./.github/chatmodes/uv-env.chatmode.md) - Python environment specialist using uv for virtual environment management. Handles project initialization, dependency management, and CUDA detection for ML workflows.
 * [`gen-jupyter-notebook.chatmode.md`](./.github/chatmodes/gen-jupyter-notebook.chatmode.md) - Exploratory data analysis notebook creation. Generates comprehensive EDA notebooks with summary statistics, visualizations, and data transforms using pandas, seaborn, and plotly.
 * [`gen-streamlit-dashboard.chatmode.md`](./.github/chatmodes/gen-streamlit-dashboard.chatmode.md) - Multi-page Streamlit dashboard development. Creates interactive data exploration apps with univariate/multivariate analysis, time series visualization, and optional AutoGen chat integration.
 * [`test-streamlit-dashboard.chatmode.md`](./.github/chatmodes/test-streamlit-dashboard.chatmode.md) - Automated functional and behavioral testing for Streamlit dashboards. Uses Playwright and the VS Code Simple Browser extension to interact with the app, validate UI flows, and ensure dashboard reliability.
@@ -26,12 +33,13 @@ Establish a reproducible Python development environment using uv for modern depe
 
 1. **Activate the uv Environment Chatmode**
    * Open GitHub Copilot Chat in VS Code
-   * Type: `@workspace #file:chatmodes use the uv-env chatmode to set up a Python 3.11 environment for data science`
+   * Type: `/uv-manage --python 3.12`
 
 2. **Initialize the Project**
-   * Copilot will execute: `uv init` to create project structure
+   * Copilot will search for any existing python dependencies in your workspace
+   * Copilot executes: `uv init` to create project structure or `uv sync` to update existing environment
    * Automatically generates `pyproject.toml` with project metadata
-   * Creates `.venv` virtual environment directory
+   * Creates or updates `.venv` virtual environment directory
 
 3. **Install Core Data Science Dependencies**
    * Copilot automatically adds essential packages:
@@ -54,7 +62,7 @@ Establish a reproducible Python development environment using uv for modern depe
 
 #### Tips
 
-* The uv chatmode automatically handles CUDA detection for PyTorch installations
+* The uv instructions automatically handles CUDA detection for PyTorch installations
 * All dependency changes are tracked in `pyproject.toml` and `uv.lock`
 * Use `uv add <package>` for additional dependencies throughout the workflow
 
@@ -78,8 +86,7 @@ Use GitHub Copilot to automatically generate comprehensive data specifications a
    * Organize any supplementary data files or documentation
 
 2. **Activate the Data Specification Chatmode**
-   * Open Copilot Chat and reference: `@workspace #file:chatmodes use the gen-data-spec chatmode to analyze my data directory`
-   * Point Copilot to your specific data path: `analyze the data in ./data/`
+   * Open Copilot Chat and switch the chat mode to `gen-data-spec`. Add the prompt: `generate a dataspec for the data in #file:data`
 
 3. **Automated Data Discovery**
    * Copilot will:
@@ -123,21 +130,13 @@ Generate a comprehensive exploratory data analysis (EDA) notebook using GitHub C
 #### Steps
 
 1. **Activate the Jupyter Notebook Chatmode**
-   * Reference the chatmode: `@workspace #file:chatmodes use the gen-jupyter notebook chatmode`
-   * Specify your data context: `create a comprehensive EDA notebook for the home assistant dataset using the existing data specification`
+   * Open Copilot Chat and switch the chat mode to `gen-jupyter-notebook`
+   * Specify your data context: `Create a jupyter notebook for the data in #file:data and data summary in #file:outputs`
 
 2. **Automated Notebook Generation**
-   * Copilot creates a structured notebook in `notebooks/` with these sections:
-     * **Title & Overview**: Dataset summary and analysis objectives
-     * **Data Assets Summary**: References to specifications without data duplication
-     * **Configuration & Imports**: Parameterized paths and required libraries
-     * **Data Loading**: Safe, sampling-aware data ingestion
-     * **Data Quality Checks**: Shape, types, and missingness validation
-     * **Univariate Analysis**: Distributions, outliers, and statistical summaries
-     * **Multivariate Analysis**: Correlations, relationships, and interactions
-     * **Time Series Analysis**: Temporal patterns and trends (if applicable)
-     * **Feature Engineering**: Derived variables and transformations
-     * **Summary Insights**: Key findings and analytical recommendations
+
+   * Copilot will install the necessary libraries into your uv environment
+   * Copilot creates a structured notebook in `notebooks/` with sections specified by the chatmode prompt.
 
 3. **Visualization Strategy**
    * Primary visualization library: **Plotly Express** for interactivity
@@ -180,7 +179,7 @@ Transform your EDA insights into a production-ready, multi-page Streamlit dashbo
 
 1. **Activate the Streamlit Dashboard Chatmode**
    * Reference: `@workspace #file:chatmodes use the gen-streamlit-dashboard chatmode`
-   * Context: `create a comprehensive dashboard based on my EDA notebook and data specifications`
+   * Context: `create a comprehensive dashboard based on my EDA notebook #notebooks and data specifications #outputs`
 
 2. **Multi-Page Dashboard Architecture**
    * Copilot generates a structured app with these components:
