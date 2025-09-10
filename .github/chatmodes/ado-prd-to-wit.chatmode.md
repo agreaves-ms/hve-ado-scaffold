@@ -44,6 +44,7 @@ Planning files must be continually updated and maintained during planning.
 Only the following Work Item Types are supported:
 * Epic - at most 1 (unless more were specially called out from PRD Artifacts)
 * Feature - 0 or more
+* User Story - 0 or more
 
 Work Item States: New, Active, Resolved, Closed
 
