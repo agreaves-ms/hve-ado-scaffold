@@ -206,20 +206,9 @@ Implement comprehensive automated testing for your Streamlit dashboard using Pla
 #### Steps
 
 1. **Activate the Testing Chatmode**
-   * Reference: `@workspace #file:chatmodes use the test-streamlit-dashboard chatmode`
-   * Context: `create comprehensive Playwright tests for my home assistant dashboard`
+   * Reference: `Use #playwright to test the Streamlit dashboard. Use #openSimpleBrowser to open the streamlit app which is running on 8501 and begin testing`
 
-2. **Test Environment Setup**
-   * Copilot automatically installs testing dependencies:
-
-     ```bash
-     uv add playwright pytest-playwright pytest-asyncio
-     ```
-
-   * Configures Playwright browsers: `playwright install`
-   * Sets up test directory structure in `tests/`
-
-3. **Comprehensive Testing Strategy**
+2. **Comprehensive Testing Strategy**
 
    **Phase 1: Functional Testing**
    * Navigation between all dashboard pages
@@ -246,74 +235,12 @@ Implement comprehensive automated testing for your Streamlit dashboard using Pla
    * Caching behavior validation
    * Concurrent user simulation
 
-4. **Automated Test Execution**
-
-   **Sample Test Structure**:
-
-   ```python
-   async def test_summary_page_metrics(page):
-       """Verify summary statistics display correctly"""
-       await page.goto("http://localhost:8501")
-
-       # Navigate to summary page
-       await page.select_option("[data-testid='stSidebar'] select", "📊 Summary Statistics")
-
-       # Verify key metrics are displayed
-       total_records = await page.locator("[data-testid='metric-value']").first.text_content()
-       assert "100,002" in total_records
-
-       # Check data quality section
-       quality_section = page.locator("text=Data Quality Overview")
-       await expect(quality_section).to_be_visible()
-   ```
-
-5. **Issue Tracking and Reporting**
-   * Automated generation of structured test reports
-   * Issue classification by severity and category
-   * Performance benchmarking and trend analysis
-   * Actionable recommendations for improvements
-
 #### Expected Outcomes
 
 * **Automated Test Suite**: Comprehensive coverage of all dashboard functionality
 * **Continuous Quality Assurance**: Repeatable testing for regression detection
 * **Performance Baselines**: Established metrics for monitoring application health
 * **Issue Documentation**: Systematic tracking of bugs and enhancement opportunities
-
-#### Test Execution Workflow
-
-1. **Pre-Test Setup**
-
-   ```bash
-   # Start dashboard in background
-   streamlit run app.py --server.port 8501 &
-
-   # Wait for application startup
-   sleep 5
-   ```
-
-2. **Run Test Suite**
-
-   ```bash
-   # Execute all tests
-   pytest tests/ --browser=chromium --headed
-
-   # Generate HTML report
-   pytest tests/ --html=reports/test-results.html
-   ```
-
-3. **Results Analysis**
-   * Review test results and failure details
-   * Analyze performance metrics and trends
-   * Prioritize issues based on user impact
-   * Create action items for bug fixes and enhancements
-
-#### Integration with Development Workflow
-
-* **Continuous Testing**: Run tests automatically on code changes
-* **Performance Monitoring**: Track metrics over time for regression detection
-* **Quality Gates**: Establish pass/fail criteria for deployment
-* **Documentation**: Maintain test coverage and known limitation records
 
 ---
 
@@ -327,6 +254,6 @@ The four labs work together to create a complete data science development lifecy
 
 **Lab 2 → Lab 3**: EDA insights and processed datasets drive interactive dashboard development
 
-**Lab 3 → Lab 4**: Completed dashboard undergoes comprehensive testing for production readiness
+**Lab 3 → Lab 4**: Completed dashboard undergoes behavioral and performance testing to ensure quality
 
 Each lab leverages specialized GitHub Copilot chatmodes that enforce domain-specific best practices while maintaining workflow continuity. The result is a reproducible, tested, and documented data science project suitable for both exploration and production deployment.
