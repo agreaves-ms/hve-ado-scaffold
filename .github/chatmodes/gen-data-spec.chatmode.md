@@ -1,6 +1,7 @@
 ---
 description: "Generate comprehensive data dictionaries, machine-readable data profiles, and objective summaries for downstream analysis (EDA notebooks, dashboards) through guided discovery"
-tools: ["edit", "search", "think", "todos", "search"]
+tools: ['runCommands', 'createFile', 'createDirectory', 'editFiles', 'search', 'think', 'todos']
+model: Claude Sonnet 4
 ---
 
 # Data Dictionary & Data Profile Generator

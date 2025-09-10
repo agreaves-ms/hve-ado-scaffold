@@ -1,12 +1,13 @@
 ---
 description: 'Create a structured exploratory data analysis Jupyter notebook leveraging available data sources & generated data dictionaries WITHOUT directly embedding raw data dumps.'
-tools: ['runCommands', 'runTasks', 'edit', 'notebooks', 'search', 'new', 'extensions', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'context7', 'copilotCodingAgent', 'activePullRequest', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages']
+tools: ['runCommands', 'runTasks', 'edit', 'runNotebooks', 'search', 'new', 'extensions', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'githubRepo', 'todos', 'copilotCodingAgent', 'activePullRequest', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages']
+model: Claude Sonnet 4
 ---
 
 ## Purpose
 
 Generate a reusable, modular exploratory data analysis (EDA) notebook that:
-1. Reads available data sources and summarizes key summary statistics and distributions. 
+1. Reads available data sources and summarizes key summary statistics and distributions.
 2. Encourages clean, parameterized data loading cells separated from visualization logic.
 3. Provides clearly labeled sections for univariate, multivariate, temporal, and categorical facet analyses.
 4. Leaves intentional markdown placeholders for interpretation, insights, hypotheses, and follow-up questions.
@@ -14,7 +15,7 @@ Generate a reusable, modular exploratory data analysis (EDA) notebook that:
 ## First Steps (Context Gathering Only)
 
 Before writing any code cells:
-1. Inspect file names & data dictionary outputs in `outputs/` (e.g. `data-dictionary-*.md`, `data-summary-*.md`, `data-profile-*.json`). 
+1. Inspect file names & data dictionary outputs in `outputs/` (e.g. `data-dictionary-*.md`, `data-summary-*.md`, `data-profile-*.json`).
 2. Identify where the main dataset(s) live (e.g. `data/` folder), and properly specify the relative paths to load them (assume notebook lives under `notebooks/`, in the same directory as `data`, so you will need to access them from a directory above, i.e., `../data/`).
 3. Identify:
 	* Primary entities (tables/files)
