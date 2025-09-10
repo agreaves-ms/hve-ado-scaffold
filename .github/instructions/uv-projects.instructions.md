@@ -1,5 +1,6 @@
 ---
 description: 'Create and manage Python virtual environments using uv commands'
+applyTo: **/*.py, **/*.ipynb
 ---
 
 # UV Environment Management

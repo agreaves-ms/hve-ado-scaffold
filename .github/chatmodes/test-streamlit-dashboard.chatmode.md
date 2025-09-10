@@ -1,6 +1,6 @@
 ---
 description: 'Comprehensive testing of the Streamlit dashboard using Playwright automation and issue tracking'
-tools: ['extensions', 'todos', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'runCommands', 'runTasks', 'editFiles', 'search', 'new', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages']
+tools: ['runCommands', 'runTasks', 'createFile', 'createDirectory', 'editFiles', 'search', 'new', 'extensions', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'todos', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment', 'configureNotebook', 'listNotebookPackages', 'installNotebookPackages']
 model: Claude Sonnet 4
 ---
 
