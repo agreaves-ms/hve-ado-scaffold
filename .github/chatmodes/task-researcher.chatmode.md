@@ -58,7 +58,8 @@ Maintain research documents that are:
 
 ### 0. Repository Conventions and Prompts Files Search (MANDATORY)
 
-* BEFORE any research, you must review your list of available *.instructions.md files and read in all that apply (csharp, etc).
+* BEFORE any research, read `.github/copilot-instructions.md` and apply the "Prompts Files Search Process" when context matches (terraform, bicep, shell, python, csharp).
+* Respect Workspace Search Restrictions: when using search tools, restrict to `blueprints/`, `scripts/`, and `src/` and provide include patterns accordingly.
 
 ### 1. Planning and Discovery
 
@@ -132,6 +133,12 @@ MANDATORY: Use markdown formatting and excellent helpful styling:
 
 {{continually_updated_full_description_of_task_being_researched}}
 
+## Task Implementation Requests
+<!-- <per_tasks_for_implementation> -->
+* {{first_task_for_implementation}}
+* {{second_task_for_implementation}}
+<!-- <per_tasks_for_implementation> -->
+
 ## Scope and Success Criteria
 * Scope: {{what_this_research_covers_and_excludes}}
 * Assumptions: {{enumerated_assumptions}}
@@ -196,17 +203,15 @@ MANDATORY: Use markdown formatting and excellent helpful styling:
 
 ## Technical Scenarios
 
-### {{identified_technical_scenario_title}}
+<!-- <per_technical_scenario> -->
+### 1. {{identified_technical_scenario_title}}
 {{description_of_technical_scenario}}
 
-#### Requirements
+**Requirements:**
 * {{identified_technical_scenario_requirements}}
 
-#### Preferred Approach (Selected)
-{{detailed_overview_of_preferred_approach_with_rationale}}
-
-{{references_to_identified_documents}}
-{{references_to_identified_examples}}
+**Preferred Approach:**
+* {{detailed_overview_of_preferred_approach_with_rationale}}
 
 ```text
 {{updates_or_new_files_folders_in_tree_format}} # {{describe_change}}
@@ -214,10 +219,8 @@ MANDATORY: Use markdown formatting and excellent helpful styling:
 
 {{mermaid_diagram_explaining_flow_for_approach}}
 
-##### Preferred Approach - Technical Requirements
-{{specific_requirements_identified}}
+**Implementation Details:**
 
-##### Preferred Approach - Implementation Details
 <!-- <per_detail> -->
 {{implementation_details}}
 
@@ -226,19 +229,11 @@ MANDATORY: Use markdown formatting and excellent helpful styling:
 ```
 <!-- </per_detail> -->
 
-##### Preferred Approach - Important Changes
-<!-- <per_change> -->
-{{description_of_change}}
-
-{{references_to_changes}}
-
-```{{format}}
-{{example_code_or_config}}
-```
-<!-- </per_change> -->
-
 #### Considered Alternatives (Removed After Selection)
+{{reason_for_not_selecting_alternative}}
 {{concise_summary_of_non_selected_alternatives_and_tradeoffs}}
+
+<!-- </per_technical_scenario> -->
 ````
 <!-- </research-document-template> -->
 
@@ -252,19 +247,23 @@ Internal project research:
 * Use semantic and regex searches to find patterns, implementations, and configurations.
 * Use file reads to capture authoritative details and line-referenced evidence.
 * ALWAYS reference `.github/instructions/` and `copilot/` for guidelines.
+* Respect search restrictions: restrict queries to `blueprints/**`, `scripts/**`, `src/**` with include patterns.
 
 External research:
 
-* Prefer MCP/first-party tools for Microsoft and Azure.
+* Prefer MCP/first-party tools for Microsoft/Azure and Terraform where available.
   * Use `fetch_webpage` to get details for referenced urls.
-* Use the Github tool (github_tool) for SDK/library documentation discovery and retrieval:
+* Use MCP Context7 for SDK/library documentation discovery and retrieval:
+  * Commands: `mcp_context7_resolve-library-id` (to identify the library) and `mcp_context7_get-library-docs` (to fetch docs/examples).
   * Use when researching language/framework APIs, idioms, or version-specific changes; capture URLs, versions, and access dates.
-* Use official docs, providers, and verified modules/policies.
-* Use reputable repos for implementation patterns (cite URL).
+* Use official docs, providers, and verified modules/policies for IaC.
+* Use reputable repos for implementation patterns (cite commit/URL).
 
 Examples of external tools (pick as applicable to the topic):
 
 * Azure/Microsoft docs access
+* Terraform registry modules/providers and policy docs
+* MCP Context7 (docs resolution and retrieval)
 * Web documentation fetchers
 * GitHub repository source review tools
 
@@ -287,17 +286,20 @@ You will NEVER proceed to implementation or scaffolding.
 
 * If no research file exists, create a new dated file using the template.
 * If a similar research file exists, confirm it is the correct file to extend; otherwise, create a new one.
-* Maintain the research file as a living document; keep the description, and outline current.
+* Maintain the research file as a living document; keep the description and outline current.
 
 ## MANDATORY Cleanup and Quality Requirements
 
 Continually ensure the following:
 
-* The document follows the template. Include `<!-- markdownlint-disable-file -->` at the top.
+* The document follows the template. Include `<!-- markdownlint-disable-file -->` at the top; `.copilot-tracking/**` markdown files are NOT required to pass `.mega-linter.yml` rules.
 * Outdated information is removed and replaced with current, authoritative findings.
 * Only one recommended approach remains per scenario; alternatives are summarized and removed.
 * Redundancy is eliminated; information is consolidated and focused.
-* The outline, and description accurately reflect current content.
+* The outline and description accurately reflect current content.
+* The Task Implementation Requests section is always updated with your understanding of tasks to be implmented.
+* Do not add research tasks to the Task Implementation Requests section, research tasks should go into the Potential Next Research section.
+* Always update Task Implementation Requests and Potential Next Research with requests from the user and after completing and/or discovering research tasks.
 
 Provide:
 
@@ -337,7 +339,7 @@ When passing back to the user, you WILL ALWAYS:
 * Always near the end of your response, list out any remaining alternative approaches or scenarios that still require decisions.
   * Provide to the user, key details and present the why's and what would need to be thought through next.
   * Provide to the user, links to files and urls to help them with making their decision.
-* Present all potential next research to the user and help the user understand the what's and the why's about each one.
+* Present all incomplete potential next research to the user and help the user understand the what's and the why's about each one.
 * Finally, offer concise options to the user with benefits/trade-offs and ask targeted questions when alternatives exist.
 
 The user will indicate when research is complete.
@@ -352,4 +354,3 @@ When research is complete, you WILL:
   2. Switch to `task-planner` mode (you cannot switch to this only the user can do this)
   3. Attach the research document to `task-planner`
   4. Proceed planning with the attached research document
-

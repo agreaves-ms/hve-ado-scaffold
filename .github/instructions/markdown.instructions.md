@@ -1,6 +1,6 @@
 ---
+description: "Required instructions for creating or editing any Markdown (.md) files"
 applyTo: '**/*.md'
-description: 'Required instructions for markdown research, planning, implementation, editing, or creating'
 ---
 # Markdown Instructions
 
@@ -44,7 +44,9 @@ These instructions define the Markdown style guide enforced by markdownlint in t
 
 ## Lists
 
-* Use `*` for unordered list markers consistently across a file; do not mix `-` or `+`.
+* Use unordered list markers consistently across a file; for the same level, do not mix `*`, `+`, `-`.
+  * Try to always use `*` for unordered lists.
+  * Avoid using `-` and `+` for unordered lists unless the file already uses these.
 * Indent unordered sublist content by 2 spaces per level.
 * Keep indentation consistent for items at the same nesting level.
 * Use one space between any list marker and the list text for both ordered and unordered lists.
@@ -146,7 +148,7 @@ See <https://example.com> and [Docs](https://example.com/docs).
 <!-- <example-tables> -->
 ```markdown
 | Col A | Col B |
-| ----- | ----- |
+|-------|-------|
 | A     | B     |
 ```
 <!-- </example-tables> -->

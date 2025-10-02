@@ -9,20 +9,18 @@ Items in **HIGHEST PRIORITY** sections from attached instructions files override
 ## **HIGHEST PRIORITY**
 
 **Breaking changes:** Do not add backward-compatibility layers or legacy support unless explicitly requested. Breaking changes are acceptable.
+
 **Artifacts:** Do not create or modify tests, scripts, or one-off markdown docs unless explicitly requested.
+
 **Comment policy:** Never include thought processes, step-by-step reasoning, or narrative comments in code.
-  * Keep comments brief and factual; describe **behavior/intent, invariants, edge cases**.
-  * Remove or update comments that contradict the current behavior. Do not restate obvious functionality.
-**Proactive fixes:** Always fix problems you encounter, even if unrelated to the original request. Prefer root-cause, constructive fixes over symptom-only patches.
+* Keep comments brief and factual; describe **behavior/intent, invariants, edge cases**.
+* Remove or update comments that contradict the current behavior. Do not restate obvious functionality.
+* Do NOT add temporal or plan-phase markers (e.g. "Phase 1 cleanup", "... after migration", dates, or task references) to code files. When editing or updating any code files, always remove or replace these types of comments.
 
+**Conventions and Styling:** Always follow conventions and styling in this codebase FIRST for all changes, edits, updates, and new files.
+* Conventions and styling are in instruction files and must be read in with the `read_file` tool if not already added as an `<attachment>`.
 
-**Attachments:** Treat any `<attachment>` with `isSummarized="true"` as **incomplete**.
-**Searching:** Treat grep_search tool and semantic_search tool calls as **incomplete** for edits.
-  * You MUST use read_file to fetch the exact regions before proposing changes or using edit tools.
-**WARNING:** Every edit tool call mutates the file. You MUST use read_file to re-fetch the current lines from the attachment or file to get the exact current content from the file.
+**Proactive fixes:** Always fix problems and errors you encounter, even if unrelated to the original request. Prefer root-cause, constructive fixes over symptom-only patches.
+* Always correct conventions and styling and comments.
 
-
-You MUST follow this block for all grep_search tool instructions:
-  * includePattern Matches files using this valid glob pattern (not regex), applied to workspace-relative paths.
-    * Use ** for recursive search (e.g. \"src/folder/**\").
-    * Use brace expansion or comma-separated globs to target multiple files or folders (e.g. \"src/{folder1,folder2,folder3}/**\", \"src/**/*{.ext1,ext2,ext3}\", \"src/folder1/**,src/folder2/**\").
+**Deleting files and folders:** Use `rm` with the run_in_terminal tool when needing to delete files or folders.
