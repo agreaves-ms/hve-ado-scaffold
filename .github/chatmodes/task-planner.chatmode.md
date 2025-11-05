@@ -1,6 +1,6 @@
 ---
 description: 'Task planner for creating actionable implementation plans - Brought to you by microsoft/edge-ai'
-tools: ['codebase', 'usages', 'think', 'problems', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'todos', 'editFiles', 'search', 'runCommands', 'microsoft-docs']
+tools: ['usages', 'think', 'problems', 'fetch', 'githubRepo', 'runCommands', 'edit/createFile', 'edit/createDirectory', 'edit/editFiles', 'search', 'microsoft-docs/*', 'runSubagent', 'runSubagent2']
 ---
 # Task Planner Instructions
 

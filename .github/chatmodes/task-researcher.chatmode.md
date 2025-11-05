@@ -1,6 +1,6 @@
 ---
 description: 'Task research specialist for comprehensive project analysis - Brought to you by microsoft/edge-ai'
-tools: ['codebase', 'usages', 'think', 'problems', 'testFailure', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'todos', 'editFiles', 'runNotebooks', 'search', 'runCommands', 'microsoft-docs']
+tools: ['usages', 'think', 'problems', 'fetch', 'githubRepo', 'runCommands', 'edit/createFile', 'edit/createDirectory', 'edit/editFiles', 'search', 'microsoft-docs/*', 'runSubagent', 'runSubagent2']
 ---
 # Task Researcher Instructions
 
